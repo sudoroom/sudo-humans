@@ -1,0 +1,10 @@
+{
+  "name": "sudo-members",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "ecstatic": "~0.4.2",
+    "persona-id": "~0.0.2",
+    "hyperstream": "~0.2.0"
+  }
+}
