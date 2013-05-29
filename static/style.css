@@ -1,0 +1,76 @@
+body {
+    font-family: monospace;
+}
+
+.hide {
+    display: none;
+}
+
+#auth {
+    margin-left: -8px;
+    margin-top: 40px;
+}
+
+#auth .arrows {
+    width: 400px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#auth .button {
+    display: inline-block;
+    margin-left: 50px;
+}
+
+#auth .arrow {
+    height: 40px;
+    padding-top: 20px;
+    text-align: center;
+    font-size: 1.5em;
+    color: white;
+    width: 350px;
+    margin-bottom: 4px;
+    position: relative;
+}
+
+#auth .arrow.top {
+    background-color: rgb(40,180,40);
+}
+
+#auth .arrow.bottom {
+    background-color: rgb(40,40,180);
+}
+
+.arrow .top-corner {
+    width: 0px;
+    height: 0px;
+    border-top: 80px solid transparent;
+    border-left: 80px solid rgb(40,180,40);
+    position: absolute;
+    top: -20px;
+    right: -80px;
+}
+
+.arrow .bottom-corner {
+    width: 0px;
+    height: 0px;
+    border-bottom: 80px solid transparent;
+    border-left: 80px solid rgb(40,40,180);
+    position: absolute;
+    bottom: -20px;
+    right: -80px;
+}
+
+#auth input[type="button"]#identify {
+    padding: 40px;
+    border-radius: 10px;
+    border-width: 0px;
+    background-color: rgb(150,0,0);
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+#auth input[type="button"]#identify:hover {
+    background-color: rgb(180,0,0);
+}

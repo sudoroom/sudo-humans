@@ -21,7 +21,7 @@ var server = http.createServer(function (req, res) {
         var sid = persona.getId(req);
         res.setHeader('content-type', 'text/html');
         fs.createReadStream(__dirname + '/static/index.html')
-            .pipe(hyperstream({ '#whoami': sessions[sid] || '' }))
+            .pipe(hyperstream({ '#name': sessions[sid] || '' }))
             .pipe(res)
         ;
     }
