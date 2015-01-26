@@ -5,17 +5,20 @@
   </head>
   <body>
     <div id="header">
-      <h1>
+      <a href="/"><h1>
         <img src="/sudoroom.svg">
         <span class="sudoroom">
           <span class="sudo">sudo</span>
           <span class="room">room</span>
-        </span>
-        <span class="humans">/ humans</span>
-      </h1>
+        </span><span class="humans"> / humans</span>
+      </h1></a>
       <div class="buttons">
-        <button>create account</button>
-        <button>sign in</button>
+        <a href="/account/create">
+          <button class="bigred">create account</button>
+        </a>
+        <a href="/account/sign-in">
+          <button class="bigred">sign in</button>
+        </a>
       </div>
     </div>
     <div id="content"></div>

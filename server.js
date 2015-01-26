@@ -11,6 +11,9 @@ var server = http.createServer(function (req, res) {
     if (req.url === '/') {
         layout('index.html');
     }
+    else if (req.url === '/account/create') {
+        layout('create_account.html');
+    }
     else ecstatic(req, res);
     
     function layout (page) {

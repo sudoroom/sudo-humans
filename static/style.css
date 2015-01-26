@@ -19,7 +19,7 @@ h1 img {
 }
 
 h1 .humans {
-  color: #777;
+  color: #7e6c6c;
 }
 
 .sudoroom {
@@ -35,16 +35,13 @@ h1 .humans {
   color: #000;
 }
 
-#header {
-}
-
 #header h1 {
   display: inline-block;
   margin-top: 0em;
   margin-right: 2ex;
 }
 
-#header button {
+button.bigred {
   display: inline-block;
   vertical-align: middle;
   width: 20ex;
@@ -57,11 +54,49 @@ h1 .humans {
   background-color: #ed1d24;
   color: white;
   font-size: 1.2em;
+  cursor: pointer;
 }
+
+button.bigred:hover {
+  background-color: #ff222b;
+} 
 
 #header .buttons {
   display: inline-block;
   vertical-align: middle;
   margin-top: -1.5em;
   min-height: 4em;
+}
+
+#header a {
+  text-decoration: none;
+}
+
+#content form {
+  max-width: 800px;
+  margin: auto;
+  padding: 2em;
+  border-radius: 15px;
+  background-color: #e2d0d0;
+}
+
+#content form input[type="text"],
+#content form input[type="password"] {
+  padding: 0.5em;
+}
+
+#content form h2 {
+  margin-top: -0.5em;
+  color: white;
+  background-color: #ed1d24;
+  border-radius: 5px;
+  margin-left: -1em;
+  margin-right: -1em;
+  padding: 0.5em;
+  margin-top: -1em;
+}
+
+#content #create-account p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
