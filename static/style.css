@@ -23,6 +23,7 @@ h1 .humans {
 }
 
 .sudoroom {
+  display: inline-block;
   font-family: ubuntu, ubuntu-web, sans-serif;
 }
 .sudoroom .sudo {
@@ -55,7 +56,6 @@ h1 .humans {
   border: 0px;
   background-color: #ed1d24;
   color: white;
-  font-weight: bold;
   font-size: 1.2em;
 }
 
@@ -63,5 +63,5 @@ h1 .humans {
   display: inline-block;
   vertical-align: middle;
   margin-top: -1.5em;
-  height: 4em;
+  min-height: 4em;
 }
