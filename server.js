@@ -1,7 +1,6 @@
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
-var url = require('url');
 var alloc = require('tcp-bind');
 
 var minimist = require('minimist');
@@ -24,30 +23,31 @@ var ecstatic = require('ecstatic')({
 });
 var body = require('body/any');
 var xtend = require('xtend');
+var through = require('through2');
 
 var level = require('level');
+var sublevel = require('subleveldown');
+
 var db = level(argv.datadir, { valueEncoding: 'json' });
 
+var accountdown = require('accountdown');
+var users = accountdown(sublevel(db, 'users'), {
+    login: { basic: require('accountdown-basic') }
+});
+
+var router = require('routes')();
+router.addRoute('/', layout('main.html'));
+router.addRoute('/account/create/post', post(function (req, res, params) {
+    res.setHeader('location', '/account/welcome');
+}));
+router.addRoute('/account/create', layout('create_account.html'));
+router.addRoute('/account/sign-in', layout('sign_in.html'));
+router.addRoute('/account/welcome', layout('welcome.html'));
+
 var server = http.createServer(function (req, res) {
-    var u = url.parse(req.url);
-    if (u.pathname === '/') {
-        layout('main.html');
-    }
-    else if (u.pathname === '/account/create') {
-        layout('create_account.html');
-    }
-    else if (u.pathname === '/account/sign-in') {
-        layout('sign_in.html');
-    }
+    var m = router.match(req.url);
+    if (m) m.fn(req, res, m.params);
     else ecstatic(req, res);
-    
-    function layout (page) {
-        res.setHeader('content-type', 'text/html');
-        read('layout.html')
-            .pipe(hyperstream({ '#content': read(page) }))
-            .pipe(res)
-        ;
-    }
 });
 server.listen({ fd: fd }, function () {
     console.log('listening on :' + server.address().port);
@@ -55,6 +55,15 @@ server.listen({ fd: fd }, function () {
 
 function read (file) {
     return fs.createReadStream(path.join(__dirname, 'static', file));
+}
+
+function layout (page, fn) {
+    if (!fn) fn = function () { return through() };
+    return function (req, res) {
+        res.setHeader('content-type', 'text/html');
+        var hs = hyperstream({ '#content': read(page).pipe(fn(req)) });
+        read('layout.html').pipe(hs).pipe(res);
+    };
 }
 
 function post (fn) {
