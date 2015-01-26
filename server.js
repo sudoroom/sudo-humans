@@ -1,7 +1,10 @@
 var http = require('http');
 var fs = require('fs');
 var hyperstream = require('hyperstream');
-var ecstatic = require('ecstatic')(__dirname + '/static');
+var ecstatic = require('ecstatic')({
+    root: __dirname + '/static',
+    gzip: true
+});
 var persona = require('persona-id')('http://localhost:7000');
 
 var sessions = {};

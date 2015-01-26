@@ -1,76 +1,33 @@
-body {
-    font-family: monospace;
+@font-face {
+  font-family: 'ubuntu-web';
+  src: url('/font/ubuntu.woff') format('woff'),
+    url('/font/ubuntu.ttf') format('truetype');
 }
 
-.hide {
-    display: none;
+h1 {
+  font-size: 3em;
+  font-family: ubuntu, ubuntu-web, sans-serif;
+  color: #000;
 }
 
-#auth {
-    margin-left: -8px;
-    margin-top: 40px;
+h1 img {
+  vertical-align: middle;
+  height: 1.5em;
 }
 
-#auth .arrows {
-    width: 400px;
-    display: inline-block;
-    vertical-align: middle;
+h1 .humans {
+  color: #777;
 }
 
-#auth .button {
-    display: inline-block;
-    margin-left: 50px;
+.sudoroom {
+  font-family: ubuntu, ubuntu-web, sans-serif;
+}
+.sudoroom .sudo {
+  font-weight: bold;
+  color: #ed1d24;
 }
 
-#auth .arrow {
-    height: 40px;
-    padding-top: 20px;
-    text-align: center;
-    font-size: 1.5em;
-    color: white;
-    width: 350px;
-    margin-bottom: 4px;
-    position: relative;
-}
-
-#auth .arrow.top {
-    background-color: rgb(40,180,40);
-}
-
-#auth .arrow.bottom {
-    background-color: rgb(40,40,180);
-}
-
-.arrow .top-corner {
-    width: 0px;
-    height: 0px;
-    border-top: 80px solid transparent;
-    border-left: 80px solid rgb(40,180,40);
-    position: absolute;
-    top: -20px;
-    right: -80px;
-}
-
-.arrow .bottom-corner {
-    width: 0px;
-    height: 0px;
-    border-bottom: 80px solid transparent;
-    border-left: 80px solid rgb(40,40,180);
-    position: absolute;
-    bottom: -20px;
-    right: -80px;
-}
-
-#auth input[type="button"]#identify {
-    padding: 40px;
-    border-radius: 10px;
-    border-width: 0px;
-    background-color: rgb(150,0,0);
-    color: white;
-    font-size: 1.5em;
-    cursor: pointer;
-}
-
-#auth input[type="button"]#identify:hover {
-    background-color: rgb(180,0,0);
+.sudoroom .room {
+  margin-left: -0.5ex;
+  color: #000;
 }
