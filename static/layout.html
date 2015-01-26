@@ -13,12 +13,23 @@
         </span><span class="humans"> / humans</span>
       </h1></a>
       <div class="buttons">
-        <a href="/account/create">
-          <button class="bigred">create account</button>
-        </a>
-        <a href="/account/sign-in">
-          <button class="bigred">sign in</button>
-        </a>
+        <div class="signed-out">
+          <a href="/account/create">
+            <button class="bigred">create account</button>
+          </a>
+          <a href="/account/sign-in">
+            <button class="bigred">sign in</button>
+          </a>
+        </div>
+        <div class="signed-in">
+          <a href="/account/profile">
+            <button class="bigred">edit profile</button>
+          </a>
+          <a href="/account/sign-out">
+            <button class="bigred">sign out</button>
+          </a>
+          [<span class="name"></span>]
+        </div>
       </div>
     </div>
     <div id="content"></div>

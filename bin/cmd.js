@@ -13,7 +13,7 @@ var argv = minimist(process.argv.slice(2), {
         h: 'help'
     },
     default: {
-        datadir: path.join(__dirname, 'sudoroom-data'),
+        datadir: 'sudoroom-data',
         port: require('is-root')() ? 80 : 8000
     }
 });
@@ -45,6 +45,11 @@ var users = accountdown(sublevel(db, 'users'), {
     login: { basic: require('accountdown-basic') }
 });
 
+var auth = require('cookie-auth')({
+    name: require('../package.json').name,
+    sessions: sublevel(db, 'sessions')
+});
+
 var router = require('routes')();
 router.addRoute('/', layout('main.html'));
 router.addRoute('/account/create/post', post(function (req, res, params) {
@@ -55,9 +60,13 @@ router.addRoute('/account/create/post', post(function (req, res, params) {
     };
     users.create(id, opts, function (err) {
         if (err) return error(res, 400, err);
+        auth.login(res, { id: id, name: params.name }, onlogin);
+    });
+    function onlogin (err, session) {
+        if (err) return error(res, 400, err);
         res.writeHead(303, { location: '/account/welcome' });
         res.end();
-    });
+    }
 }));
 router.addRoute('/account/create', layout('create_account.html'));
 router.addRoute('/account/sign-in', layout('sign_in.html'));
@@ -80,8 +89,17 @@ function layout (page, fn) {
     if (!fn) fn = function () { return through() };
     return function (req, res) {
         res.setHeader('content-type', 'text/html');
-        var hs = hyperstream({ '#content': read(page).pipe(fn(req)) });
-        read('layout.html').pipe(hs).pipe(res);
+        auth.handle(req, res, function (err, session) {
+            var props = { '#content': read(page).pipe(fn(req)) };
+            if (session) {
+                props['.signed-out'] = { style: 'display: none' };
+                props['.name'] = { _text: session.data.name };
+            }
+            else {
+                props['.signed-in'] = { style: 'display: none' };
+            }
+            read('layout.html').pipe(hyperstream(props)).pipe(res);
+        });
     };
 }
 
