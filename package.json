@@ -27,5 +27,6 @@
   },
   "scripts": {
     "start": "bin/cmd.js"
-  }
+  },
+  "license": "MIT"
 }

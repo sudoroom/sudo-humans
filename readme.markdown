@@ -28,3 +28,6 @@ OPTIONS are:
 
 ```
 
+# license
+
+MIT
