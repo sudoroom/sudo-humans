@@ -1,6 +1,8 @@
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
+var url = require('url');
+
 var hyperstream = require('hyperstream');
 var ecstatic = require('ecstatic')({
     root: __dirname + '/static',
@@ -8,11 +10,15 @@ var ecstatic = require('ecstatic')({
 });
 
 var server = http.createServer(function (req, res) {
-    if (req.url === '/') {
+    var u = url.parse(req.url);
+    if (u.pathname === '/') {
         layout('index.html');
     }
-    else if (req.url === '/account/create') {
+    else if (u.pathname === '/account/create') {
         layout('create_account.html');
+    }
+    else if (u.pathname === '/account/sign-in') {
+        layout('sign_in.html');
     }
     else ecstatic(req, res);
     
