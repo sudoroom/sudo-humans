@@ -34,6 +34,7 @@ var ecstatic = require('ecstatic')({
 var body = require('body/any');
 var xtend = require('xtend');
 var through = require('through2');
+var shasum = require('shasum');
 
 var level = require('level');
 var sublevel = require('subleveldown');
@@ -52,6 +53,7 @@ var auth = require('cookie-auth')({
 
 var router = require('routes')();
 router.addRoute('/', layout('main.html'));
+router.addRoute('/account/create', layout('create_account.html'));
 router.addRoute('/account/create/post', post(function (req, res, params) {
     var id = crypto.randomBytes(16).toString('hex');
     var opts = {
@@ -68,8 +70,38 @@ router.addRoute('/account/create/post', post(function (req, res, params) {
         res.end();
     }
 }));
-router.addRoute('/account/create', layout('create_account.html'));
 router.addRoute('/account/sign-in', layout('sign_in.html'));
+router.addRoute('/account/sign-in/post', post(function (req, res, params) {
+    var creds = { username: params.name, password: params.password };
+    users.verify('basic', creds, function (err, ok, id) {
+        if (err) error(res, 500, err);
+        else if (!ok) error(res, 401, 'invalid name or password');
+        else auth.login(res, { id: id, name: params.name }, onlogin);
+    });
+    function onlogin (err, session) {
+        if (err) return error(res, 400, err);
+        res.writeHead(303, { location: '/' });
+        res.end();
+    }
+}));
+router.addRoute('/account/sign-out/:token', function (req, res, params) {
+    auth.handle(req, res, function (err, session) {
+        if (session && shasum(session.session) === params.token) {
+            auth.delete(req, function (err) {
+                if (err) error(res, 500, err);
+                else done()
+            });
+        }
+        else if (session) {
+            error(res, 401, 'sign out token mismatch');
+        }
+        else done()
+    });
+    function done () {
+        res.writeHead(303, { location: '/' });
+        res.end();
+    }
+});
 router.addRoute('/account/welcome', layout('welcome.html'));
 
 var server = http.createServer(function (req, res) {
@@ -92,7 +124,9 @@ function layout (page, fn) {
         auth.handle(req, res, function (err, session) {
             var props = { '#content': read(page).pipe(fn(req)) };
             if (session) {
+                var token = shasum(session.session);
                 props['.signed-out'] = { style: 'display: none' };
+                props['.sign-out-link'] = { href: { append: token } };
                 props['.name'] = { _text: session.data.name };
             }
             else {

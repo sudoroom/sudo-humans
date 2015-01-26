@@ -20,6 +20,7 @@
     "minimist": "^1.1.0",
     "persona-id": "~0.0.2",
     "routes": "^2.0.0",
+    "shasum": "^1.0.1",
     "subleveldown": "^1.0.6",
     "tcp-bind": "^1.1.1",
     "through2": "^0.6.3",
