@@ -6,6 +6,7 @@
 
 body {
   font-family: ubuntu, ubuntu-web, sans-serif;
+  margin-bottom: 100px;
 }
 
 h1 {
@@ -120,4 +121,30 @@ button.bigred:hover {
 
 #content #create-account [type="submit"] {
   margin-top: 1em;
+}
+
+#content .msg {
+  max-width: 800px;
+  margin: auto;
+  padding: 2em;
+  border-radius: 5px;
+  background-color: #e2d0d0;
+}
+
+#content .activity {
+  max-width: 600px;
+  margin: auto;
+  padding: 10px;
+  margin-bottom: 2em;
+}
+
+#content .hbar {
+  max-width: 800px;
+  padding: 10px;
+  margin: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: #f04545;
+  height: 120px;
+  border-radius: 5px;
 }

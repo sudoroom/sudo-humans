@@ -21,7 +21,7 @@ var db = level(argv.datadir, { valueEncoding: 'json' });
 var server = http.createServer(function (req, res) {
     var u = url.parse(req.url);
     if (u.pathname === '/') {
-        layout('index.html');
+        layout('main.html');
     }
     else if (u.pathname === '/account/create') {
         layout('create_account.html');
