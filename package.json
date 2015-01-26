@@ -11,11 +11,14 @@
     "ecstatic": "~0.5.8",
     "html-template": "^1.1.0",
     "hyperstream": "^1.2.2",
+    "is-root": "^1.0.0",
     "level": "^0.18.0",
     "level-change-processor": "^1.0.0",
     "minimist": "^1.1.0",
     "persona-id": "~0.0.2",
     "routes": "^2.0.0",
-    "subleveldown": "^1.0.6"
+    "subleveldown": "^1.0.6",
+    "tcp-bind": "^1.1.1",
+    "xtend": "^4.0.0"
   }
 }
