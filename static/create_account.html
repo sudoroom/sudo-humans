@@ -1,4 +1,4 @@
-<form id="create-account" action="/account/create" method="POST">
+<form id="create-account" action="/account/create/post" method="POST">
   <h2>create an account</h2>
   
   <p>
@@ -10,7 +10,7 @@
     member.
   </p>
   
-  <p><input type="text" name="handle" placeholder="handle"></p>
+  <p><input type="text" name="name" placeholder="psuedonym"></p>
   <p><input type="password" name="password" placeholder="password"></p>
   <p><input type="text" name="email" placeholder="email"></p>
   
@@ -18,7 +18,7 @@
     <h3>privacy settings</h3>
     <p>
       I want to let
-      <select name="privacy setting">
+      <select name="visibility">
         <option value="everyone">everyone</option>
         <option value="accounts">anyone with an account</option>
         <option value="members">members only</option>

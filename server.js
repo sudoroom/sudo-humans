@@ -1,6 +1,7 @@
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
+var crypto = require('crypto');
 var alloc = require('tcp-bind');
 
 var minimist = require('minimist');
@@ -38,7 +39,16 @@ var users = accountdown(sublevel(db, 'users'), {
 var router = require('routes')();
 router.addRoute('/', layout('main.html'));
 router.addRoute('/account/create/post', post(function (req, res, params) {
-    res.setHeader('location', '/account/welcome');
+    var id = crypto.randomBytes(16).toString('hex');
+    var opts = {
+        login: { basic: { username: params.name, password: params.password } },
+        value: { member: false, visibility: params.visibility }
+    };
+    users.create(id, opts, function (err) {
+        if (err) return error(res, 400, err);
+        res.writeHead(303, { location: '/account/welcome' });
+        res.end();
+    });
 }));
 router.addRoute('/account/create', layout('create_account.html'));
 router.addRoute('/account/sign-in', layout('sign_in.html'));
@@ -76,4 +86,11 @@ function post (fn) {
             fn(req, res, xtend(pvars, params));
         });
     };
+}
+
+function error (res, code, err) {
+    res.statusCode = code;
+    layout('error.html', function () {
+        return hyperstream({ '.error': { _text: err + '\n' } });
+    })(null, res);
 }

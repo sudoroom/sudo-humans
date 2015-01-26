@@ -162,3 +162,11 @@ button.bigred:hover {
   height: 120px;
   border-radius: 5px;
 }
+
+#content .error {
+  max-width: 800px;
+  margin: auto;
+  padding: 2em;
+  border-radius: 15px;
+  background-color: #e2d0d0;
+}
