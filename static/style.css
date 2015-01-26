@@ -169,9 +169,21 @@ button.bigred:hover {
   margin: auto;
   margin-top: 10px;
   margin-bottom: 10px;
-  background-color: #f04545;
+  background-color: #ed1d24;
   min-height: 120px;
   border-radius: 5px;
+  margin-top: 1em;
+  margin-bottom: 2em;
+}
+
+#content .hbar .title {
+  background-color: #000;
+  color: #e2d0d0;
+  padding: 5px;
+  margin-top: -1em;
+  max-width: 600px;
+  border-top-right-radius: 5px;
+  padding-left: 15px;
 }
 
 #content .hitem {
