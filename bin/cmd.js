@@ -28,7 +28,7 @@ if (argv.uid) process.setgid(argv.uid);
 
 var hyperstream = require('hyperstream');
 var ecstatic = require('ecstatic')({
-    root: __dirname + '/static',
+    root: __dirname + '/../static',
     gzip: true
 });
 var body = require('body/any');
@@ -73,7 +73,7 @@ server.listen({ fd: fd }, function () {
 });
 
 function read (file) {
-    return fs.createReadStream(path.join(__dirname, 'static', file));
+    return fs.createReadStream(path.join(__dirname, '../static', file));
 }
 
 function layout (page, fn) {
