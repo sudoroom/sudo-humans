@@ -12,7 +12,7 @@
     "changesdown": "^2.2.0",
     "cookie-auth": "^2.4.1",
     "ecstatic": "~0.5.8",
-    "html-template": "^1.1.0",
+    "html-template": "^1.2.1",
     "hyperstream": "^1.2.2",
     "is-root": "^1.0.0",
     "level": "^0.18.0",

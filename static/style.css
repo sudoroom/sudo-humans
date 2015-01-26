@@ -170,8 +170,19 @@ button.bigred:hover {
   margin-top: 10px;
   margin-bottom: 10px;
   background-color: #f04545;
-  height: 120px;
+  min-height: 120px;
   border-radius: 5px;
+}
+
+#content .hitem {
+  display: inline-block;
+  padding: 15px;
+  border-radius: 5px;
+  text-align: center;
+  background-color: #000;
+  color: #e2d0d0;
+  margin-right: 5px;
+  margin-left: 5px;
 }
 
 #content .error {
@@ -180,4 +191,9 @@ button.bigred:hover {
   padding: 2em;
   border-radius: 15px;
   background-color: #e2d0d0;
+}
+
+#main .member img.avatar {
+  width: 64px;
+  height: 64px;
 }

@@ -35,6 +35,7 @@ var body = require('body/any');
 var xtend = require('xtend');
 var through = require('through2');
 var shasum = require('shasum');
+var template = require('html-template');
 
 var level = require('level');
 var sublevel = require('subleveldown');
@@ -52,13 +53,31 @@ var auth = require('cookie-auth')({
 });
 
 var router = require('routes')();
-router.addRoute('/', layout('main.html'));
+router.addRoute('/', layout('main.html', function (req) {
+    var html = template();
+    var member = html.template('member');
+    users.list().pipe(through.obj(function (row, enc, next) {
+        var name = row.value.name;
+        this.push({
+            'img.avatar': {
+                src: 'https://github.com/' + name + '.png'
+            },
+            '.name': { _text: name }
+        });
+        next();
+    })).pipe(member);
+    return html;
+}));
 router.addRoute('/account/create', layout('create_account.html'));
 router.addRoute('/account/create/post', post(function (req, res, params) {
     var id = crypto.randomBytes(16).toString('hex');
     var opts = {
         login: { basic: { username: params.name, password: params.password } },
-        value: { member: false, visibility: params.visibility }
+        value: {
+            member: false,
+            visibility: params.visibility,
+            name: params.name
+        }
     };
     users.create(id, opts, function (err) {
         if (err) return error(res, 400, err);
