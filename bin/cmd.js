@@ -8,12 +8,19 @@ var alloc = require('tcp-bind');
 
 var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
-    alias: { d: 'datadir', p: 'port', u: 'uid', g: 'gid' },
+    alias: {
+        d: 'datadir', p: 'port', u: 'uid', g: 'gid',
+        h: 'help'
+    },
     default: {
         datadir: path.join(__dirname, 'sudoroom-data'),
         port: require('is-root')() ? 80 : 8000
     }
 });
+if (argv.help || argv._[0] === 'help') {
+    fs.createReadStream(__dirname + '/usage.txt').pipe(process.stdout);
+    return;
+}
 
 var fd = alloc(argv.port);
 if (argv.gid) process.setgid(argv.gid);
