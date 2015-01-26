@@ -9,18 +9,35 @@ body {
   margin-bottom: 100px;
 }
 
-h1 {
-  font-size: 3em;
-  color: #000;
-}
-
-h1 img {
-  vertical-align: middle;
-  height: 1.5em;
-}
-
-h1 .humans {
+#header h1 {
+  display: inline-block;
+  margin-top: 0em;
+  margin-right: 2ex;
+  font-size: 2em;
   color: #7e6c6c;
+}
+
+#header h1 span {
+  display: inline-block;
+}
+
+#header h1 .humans {
+  margin-left: 0.5ex;
+  vertical-align: middle;
+  margin-bottom: 0.25em;
+}
+
+#header h1 .signed-in {
+  margin-left: 0.5ex;
+}
+
+#header h1 img {
+  vertical-align: middle;
+  height: 2em;
+}
+
+#header .sudoroom {
+  font-size: 1.5em;
 }
 
 .sudoroom {
@@ -34,12 +51,6 @@ h1 .humans {
 .sudoroom .room {
   margin-left: -0.5ex;
   color: #000;
-}
-
-#header h1 {
-  display: inline-block;
-  margin-top: 0em;
-  margin-right: 2ex;
 }
 
 button.bigred {
