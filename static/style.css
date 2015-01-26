@@ -90,11 +90,14 @@ button.bigred:hover {
   margin-top: -0.5em;
   color: white;
   background-color: #ed1d24;
-  border-radius: 5px;
-  margin-left: -1em;
-  margin-right: -1em;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  margin-left: -1.3em;
+  margin-right: -1.3em;
   padding: 0.5em;
-  margin-top: -1em;
+  padding-left: 1em;
+  padding-right: 1em;
+  margin-top: -1.3em;
 }
 
 #content form select {
@@ -129,6 +132,8 @@ button.bigred:hover {
   padding: 2em;
   border-radius: 5px;
   background-color: #e2d0d0;
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
 #content .activity {
@@ -136,6 +141,15 @@ button.bigred:hover {
   margin: auto;
   padding: 10px;
   margin-bottom: 2em;
+}
+
+#content .activity h2 {
+  margin-top: 0em;
+  margin-bottom: 0em;
+}
+
+#content .activity .event {
+  margin-left: 1em;
 }
 
 #content .hbar {
