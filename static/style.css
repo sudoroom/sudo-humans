@@ -4,9 +4,12 @@
     url('/font/ubuntu.ttf') format('truetype');
 }
 
+body {
+  font-family: ubuntu, ubuntu-web, sans-serif;
+}
+
 h1 {
   font-size: 3em;
-  font-family: ubuntu, ubuntu-web, sans-serif;
   color: #000;
 }
 
@@ -23,11 +26,42 @@ h1 .humans {
   font-family: ubuntu, ubuntu-web, sans-serif;
 }
 .sudoroom .sudo {
-  font-weight: bold;
   color: #ed1d24;
 }
 
 .sudoroom .room {
   margin-left: -0.5ex;
   color: #000;
+}
+
+#header {
+}
+
+#header h1 {
+  display: inline-block;
+  margin-top: 0em;
+  margin-right: 2ex;
+}
+
+#header button {
+  display: inline-block;
+  vertical-align: middle;
+  width: 20ex;
+  padding: 1em;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  margin-right: 1ex;
+  border-radius: 10px;
+  border: 0px;
+  background-color: #ed1d24;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+#header .buttons {
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: -1.5em;
+  height: 4em;
 }
