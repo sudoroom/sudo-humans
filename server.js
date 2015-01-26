@@ -9,6 +9,15 @@ var ecstatic = require('ecstatic')({
     gzip: true
 });
 
+var minimist = require('minimist');
+var argv = minimist(process.argv.slice(2), {
+    alias: { d: 'datadir' },
+    default: { datadir: path.join(__dirname, 'sudoroom-data') }
+});
+
+var level = require('level');
+var db = level(argv.datadir, { valueEncoding: 'json' });
+
 var server = http.createServer(function (req, res) {
     var u = url.parse(req.url);
     if (u.pathname === '/') {

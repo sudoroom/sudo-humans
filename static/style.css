@@ -49,7 +49,7 @@ button.bigred {
   margin-top: 0.25em;
   margin-bottom: 0.25em;
   margin-right: 1ex;
-  border-radius: 10px;
+  border-radius: 5px;
   border: 0px;
   background-color: #ed1d24;
   color: white;
@@ -96,7 +96,28 @@ button.bigred:hover {
   margin-top: -1em;
 }
 
+#content form select {
+  padding: 0.5em;
+}
+
 #content #create-account p {
   margin-top: 0.5em;
   margin-bottom: 0.5em;
+}
+
+#content #create-account .privacy {
+  margin-top: 1em;
+  margin-bottom: 2em;
+  background-color: #f0e2e2;
+  padding: 1em;
+  padding-left: 2em;
+  border-radius: 15px;
+}
+
+#content #create-account .privacy h3 {
+  margin-top: 0em;
+}
+
+#content #create-account [type="submit"] {
+  margin-top: 1em;
 }

@@ -5,11 +5,17 @@
   "dependencies": {
     "accountdown": "^4.0.0",
     "accountdown-basic": "^1.0.0",
+    "body": "^4.5.0",
+    "changesdown": "^2.2.0",
     "cookie-auth": "^2.4.1",
-    "ecstatic": "^0.5.8",
+    "ecstatic": "~0.5.8",
     "html-template": "^1.1.0",
     "hyperstream": "^1.2.2",
+    "level": "^0.18.0",
+    "level-change-processor": "^1.0.0",
+    "minimist": "^1.1.0",
     "persona-id": "~0.0.2",
-    "routes": "^2.0.0"
+    "routes": "^2.0.0",
+    "subleveldown": "^1.0.6"
   }
 }
