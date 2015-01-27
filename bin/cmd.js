@@ -122,6 +122,9 @@ router.addRoute('/account/sign-out/:token', function (req, res, params) {
     }
 });
 router.addRoute('/account/welcome', layout('welcome.html'));
+router.addRoute('/~:name', layout('profile.html', function (req, params) {
+    return hyperstream({ '.name': { _text: params.name } });
+}));
 
 var server = http.createServer(function (req, res) {
     var m = router.match(req.url);
@@ -138,15 +141,17 @@ function read (file) {
 
 function layout (page, fn) {
     if (!fn) fn = function () { return through() };
-    return function (req, res) {
+    return function (req, res, params) {
         res.setHeader('content-type', 'text/html');
         auth.handle(req, res, function (err, session) {
-            var props = { '#content': read(page).pipe(fn(req)) };
+            var props = { '#content': read(page).pipe(fn(req, params)) };
             if (session) {
                 var token = shasum(session.session);
+                var name = session.data.name;
                 props['.signed-out'] = { style: 'display: none' };
                 props['.sign-out-link'] = { href: { append: token } };
-                props['.name'] = { _text: session.data.name };
+                props['.profile-link'] = { href: { append: name } };
+                props['.name'] = { _text: name };
             }
             else {
                 props['.signed-in'] = { style: 'display: none' };
