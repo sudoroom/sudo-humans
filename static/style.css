@@ -56,9 +56,9 @@ body {
 button.bigred {
   display: inline-block;
   vertical-align: middle;
-  width: 20ex;
-  padding: 1em;
-  margin-top: 0.25em;
+  min-width: 15ex;
+  padding: 0.5em;
+  margin-top: 0.75em;
   margin-bottom: 0.25em;
   margin-right: 1ex;
   border-radius: 5px;
@@ -84,7 +84,7 @@ button.bigred:hover {
   text-decoration: none;
 }
 
-#content form {
+#content .chunk {
   max-width: 800px;
   margin: auto;
   padding: 2em;
@@ -97,10 +97,10 @@ button.bigred:hover {
   padding: 0.5em;
 }
 
-#content form h2 {
+#content .chunk h2 {
   margin-top: -0.5em;
   color: white;
-  background-color: #ed1d24;
+  background-color: black;
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
   margin-left: -1.3em;
@@ -208,4 +208,25 @@ button.bigred:hover {
 #main .member img.avatar {
   width: 64px;
   height: 64px;
+}
+
+#main .member {
+  margin-bottom: 1em;
+}
+
+#profile {
+  max-width: 800px;
+  margin: auto;
+  padding: 2em;
+  border-radius: 15px;
+}
+
+#profile h2 {
+  background-color: #000;
+  color: white;
+  padding: 0.5em;
+  border-top-right-radius: 15px;
+  padding-left: 2ex;
+  margin-left: -2ex;
+  margin-top: -1em;
 }

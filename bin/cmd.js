@@ -35,12 +35,33 @@ var body = require('body/any');
 var xtend = require('xtend');
 var through = require('through2');
 var shasum = require('shasum');
+var mkdirp = require('mkdirp');
 var template = require('html-template');
 
 var level = require('level');
 var sublevel = require('subleveldown');
+var changesdown = require('changesdown');
+var changes = require('changes-feed');
+var chproc = require('level-change-processor');
 
-var db = level(argv.datadir, { valueEncoding: 'json' });
+var dir = {
+    db: path.join(argv.datadir, 'db'),
+    ch: path.join(argv.datadir, 'changes')
+};
+mkdirp.sync(dir.db);
+mkdirp.sync(dir.ch);
+
+var up = level(dir.db, { valueEncoding: 'json' });
+var feed = changes(sublevel(up, 'ch'));
+var db = changesdown(sublevel(up, 'db'), feed);
+
+/*
+feed.createReadStream({ live: true })
+    .on('data', function (data) {
+        console.log(changesdown.decode(data));
+    })
+;
+*/
 
 var accountdown = require('accountdown');
 var users = accountdown(sublevel(db, 'users'), {
@@ -59,9 +80,7 @@ router.addRoute('/', layout('main.html', function (req) {
     users.list().pipe(through.obj(function (row, enc, next) {
         var name = row.value.name;
         this.push({
-            'img.avatar': {
-                src: 'https://github.com/' + name + '.png'
-            },
+            'img.avatar': { src: 'https://github.com/' + name + '.png' },
             '.name': { _text: name }
         });
         next();
@@ -75,8 +94,7 @@ router.addRoute('/account/create/post', post(function (req, res, params) {
         login: { basic: { username: params.name, password: params.password } },
         value: {
             member: false,
-            visibility: params.visibility,
-            name: params.name
+            visibility: params.visibility
         }
     };
     users.create(id, opts, function (err) {
@@ -122,8 +140,20 @@ router.addRoute('/account/sign-out/:token', function (req, res, params) {
     }
 });
 router.addRoute('/account/welcome', layout('welcome.html'));
-router.addRoute('/~:name', layout('profile.html', function (req, params) {
-    return hyperstream({ '.name': { _text: params.name } });
+router.addRoute('/~:name', layout('profile.html', function (req, res, params) {
+    var stream = through();
+    stream.pipe(hyperstream({ '.name': { _text: params.name } }));
+    names.get(params.name, function (err, id) {
+        if (err) error(res, 500, err)
+        else users.get(id, onget)
+    });
+    return stream;
+    
+    function onget (err, value) {
+        if (err) return error(res, 404, err);
+        
+        //stream.end({});
+    }
 }));
 
 var server = http.createServer(function (req, res) {
@@ -144,7 +174,7 @@ function layout (page, fn) {
     return function (req, res, params) {
         res.setHeader('content-type', 'text/html');
         auth.handle(req, res, function (err, session) {
-            var props = { '#content': read(page).pipe(fn(req, params)) };
+            var props = { '#content': read(page).pipe(fn(req, res, params)) };
             if (session) {
                 var token = shasum(session.session);
                 var name = session.data.name;
