@@ -88,49 +88,54 @@ router.addRoute('/', layout('main.html', function (req) {
     return html;
 }));
 router.addRoute('/account/create', layout('create_account.html'));
-router.addRoute('/account/create/post', post(function (req, res, params) {
+router.addRoute('/account/create/post', post(function (req, res, m) {
     var id = crypto.randomBytes(16).toString('hex');
     var opts = {
-        login: { basic: { username: params.name, password: params.password } },
+        login: {
+            basic: {
+                username: m.params.name,
+                password: m.params.password
+            }
+        },
         value: {
             member: false,
-            visibility: params.visibility
+            visibility: m.params.visibility
         }
     };
     users.create(id, opts, function (err) {
-        if (err) return error(res, 400, err);
-        auth.login(res, { id: id, name: params.name }, onlogin);
+        if (err) return m.error(400, err);
+        auth.login(res, { id: id, name: m.params.name }, onlogin);
     });
     function onlogin (err, session) {
-        if (err) return error(res, 400, err);
+        if (err) return m.error(400, err);
         res.writeHead(303, { location: '/account/welcome' });
         res.end();
     }
 }));
 router.addRoute('/account/sign-in', layout('sign_in.html'));
-router.addRoute('/account/sign-in/post', post(function (req, res, params) {
-    var creds = { username: params.name, password: params.password };
+router.addRoute('/account/sign-in/post', post(function (req, res, m) {
+    var creds = { username: m.params.name, password: m.params.password };
     users.verify('basic', creds, function (err, ok, id) {
-        if (err) error(res, 500, err);
-        else if (!ok) error(res, 401, 'invalid name or password');
-        else auth.login(res, { id: id, name: params.name }, onlogin);
+        if (err) m.error(500, err);
+        else if (!ok) m.error(401, 'invalid name or password');
+        else auth.login(res, { id: id, name: m.params.name }, onlogin);
     });
     function onlogin (err, session) {
-        if (err) return error(res, 400, err);
+        if (err) return m.error(400, err);
         res.writeHead(303, { location: '/' });
         res.end();
     }
 }));
-router.addRoute('/account/sign-out/:token', function (req, res, params) {
+router.addRoute('/account/sign-out/:token', function (req, res, m) {
     auth.handle(req, res, function (err, session) {
-        if (session && shasum(session.session) === params.token) {
+        if (session && shasum(session.session) === m.params.token) {
             auth.delete(req, function (err) {
-                if (err) error(res, 500, err);
+                if (err) m.error(500, err);
                 else done()
             });
         }
         else if (session) {
-            error(res, 401, 'sign out token mismatch');
+            m.error(401, 'sign out token mismatch');
         }
         else done()
     });
@@ -140,17 +145,19 @@ router.addRoute('/account/sign-out/:token', function (req, res, params) {
     }
 });
 router.addRoute('/account/welcome', layout('welcome.html'));
-router.addRoute('/~:name', layout('profile.html', function (req, res, params) {
+router.addRoute('/~:name', layout('profile.html', function (req, res, m) {
     var stream = through();
-    stream.pipe(hyperstream({ '.name': { _text: params.name } }));
-    names.get(params.name, function (err, id) {
-        if (err) error(res, 500, err)
+    stream.pipe(hyperstream({ '.name': { _text: m.params.name } }));
+    /*
+    names.get(m.params.name, function (err, id) {
+        if (err) m.error(500, err)
         else users.get(id, onget)
     });
+    */
     return stream;
     
     function onget (err, value) {
-        if (err) return error(res, 404, err);
+        if (err) return m.error(404, err);
         
         //stream.end({});
     }
@@ -158,8 +165,15 @@ router.addRoute('/~:name', layout('profile.html', function (req, res, params) {
 
 var server = http.createServer(function (req, res) {
     var m = router.match(req.url);
-    if (m) m.fn(req, res, m.params);
+    if (m) m.fn(req, res, { params: m.params, error: error });
     else ecstatic(req, res);
+    
+    function error (code, err) {
+        res.statusCode = code;
+        layout('error.html', function () {
+            return hyperstream({ '.error': { _text: err + '\n' } });
+        })(req, res);
+    }
 });
 server.listen({ fd: fd }, function () {
     console.log('listening on :' + server.address().port);
@@ -171,17 +185,19 @@ function read (file) {
 
 function layout (page, fn) {
     if (!fn) fn = function () { return through() };
-    return function (req, res, params) {
+    return function (req, res, m) {
         res.setHeader('content-type', 'text/html');
         auth.handle(req, res, function (err, session) {
-            var props = { '#content': read(page).pipe(fn(req, res, params)) };
+            var props = { '#content': read(page).pipe(fn(req, res, m)) };
             if (session) {
                 var token = shasum(session.session);
                 var name = session.data.name;
-                props['.signed-out'] = { style: 'display: none' };
-                props['.sign-out-link'] = { href: { append: token } };
-                props['.profile-link'] = { href: { append: name } };
-                props['.name'] = { _text: name };
+                props = xtend(props, {
+                    '.signed-out': { style: 'display: none' },
+                    '.sign-out-link': { href: { append: token } },
+                    '.profile-link': { href: { append: name } },
+                    '.name': { _text: name }
+                });
             }
             else {
                 props['.signed-in'] = { style: 'display: none' };
@@ -192,20 +208,13 @@ function layout (page, fn) {
 }
 
 function post (fn) {
-    return function (req, res, params) {
+    return function (req, res, m) {
         if (req.method !== 'POST') {
             res.statusCode = 400;
             res.end('not a POST\n');
         }
         else body(req, res, function (err, pvars) {
-            fn(req, res, xtend(pvars, params));
+            fn(req, res, xtend(m, { params: xtend(pvars, m.params) }));
         });
     };
-}
-
-function error (res, code, err) {
-    res.statusCode = code;
-    layout('error.html', function () {
-        return hyperstream({ '.error': { _text: err + '\n' } });
-    })(null, res);
 }
