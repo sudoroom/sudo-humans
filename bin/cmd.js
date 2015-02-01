@@ -104,6 +104,7 @@ router.addRoute('/account/create/post', post(function (req, res, m) {
         },
         value: {
             type: 'user',
+            id: id,
             member: false,
             name: m.params.name,
             visibility: m.params.visibility
@@ -162,10 +163,17 @@ router.addRoute('/~:name', layout('profile.html', function (req, res, m) {
     return duplexer(input, output);
     
     function write (row) {
-        input.pipe(hyperstream({
+        var props = {
             '.name': { _text: row.value.name },
             '.status': { _text: row.value.member ? 'member' : 'comrade' }
-        })).pipe(output);
+        };
+        if (!m.session || m.session.data.id !== row.value.id) {
+            props['.edit-profile'] = null;
+        }
+        else {
+            props['.edit-link'] = { href: '/~' + row.value.name + '/edit' };
+        }
+        input.pipe(hyperstream(props)).pipe(output);
     }
     function end () { show('user not found') }
     
@@ -203,6 +211,7 @@ function layout (page, fn) {
         auth.handle(req, res, function (err, session) {
             var props = { '#content': read(page).pipe(fn(req, res, m)) };
             if (session) {
+                m.session = session;
                 var token = shasum(session.session);
                 var name = session.data.name;
                 props = xtend(props, {
