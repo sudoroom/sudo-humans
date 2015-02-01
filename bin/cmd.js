@@ -3,7 +3,6 @@
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
-var crypto = require('crypto');
 var alloc = require('tcp-bind');
 
 var minimist = require('minimist');
@@ -31,13 +30,10 @@ var ecstatic = require('ecstatic')({
     root: __dirname + '/../static',
     gzip: true
 });
-var body = require('body/any');
 var xtend = require('xtend');
 var through = require('through2');
-var duplexer = require('duplexer2');
 var shasum = require('shasum');
 var mkdirp = require('mkdirp');
-var template = require('html-template');
 
 var level = require('level');
 var sublevel = require('subleveldown');
@@ -57,7 +53,6 @@ var ixf = ixfeed({
 });
 
 ixf.index.add(function (row, cb) {
-console.log(row);
     if (row.value && row.value.type === 'user') {
         cb(null, {
             'user.name': row.value.name,
@@ -79,110 +74,22 @@ var auth = require('cookie-auth')({
 });
 
 var router = require('routes')();
-router.addRoute('/', layout('main.html', function (req) {
-    var html = template();
-    var member = html.template('member');
-    users.list().pipe(through.obj(function (row, enc, next) {
-        var name = row.value.name;
-        this.push({
-            'img.avatar': { src: 'https://github.com/' + name + '.png' },
-            '.name': { _text: name }
-        });
-        next();
-    })).pipe(member);
-    return html;
-}));
+router.addRoute('/', layout('main.html', require('../routes/main.js')(users)));
 router.addRoute('/account/create', layout('create_account.html'));
-router.addRoute('/account/create/post', post(function (req, res, m) {
-    var id = crypto.randomBytes(16).toString('hex');
-    var opts = {
-        login: {
-            basic: {
-                username: m.params.name,
-                password: m.params.password
-            }
-        },
-        value: {
-            type: 'user',
-            id: id,
-            member: false,
-            name: m.params.name,
-            visibility: m.params.visibility
-        }
-    };
-    users.create(id, opts, function (err) {
-        if (err) return m.error(400, err);
-        auth.login(res, { id: id, name: m.params.name }, onlogin);
-    });
-    function onlogin (err, session) {
-        if (err) return m.error(400, err);
-        res.writeHead(303, { location: '/account/welcome' });
-        res.end();
-    }
-}));
+router.addRoute('/account/create/post',
+    require('../routes/create_account.js')(users, auth)
+);
 router.addRoute('/account/sign-in', layout('sign_in.html'));
-router.addRoute('/account/sign-in/post', post(function (req, res, m) {
-    var creds = { username: m.params.name, password: m.params.password };
-    users.verify('basic', creds, function (err, ok, id) {
-        if (err) m.error(500, err);
-        else if (!ok) m.error(401, 'invalid name or password');
-        else auth.login(res, { id: id, name: m.params.name }, onlogin);
-    });
-    function onlogin (err, session) {
-        if (err) return m.error(400, err);
-        res.writeHead(303, { location: '/' });
-        res.end();
-    }
-}));
-router.addRoute('/account/sign-out/:token', function (req, res, m) {
-    auth.handle(req, res, function (err, session) {
-        if (session && shasum(session.session) === m.params.token) {
-            auth.delete(req, function (err) {
-                if (err) m.error(500, err);
-                else done()
-            });
-        }
-        else if (session) {
-            m.error(401, 'sign out token mismatch');
-        }
-        else done()
-    });
-    function done () {
-        res.writeHead(303, { location: '/' });
-        res.end();
-    }
-});
+router.addRoute('/account/sign-in/post', 
+    require('../routes/sign_in.js')(users, auth)
+);
+router.addRoute('/account/sign-out/:token', 
+    require('../routes/sign_out.js')(auth)
+);
 router.addRoute('/account/welcome', layout('welcome.html'));
-router.addRoute('/~:name', layout('profile.html', function (req, res, m) {
-    var r = ixf.index.createReadStream('user.name', {
-        gte: m.params.name, lte: m.params.name, limit: 1
-    });
-    r.once('error', function (err) { show(err) });
-    r.pipe(through.obj(write, end));
-    var input = through(), output = through();
-    return duplexer(input, output);
-    
-    function write (row) {
-        var props = {
-            '.name': { _text: row.value.name },
-            '.status': { _text: row.value.member ? 'member' : 'comrade' }
-        };
-        if (!m.session || m.session.data.id !== row.value.id) {
-            props['.edit-profile'] = null;
-        }
-        else {
-            props['.edit-link'] = { href: '/~' + row.value.name + '/edit' };
-        }
-        input.pipe(hyperstream(props)).pipe(output);
-    }
-    function end () { show('user not found') }
-    
-    function show (msg) {
-        input.pipe(hyperstream({
-            '.name': { _text: msg }
-        })).pipe(output);
-    }
-}));
+router.addRoute('/~:name', layout(
+    'profile.html', require('../routes/profile.js')(ixf)
+));
 
 var server = http.createServer(function (req, res) {
     var m = router.match(req.url);
@@ -225,18 +132,6 @@ function layout (page, fn) {
                 props['.signed-in'] = { style: 'display: none' };
             }
             read('layout.html').pipe(hyperstream(props)).pipe(res);
-        });
-    };
-}
-
-function post (fn) {
-    return function (req, res, m) {
-        if (req.method !== 'POST') {
-            res.statusCode = 400;
-            res.end('not a POST\n');
-        }
-        else body(req, res, function (err, pvars) {
-            fn(req, res, xtend(m, { params: xtend(pvars, m.params) }));
         });
     };
 }
