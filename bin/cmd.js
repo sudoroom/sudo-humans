@@ -73,6 +73,8 @@ var auth = require('cookie-auth')({
     sessions: level(dir.session)
 });
 
+var layout = require('../lib/layout.js')(auth);
+
 var router = require('routes')();
 router.addRoute('/', layout('main.html', require('../routes/main.js')(users)));
 router.addRoute('/account/create', layout('create_account.html'));
@@ -87,9 +89,7 @@ router.addRoute('/account/sign-out/:token',
     require('../routes/sign_out.js')(auth)
 );
 router.addRoute('/account/welcome', layout('welcome.html'));
-router.addRoute('/~:name', layout(
-    'profile.html', require('../routes/profile.js')(ixf)
-));
+router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf));
 
 var server = http.createServer(function (req, res) {
     var m = router.match(req.url);
@@ -106,32 +106,3 @@ var server = http.createServer(function (req, res) {
 server.listen({ fd: fd }, function () {
     console.log('listening on :' + server.address().port);
 });
-
-function read (file) {
-    return fs.createReadStream(path.join(__dirname, '../static', file));
-}
-
-function layout (page, fn) {
-    if (!fn) fn = function () { return through() };
-    return function (req, res, m) {
-        res.setHeader('content-type', 'text/html');
-        auth.handle(req, res, function (err, session) {
-            var props = { '#content': read(page).pipe(fn(req, res, m)) };
-            if (session) {
-                m.session = session;
-                var token = shasum(session.session);
-                var name = session.data.name;
-                props = xtend(props, {
-                    '.signed-out': { style: 'display: none' },
-                    '.sign-out-link': { href: { append: token } },
-                    '.profile-link': { href: { append: name } },
-                    '.name': { _text: name }
-                });
-            }
-            else {
-                props['.signed-in'] = { style: 'display: none' };
-            }
-            read('layout.html').pipe(hyperstream(props)).pipe(res);
-        });
-    };
-}
