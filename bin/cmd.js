@@ -34,43 +34,48 @@ var ecstatic = require('ecstatic')({
 var body = require('body/any');
 var xtend = require('xtend');
 var through = require('through2');
+var duplexer = require('duplexer2');
 var shasum = require('shasum');
 var mkdirp = require('mkdirp');
 var template = require('html-template');
 
 var level = require('level');
 var sublevel = require('subleveldown');
-var changesdown = require('changesdown');
-var changes = require('changes-feed');
-var chproc = require('level-change-processor');
 
 var dir = {
-    db: path.join(argv.datadir, 'db'),
-    ch: path.join(argv.datadir, 'changes')
+    data: path.join(argv.datadir, 'data'),
+    index: path.join(argv.datadir, 'index'),
+    session: path.join(argv.datadir, 'session')
 };
-mkdirp.sync(dir.db);
-mkdirp.sync(dir.ch);
+mkdirp.sync(dir.data);
 
-var up = level(dir.db, { valueEncoding: 'json' });
-var feed = changes(sublevel(up, 'ch'));
-var db = changesdown(sublevel(up, 'db'), feed);
+var ixfeed = require('index-feed');
+var ixf = ixfeed({
+    data: level(dir.data),
+    index: level(dir.index),
+    valueEncoding: 'json'
+});
 
-/*
-feed.createReadStream({ live: true })
-    .on('data', function (data) {
-        console.log(changesdown.decode(data));
-    })
-;
-*/
+ixf.index.add(function (row, cb) {
+console.log(row);
+    if (row.value && row.value.type === 'user') {
+        cb(null, {
+            'user.name': row.value.name,
+            'user.member': row.value.member,
+            'user.visibility': row.value.visibility
+        });
+    }
+    else cb()
+});
 
 var accountdown = require('accountdown');
-var users = accountdown(sublevel(db, 'users'), {
+var users = accountdown(sublevel(ixf.db, 'users'), {
     login: { basic: require('accountdown-basic') }
 });
 
 var auth = require('cookie-auth')({
     name: require('../package.json').name,
-    sessions: sublevel(db, 'sessions')
+    sessions: level(dir.session)
 });
 
 var router = require('routes')();
@@ -98,7 +103,9 @@ router.addRoute('/account/create/post', post(function (req, res, m) {
             }
         },
         value: {
+            type: 'user',
             member: false,
+            name: m.params.name,
             visibility: m.params.visibility
         }
     };
@@ -146,20 +153,26 @@ router.addRoute('/account/sign-out/:token', function (req, res, m) {
 });
 router.addRoute('/account/welcome', layout('welcome.html'));
 router.addRoute('/~:name', layout('profile.html', function (req, res, m) {
-    var stream = through();
-    stream.pipe(hyperstream({ '.name': { _text: m.params.name } }));
-    /*
-    names.get(m.params.name, function (err, id) {
-        if (err) m.error(500, err)
-        else users.get(id, onget)
+    var r = ixf.index.createReadStream('user.name', {
+        gte: m.params.name, lte: m.params.name, limit: 1
     });
-    */
-    return stream;
+    r.once('error', function (err) { show(err) });
+    r.pipe(through.obj(write, end));
+    var input = through(), output = through();
+    return duplexer(input, output);
     
-    function onget (err, value) {
-        if (err) return m.error(404, err);
-        
-        //stream.end({});
+    function write (row) {
+        input.pipe(hyperstream({
+            '.name': { _text: row.value.name },
+            '.status': { _text: row.value.member ? 'member' : 'comrade' }
+        })).pipe(output);
+    }
+    function end () { show('user not found') }
+    
+    function show (msg) {
+        input.pipe(hyperstream({
+            '.name': { _text: msg }
+        })).pipe(output);
     }
 }));
 
