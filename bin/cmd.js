@@ -30,9 +30,6 @@ var ecstatic = require('ecstatic')({
     root: __dirname + '/../static',
     gzip: true
 });
-var xtend = require('xtend');
-var through = require('through2');
-var shasum = require('shasum');
 var mkdirp = require('mkdirp');
 
 var level = require('level');
@@ -55,6 +52,7 @@ var ixf = ixfeed({
 ixf.index.add(function (row, cb) {
     if (row.value && row.value.type === 'user') {
         cb(null, {
+            'user.id': row.value.id,
             'user.name': row.value.name,
             'user.member': row.value.member,
             'user.visibility': row.value.visibility
