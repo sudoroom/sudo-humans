@@ -290,3 +290,16 @@ button.bigred:hover {
   width: 64px;
   height: 64px;
 }
+
+#edit-profile .links button {
+  padding: 0.6em;
+  background-color: #24bd1d;
+  border-width: 0px;
+  border-radius: 3px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+#edit-profile .links button:hover {
+  background-color: #24ed1d;
+}
