@@ -1,11 +1,14 @@
-<form>
-  <div>
-    <input type="text" name="name">
-  </div>
-  
-  <div>
-    <input type="text" name="email">
-  </div>
+<form id="edit-profile" method="post" class="chunk">
+  <table>
+    <tr>
+      <th>sudonym</th>
+      <td><input type="text" name="name"></td>
+    </tr>
+    <tr>
+      <th>email</th>
+      <td><input type="text" name="email"></td>
+    </tr>
+  </table>
   
   <div>
     I want to let
@@ -19,27 +22,69 @@
   
   <h1>about you</h1>
   
-  <div>
-    <textarea></textarea>
+  <div class="block">
+    <div>
+      Tell us about yourself!
+      This information will appear on your profile page.
+    </div>
+    <div>Here are some questions to get your started:</div>
+    <ul>
+      <li>What are you working on?</li>
+      <li>What can you share?</li>
+      <li>What do you want to learn?</li>
+    </ul>
   </div>
   
-  <h1>rsa keys</h1>
   <div>
-    <textarea></textarea>
+    <textarea name="about"></textarea>
+  </div>
+  
+  <h1>ssh keys</h1>
+  
+  <div class="block">
+    <div>
+      Paste your ssh public keys here, one per line, to request shell access on
+      sudoroom servers.
+    </div>
+    <div>
+      Here's <a href="https://help.github.com/articles/generating-ssh-keys/">how
+      to generate an ssh key</a>.
+    </div>
+  </div>
+  
+  <div>
+    <textarea name="ssh"></textarea>
   </div>
   
   <h1>gpg keys</h1>
+  
+  <div class="block">
+    <div>Paste your GPG public keys here.</div>
+    <div>
+      Here's how to generate a gpg key for
+      <a href="https://ssd.eff.org/en/module/how-use-pgp-linux">linux</a>,
+      <a href="https://ssd.eff.org/en/module/how-use-pgp-mac-os-x">mac</a>,
+      and <a
+      href="https://ssd.eff.org/en/module/how-use-pgp-windows-pc">windows</a>.
+    </div>
+  </div>
+  
   <div>
-    <textarea></textarea>
+    <textarea name="gpg"></textarea>
   </div>
   
   <h1>elsewhere on the internet</h1>
   
-  <div>
-    add links to some of your other profiles on the net
+  <div class="block">
+    Add links to some of your other profiles on the net.
   </div>
+  
   <div>
-    <input type="text">
+    <input type="text" name="link">
     <button>add link</button>
+  </div>
+  
+  <div class="block center">
+    <button class="bigred">save</button>
   </div>
 </form>
