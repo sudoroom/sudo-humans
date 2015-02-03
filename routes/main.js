@@ -8,6 +8,7 @@ module.exports = function (users) {
         users.list().pipe(through.obj(function (row, enc, next) {
             var name = row.value.name;
             this.push({
+                'a': { href: '/~' + name },
                 'img.avatar': { src: 'https://github.com/' + name + '.png' },
                 '.name': { _text: name }
             });
