@@ -38,9 +38,10 @@ var sublevel = require('subleveldown');
 var dir = {
     data: path.join(argv.datadir, 'data'),
     index: path.join(argv.datadir, 'index'),
-    session: path.join(argv.datadir, 'session')
+    session: path.join(argv.datadir, 'session'),
+    blob: path.join(argv.datadir, 'blob')
 };
-mkdirp.sync(dir.data);
+mkdirp.sync(dir.blob);
 
 var ixfeed = require('index-feed');
 var ixf = ixfeed({
@@ -71,6 +72,9 @@ var auth = require('cookie-auth')({
     sessions: level(dir.session)
 });
 
+var store = require('content-addressable-blob-store');
+var blob = store({ path: dir.blob });
+
 var layout = require('../lib/layout.js')(auth);
 
 var router = require('routes')();
@@ -89,19 +93,25 @@ router.addRoute('/account/sign-out/:token',
 router.addRoute('/account/welcome', layout('welcome.html'));
 router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf));
 router.addRoute('/~:name/edit',
-    require('../routes/edit_profile.js')(auth, ixf)
+    require('../routes/edit_profile.js')(users, auth, blob)
 );
 
 var server = http.createServer(function (req, res) {
     var m = router.match(req.url);
-    if (m) m.fn(req, res, { params: m.params, error: error });
-    else ecstatic(req, res);
+    if (!m) return ecstatic(req, res);
+    auth.handle(req, res, function (err, session) {
+        m.fn(req, res, {
+            params: m.params,
+            session: session,
+            error: error
+        });
+    });
     
     function error (code, err) {
         res.statusCode = code;
         layout('error.html', function () {
             return hyperstream({ '.error': { _text: err + '\n' } });
-        })(req, res);
+        })(req, res, m);
     }
 });
 server.listen({ fd: fd }, function () {

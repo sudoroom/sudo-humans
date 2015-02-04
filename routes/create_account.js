@@ -1,5 +1,7 @@
 var post = require('../lib/post.js');
 var crypto = require('crypto');
+var sublevel = require('subleveldown');
+var bytewise = require('bytewise');
 
 module.exports = function (users, auth) {
     return post(function (req, res, m) {
@@ -14,8 +16,10 @@ module.exports = function (users, auth) {
             value: {
                 type: 'user',
                 id: id,
-                member: false,
                 name: m.params.name,
+                email: m.params.email,
+                fullName: m.params['full-name'],
+                member: false,
                 visibility: m.params.visibility
             }
         };

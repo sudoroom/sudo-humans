@@ -1,9 +1,37 @@
 <div id="profile">
   <h2 class="header">
-    <span class="name"></span>
+    <span key="name"></span>
     <a class="button edit-link"
       ><button class="edit-profile">edit</button
     ></a>
   </h2>
-  <div class="status"></div>
+  
+  <div>
+    <div class="left">
+      <div>
+        <img class="avatar">
+      </div>
+      
+      <div>
+        <a key="ssh">ssh key</a>
+      </div>
+      <div>
+        <a key="gpg">gpg key</a>
+      </div>
+    </div>
+    <div class="right">
+      <table>
+        <tr>
+          <th>membership status</th>
+          <td key="status"></td>
+        </tr>
+        <tr>
+          <th>email address</th>
+          <td key="email"></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  
+  <div class="section" key="about"></div>
 </div>

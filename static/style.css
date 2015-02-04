@@ -278,6 +278,31 @@ button.bigred:hover {
   background-color: #ffc0c0;
 }
 
+#profile table th {
+  background-color: #f0f0f0;
+  padding: 0.5em;
+  border-radius: 3px;
+}
+
+#profile table td {
+  padding-left: 2ex;
+}
+
+#profile .left {
+  display: inline-block;
+  width: 100px;
+  vertical-align: top;
+}
+
+#profile .avatar {
+  width: 64px;
+  height: 64px;
+}
+
+#profile .right {
+  display: inline-block;
+}
+
 #edit-profile .avatar .left {
   display: inline-block;
   width: 100px;

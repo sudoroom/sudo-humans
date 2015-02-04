@@ -15,8 +15,10 @@ module.exports = function (auth, ixf) {
         
         function write (row) {
             var props = {
-                '.name': { _text: row.value.name },
-                '.status': { _text: row.value.member ? 'member' : 'comrade' }
+                '[key=name]': { _text: row.value.name },
+                '[key=status]': {
+                    _text: row.value.member ? 'member' : 'comrade'
+                }
             };
             if (!m.session || m.session.data.id !== row.value.id) {
                 props['.edit-profile'] = { style: 'display: none;' };

@@ -12,6 +12,7 @@
     "bytewise": "^0.7.1",
     "changes-feed": "^1.0.0",
     "changesdown": "^2.2.0",
+    "content-addressable-blob-store": "^4.1.1",
     "cookie-auth": "^2.4.1",
     "duplexer2": "0.0.2",
     "ecstatic": "~0.5.8",
