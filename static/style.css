@@ -4,9 +4,23 @@
     url('/font/ubuntu.ttf') format('truetype');
 }
 
+.clearfix:after {
+   content: " "; /* Older browser do not support empty content */
+   visibility: hidden;
+   display: block;
+   height: 0;
+   clear: both;
+	}
+
 body {
   font-family: ubuntu, ubuntu-web, sans-serif;
   margin-bottom: 100px;
+  padding: 10px;
+}
+
+#header {
+  margin:auto;
+  text-align:center;
 }
 
 #header h1 {
@@ -78,6 +92,7 @@ button.bigred:hover {
   vertical-align: middle;
   margin-top: -1.5em;
   min-height: 4em;
+  padding: 0 5px;
 }
 
 #header a {
@@ -172,11 +187,16 @@ button.bigred:hover {
   margin-bottom: 1em;
 }
 
+#content .actions {
+  max-width:800px;
+  margin:auto;
+}
+
 #content .activity {
-  max-width: 600px;
-  margin: auto;
   padding: 10px;
   margin-bottom: 2em;
+  display:inline-block;
+  float:left;
 }
 
 #content .activity h2 {
@@ -185,6 +205,22 @@ button.bigred:hover {
 }
 
 #content .activity .event {
+  margin-left: 1em;
+}
+
+#content .data-hl {
+  padding: 10px;
+  margin-bottom: 2em;
+  display:inline-block;
+  float:right;
+}
+
+#content .data-hl h2 {
+  margin-top: 0em;
+  margin-bottom: 0em;
+}
+
+#content .data-hl .datum {
   margin-left: 1em;
 }
 
@@ -329,4 +365,9 @@ button.bigred:hover {
 }
 #edit-profile .links button:hover {
   background-color: #24ed1d;
+}
+
+#footer {
+  margin:auto;
+  text-align:center;
 }
