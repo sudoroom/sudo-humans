@@ -92,6 +92,7 @@ router.addRoute('/account/sign-out/:token',
     require('../routes/sign_out.js')(auth)
 );
 router.addRoute('/account/welcome', layout('welcome.html'));
+router.addRoute('/~:name.:ext', require('../routes/ext.js')(users, blob));
 router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf));
 router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob)
@@ -100,12 +101,14 @@ router.addRoute('/~:name/edit',
 var server = http.createServer(function (req, res) {
     var m = router.match(req.url);
     if (!m) return ecstatic(req, res);
+    var rparams = {
+        params: m.params,
+        error: error
+    };
     auth.handle(req, res, function (err, session) {
-        m.fn(req, res, {
-            params: m.params,
-            session: session && xtend(session, { update: update }),
-            error: error
-        });
+        rparams.session = session && xtend(session, { update: update });
+        m.fn(req, res, rparams);
+        
         function update (v, cb) {
             var data = xtend(session, { data: xtend(session.data, v) });
                 
@@ -121,7 +124,7 @@ var server = http.createServer(function (req, res) {
         res.statusCode = code;
         layout('error.html', function () {
             return hyperstream({ '.error': { _text: err + '\n' } });
-        })(req, res, m);
+        })(req, res, rparams);
     }
 });
 server.listen({ fd: fd }, function () {

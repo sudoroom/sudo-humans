@@ -18,7 +18,9 @@ module.exports = function (auth, ixf) {
                 '[key=name]': { _text: row.value.name },
                 '[key=status]': {
                     _text: row.value.member ? 'member' : 'comrade'
-                }
+                },
+                '[key=ssh]': { href: '/~' + row.value.name + '.pub' },
+                '[key=gpg]': { href: '/~' + row.value.name + '.asc' }
             };
             if (!m.session || m.session.data.id !== row.value.id) {
                 props['.edit-profile'] = { style: 'display: none;' };
