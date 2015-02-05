@@ -93,7 +93,7 @@ router.addRoute('/account/sign-out/:token',
 );
 router.addRoute('/account/welcome', layout('welcome.html'));
 router.addRoute('/~:name.:ext', require('../routes/ext.js')(users, blob));
-router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf));
+router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob));
 router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob)
 );

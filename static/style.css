@@ -304,6 +304,10 @@ button.bigred:hover {
   display: inline-block;
 }
 
+#profile .top-info {
+  margin-bottom: 2em;
+}
+
 #edit-profile .avatar .left {
   display: inline-block;
   width: 100px;

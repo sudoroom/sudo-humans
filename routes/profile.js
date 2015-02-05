@@ -4,7 +4,7 @@ var through = require('through2');
 var layout = require('../lib/layout.js');
 var fromName = require('../lib/user_from_name.js');
 
-module.exports = function (auth, ixf) {
+module.exports = function (auth, ixf, blob) {
     return function (req, res, m) {
         var input = through(), output = through();
         fromName(ixf.index, m.params.name, function (err, user) {
@@ -20,6 +20,7 @@ module.exports = function (auth, ixf) {
     function show (user, m) {
         var props = {
             '[key=name]': { _text: user.name },
+            '[key=email]': { _text: user.email },
             '[key=status]': {
                 _text: user.member ? 'member' : 'comrade'
             },
@@ -31,6 +32,7 @@ module.exports = function (auth, ixf) {
                 ? { href: '/~' + user.name + '.asc' }
                 : { style: 'display: none' }
             ,
+            '[key=about]': read(user.about)
         };
         if (!m.session || m.session.data.id !== user.id) {
             props['.edit-profile'] = { style: 'display: none;' };
@@ -39,5 +41,12 @@ module.exports = function (auth, ixf) {
             props['.edit-link'] = { href: '/~' + user.name + '/edit' };
         }
         return hyperstream(props);
+        
+        function read (key) {
+            if (!key) return '';
+            var r = blob.createReadStream(key);
+            r.on('error', function (err) { m.error(500, err) });
+            return r;
+        }
     }
 };
