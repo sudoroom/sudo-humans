@@ -2,7 +2,13 @@
   <table>
     <tr>
       <th>sudonym</th>
-      <td><input type="text" name="name"></td>
+      <td><input type="text" name="nym"></td>
+    </tr>
+    <tr>
+      <th>change password</th>
+      <td><input type="password" name="password">
+        (password required to change your sudonym)
+      </td>
     </tr>
     <tr>
       <th>email</th>
@@ -28,7 +34,7 @@
   
   <div class="avatar">
     <div class="left">
-      <img src="https://github.com/substack.png">
+      <img key="avatar">
     </div>
     <div class="right">
       <div>
@@ -58,6 +64,10 @@
   
   <div>
     <textarea name="about"></textarea>
+  </div>
+  <div>
+    Use <a href="https://help.github.com/articles/github-flavored-markdown/"
+    >github-flavored markdown</a> to create markup.
   </div>
   
   <h1>ssh keys</h1>
@@ -92,17 +102,6 @@
   
   <div>
     <textarea name="gpg"></textarea>
-  </div>
-  
-  <h1>elsewhere on the internet</h1>
-  
-  <div class="block">
-    Add links to some of your other profiles on the net.
-  </div>
-  
-  <div class="links">
-    <input type="text" name="link">
-    <button>add link</button>
   </div>
   
   <div class="block center">

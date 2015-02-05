@@ -4,6 +4,7 @@ var http = require('http');
 var fs = require('fs');
 var path = require('path');
 var alloc = require('tcp-bind');
+var xtend = require('xtend');
 
 var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
@@ -81,7 +82,7 @@ var router = require('routes')();
 router.addRoute('/', layout('main.html', require('../routes/main.js')(users)));
 router.addRoute('/account/create', layout('create_account.html'));
 router.addRoute('/account/create/post',
-    require('../routes/create_account.js')(users, auth)
+    require('../routes/create_account.js')(users, auth, blob)
 );
 router.addRoute('/account/sign-in', layout('sign_in.html'));
 router.addRoute('/account/sign-in/post', 
@@ -91,7 +92,8 @@ router.addRoute('/account/sign-out/:token',
     require('../routes/sign_out.js')(auth)
 );
 router.addRoute('/account/welcome', layout('welcome.html'));
-router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf));
+router.addRoute('/~:name.:ext', require('../routes/ext.js')(users, blob));
+router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob));
 router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob)
 );
@@ -99,19 +101,30 @@ router.addRoute('/~:name/edit',
 var server = http.createServer(function (req, res) {
     var m = router.match(req.url);
     if (!m) return ecstatic(req, res);
+    var rparams = {
+        params: m.params,
+        error: error
+    };
     auth.handle(req, res, function (err, session) {
-        m.fn(req, res, {
-            params: m.params,
-            session: session,
-            error: error
-        });
+        rparams.session = session && xtend(session, { update: update });
+        m.fn(req, res, rparams);
+        
+        function update (v, cb) {
+            var data = xtend(session, { data: xtend(session.data, v) });
+                
+            auth.sessions.put(session.session, data, { valueEncoding: 'json' },
+            function (err) {
+                if (err) cb && cb(err)
+                else cb && cb(null)
+            });
+        }
     });
     
     function error (code, err) {
         res.statusCode = code;
         layout('error.html', function () {
             return hyperstream({ '.error': { _text: err + '\n' } });
-        })(req, res, m);
+        })(req, res, rparams);
     }
 });
 server.listen({ fd: fd }, function () {

@@ -9,7 +9,7 @@ module.exports = function (users) {
             var name = row.value.name;
             this.push({
                 'a': { href: '/~' + name },
-                'img.avatar': { src: 'https://github.com/' + name + '.png' },
+                'img.avatar': { src: '/~' + name + '.png' },
                 '.name': { _text: name }
             });
             next();

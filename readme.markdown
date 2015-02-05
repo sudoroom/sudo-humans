@@ -4,7 +4,14 @@ hackerspace membership server for sudoroom
 
 # get it running
 
-Install [node](https://nodejs.org), then:
+Install [node](https://nodejs.org) and `libcairo2-dev`:
+
+```
+$ sudo apt-get install nodejs libcairo2-dev
+$ sudo ln -s `which nodejs` /usr/local/bin/node
+```
+
+then:
 
 ```
 $ npm install

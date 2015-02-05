@@ -46,8 +46,9 @@ body {
 }
 
 #header h1 img {
-  vertical-align: middle;
+  vertical-align: top;
   height: 2em;
+  margin-top: 4px;
 }
 
 #header .sudoroom {
@@ -271,6 +272,10 @@ button.bigred:hover {
   height: 64px;
 }
 
+#main .member .name {
+  margin-top: 0.5em;
+}
+
 #main .member {
   margin-bottom: 1em;
   display: inline-block;
@@ -337,6 +342,10 @@ button.bigred:hover {
 
 #profile .right {
   display: inline-block;
+}
+
+#profile .top-info {
+  margin-bottom: 2em;
 }
 
 #edit-profile .avatar .left {
