@@ -80,8 +80,6 @@ module.exports = function (users, auth, blob) {
             doc.avatar = m.params.avatar;
         }
         
-        //m.params.link
-        
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(500, err);
             if (!user) return m.error(404, 'no user data');
