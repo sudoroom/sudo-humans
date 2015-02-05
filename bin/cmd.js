@@ -4,6 +4,7 @@ var http = require('http');
 var fs = require('fs');
 var path = require('path');
 var alloc = require('tcp-bind');
+var xtend = require('xtend');
 
 var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
@@ -102,9 +103,18 @@ var server = http.createServer(function (req, res) {
     auth.handle(req, res, function (err, session) {
         m.fn(req, res, {
             params: m.params,
-            session: session,
+            session: session && xtend(session, { update: update }),
             error: error
         });
+        function update (v, cb) {
+            var data = xtend(session, { data: xtend(session.data, v) });
+                
+            auth.sessions.put(session.session, data, { valueEncoding: 'json' },
+            function (err) {
+                if (err) cb && cb(err)
+                else cb && cb(null)
+            });
+        }
     });
     
     function error (code, err) {
