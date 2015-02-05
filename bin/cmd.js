@@ -70,12 +70,12 @@ ixf.index.add(function (row, cb) {
                 member: row.value.member ? 1 : 0
             }, done);
         }
-        else if (row.value.member !== row.prev.member) {
+        else if (row.value.member !== row.prev['user.member']) {
             counts.add({
-                user: 1,
                 member: row.value.member ? 1 : -1
             }, done);
         }
+        else done()
         function done (err) { cb(err, ix) }
     }
     else cb()

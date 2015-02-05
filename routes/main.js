@@ -1,4 +1,5 @@
 var through = require('through2');
+var duplexer = require('duplexer2');
 var template = require('html-template');
 var combine = require('stream-combiner2');
 var hyperstream = require('hyperstream');
@@ -14,9 +15,17 @@ module.exports = function (ixf, counts) {
         
         members.pipe(through.obj(write)).pipe(member);
         comrades.pipe(through.obj(write)).pipe(comrade);
-        return combine(html, hyperstream({
-            
-        }));
+        
+        var input = through(), output = through();
+        counts.get(function (err, c) {
+            input.pipe(hyperstream({
+                '[key=member-count]': c.member || 0,
+                '[key=user-count]': c.user || 0
+            })).pipe(output);
+        });
+        
+        var modify = duplexer(input, output);
+        return combine(modify, html);
         
         function write (row, enc, next) {
             var name = row.value.name;
