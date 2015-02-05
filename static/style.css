@@ -236,6 +236,10 @@ button.bigred:hover {
   height: 64px;
 }
 
+#main .member .name {
+  margin-top: 0.5em;
+}
+
 #main .member {
   margin-bottom: 1em;
   display: inline-block;

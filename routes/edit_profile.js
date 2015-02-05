@@ -1,9 +1,11 @@
 var hyperstream = require('hyperstream');
+var hyperquest = require('hyperquest');
 var duplexer = require('duplexer2');
 var through = require('through2');
 var layout = require('../lib/layout.js');
 var post = require('../lib/post.js');
 var xtend = require('xtend');
+var once = require('once');
 
 module.exports = function (users, auth, blob) {
     return function (req, res, m) {
@@ -31,7 +33,6 @@ module.exports = function (users, auth, blob) {
             '[name=nym]': { value: user.name },
             '[name=email]': { value: user.email },
             '[name=full-name]': { value: user.fullName },
-            '[name=avatar]': { value: user.avatar },
             '[name=about]': { _text: readblob(user.about) },
             '[name=ssh]': { _text: readblob(user.ssh) },
             '[name=gpg]': { _text: readblob(user.gpg) },
@@ -52,15 +53,33 @@ module.exports = function (users, auth, blob) {
     }
     
     function save (req, res, m) {
-        var pending = 4;
+        if (/\S+/.test(m.params['avatar-url'])) {
+            var cb = once(function (err, id) {
+                clearTimeout(to);
+                if (err) return m.error(500, err)
+                m.params.avatar = id;
+                saveData(req, res, m);
+            });
+            var to = setTimeout(function () {
+                cb(new Error('avatar took too long to fetch'));
+            }, 15 * 1000);
+            get(m.params['avatar-url'], 0, cb)
+        }
+        else saveData(req, res, m)
+    }
+    
+    function saveData (req, res, m) {
+        var pending = 1;
         var doc = {
             name: m.params.nym,
             email: m.params.email,
             fullName: m.params['full-name'],
             visibility: m.params.visibility
         };
-        //m.params['avatar-url']
-        //m.params['avatar-file']
+        if (m.params.avatar) {
+            doc.avatar = m.params.avatar;
+        }
+        
         //m.params.link
         
         users.get(m.session.data.id, function (err, user) {
@@ -104,6 +123,7 @@ module.exports = function (users, auth, blob) {
         }
         
         function wsave (key) {
+            pending ++;
             if (!/\S/.test(m.params[key])) return done();
             blob.createWriteStream().end(m.params[key], function () {
                 doc[key] = this.key;
@@ -119,5 +139,33 @@ module.exports = function (users, auth, blob) {
                 res.end('redirect');
             });
         }
+    }
+    
+    function get (u, hops, cb) {
+        if (hops > 3) {
+            return cb(new Error('too many redirects fetching avatar'));
+        }
+        var hq = hyperquest.get(u);
+        
+        var size = 0;
+        hq.pipe(through(function (buf, enc, next) {
+            size += buf.length;
+            if (size >= 1024 * 300) { // 300kb
+                cb(new Error('Avatar image too big. Must be < 300kb'));
+            }
+            else next();
+        }));
+        
+        hq.on('error', function (err) { m.error(500, err) });
+        hq.on('response', function (res) {
+            if (/^3/.test(res.statusCode)) {
+                get(res.headers.location, hops + 1, cb);
+            }
+            else if (/^2/.test(res.statusCode)) {
+                var w = hq.pipe(blob.createWriteStream());
+                w.on('finish', function () { cb(null, w.key) });
+            }
+            else cb(new Error('error fetching avatar: ' + res.statusCode))
+        });
     }
 };
