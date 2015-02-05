@@ -1,11 +1,12 @@
 var exts = [ 'asc', 'pub', 'png' ];
+var fromName = require('../lib/user_from_name.js');
 
-module.exports = function (users, blob) {
+module.exports = function (ixf, blob) {
     return function (req, res, m) {
         var ext = m.params.ext;
         if (exts.indexOf(ext) < 0) return m.error(404, 'not found');
         
-        users.get(m.session.data.id, function (err, user) {
+        fromName(ixf.index, m.params.name, function (err, user) {
             if (err) return m.error(500, err);
             
             var stream;

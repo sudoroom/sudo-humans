@@ -1,14 +1,12 @@
 var through = require('through2');
 var template = require('html-template');
+var combine = require('stream-combiner2');
+var hyperstream = require('hyperstream');
 
-module.exports = function (index) {
+module.exports = function (ixf, counts) {
     return function (req, req, m) {
-        var comrades = index.createReadStream('user.member', {
-            gte: false, lte: false
-        });
-        var members = index.createReadStream('user.member', {
-            gte: true, lte: true
-        });
+        var comrades = ixf.index.createReadStream('user.member', { eq: false });
+        var members = ixf.index.createReadStream('user.member', { eq: true });
         
         var html = template();
         var member = html.template('member');
@@ -16,7 +14,9 @@ module.exports = function (index) {
         
         members.pipe(through.obj(write)).pipe(member);
         comrades.pipe(through.obj(write)).pipe(comrade);
-        return html;
+        return combine(html, hyperstream({
+            
+        }));
         
         function write (row, enc, next) {
             var name = row.value.name;

@@ -32,6 +32,7 @@
     "retricon": "0.0.3",
     "routes": "^2.0.0",
     "shasum": "^1.0.1",
+    "stream-combiner2": "^1.0.2",
     "subleveldown": "^1.0.6",
     "tcp-bind": "^1.1.1",
     "through2": "^0.6.3",

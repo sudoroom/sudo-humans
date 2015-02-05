@@ -45,20 +45,38 @@ var dir = {
 mkdirp.sync(dir.blob);
 
 var ixfeed = require('index-feed');
+var ixdb = level(dir.index);
+var counts = require('../lib/counts.js')(
+    sublevel(ixdb, 'c', { valueEncoding: 'json' })
+);
+
 var ixf = ixfeed({
     data: level(dir.data),
-    index: level(dir.index),
+    index: sublevel(ixdb, 'i'),
     valueEncoding: 'json'
 });
 
 ixf.index.add(function (row, cb) {
     if (row.value && row.value.type === 'user') {
-        cb(null, {
+        var ix = {
             'user.id': row.value.id,
             'user.name': row.value.name,
             'user.member': row.value.member,
             'user.visibility': row.value.visibility
-        });
+        };
+        if (!row.prev) {
+            counts.add({
+                user: 1,
+                member: row.value.member ? 1 : 0
+            }, done);
+        }
+        else if (row.value.member !== row.prev.member) {
+            counts.add({
+                user: 1,
+                member: row.value.member ? 1 : -1
+            }, done);
+        }
+        function done (err) { cb(err, ix) }
     }
     else cb()
 });
@@ -80,7 +98,7 @@ var layout = require('../lib/layout.js')(auth);
 
 var router = require('routes')();
 router.addRoute('/', layout('main.html',
-    require('../routes/main.js')(ixf.index)
+    require('../routes/main.js')(ixf, counts)
 ));
 router.addRoute('/account/create', layout('create_account.html'));
 router.addRoute('/account/create/post',
@@ -94,7 +112,7 @@ router.addRoute('/account/sign-out/:token',
     require('../routes/sign_out.js')(auth)
 );
 router.addRoute('/account/welcome', layout('welcome.html'));
-router.addRoute('/~:name.:ext', require('../routes/ext.js')(users, blob));
+router.addRoute('/~:name.:ext', require('../routes/ext.js')(ixf, blob));
 router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob));
 router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob)
@@ -113,7 +131,7 @@ var server = http.createServer(function (req, res) {
         
         function update (v, cb) {
             var data = xtend(session, { data: xtend(session.data, v) });
-                
+            
             auth.sessions.put(session.session, data, { valueEncoding: 'json' },
             function (err) {
                 if (err) cb && cb(err)
