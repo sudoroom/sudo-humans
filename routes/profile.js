@@ -34,7 +34,7 @@ module.exports = function (auth, ixf, blob) {
                 ? { href: '/~' + user.name + '.pub' }
                 : { style: 'display: none' }
             ,
-            '[key=gpg]': user.gpg
+            '[key=pgp]': user.pgp
                 ? { href: '/~' + user.name + '.asc' }
                 : { style: 'display: none' }
             ,

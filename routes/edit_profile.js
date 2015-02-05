@@ -35,7 +35,7 @@ module.exports = function (users, auth, blob) {
             '[name=full-name]': { value: user.fullName },
             '[name=about]': { _text: readblob(user.about) },
             '[name=ssh]': { _text: readblob(user.ssh) },
-            '[name=gpg]': { _text: readblob(user.gpg) },
+            '[name=pgp]': { _text: readblob(user.pgp) },
             '[key=avatar]': user.avatar
                 ? { src: '/~' + user.name + '.png' }
                 : { src: '/default.png' }
@@ -107,7 +107,7 @@ module.exports = function (users, auth, blob) {
         });
         wsave('about');
         wsave('ssh');
-        wsave('gpg');
+        wsave('pgp');
         
         function updateLogin (cb) {
             var id = m.session.data.id;

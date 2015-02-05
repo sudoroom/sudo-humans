@@ -10,7 +10,7 @@ module.exports = function (users, blob) {
             
             var stream;
             if (ext === 'asc') {
-                stream = read(user.gpg);
+                stream = read(user.pgp);
             }
             else if (ext === 'pub') {
                 stream = read(user.ssh);
