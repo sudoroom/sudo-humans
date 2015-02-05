@@ -3,6 +3,8 @@ var duplexer = require('duplexer2');
 var through = require('through2');
 var layout = require('../lib/layout.js');
 var fromName = require('../lib/user_from_name.js');
+var marked = require('marked');
+var concat = require('concat-stream');
 
 module.exports = function (auth, ixf, blob) {
     return function (req, res, m) {
@@ -36,7 +38,7 @@ module.exports = function (auth, ixf, blob) {
                 ? { href: '/~' + user.name + '.asc' }
                 : { style: 'display: none' }
             ,
-            '[key=about]': read(user.about)
+            '[key=about]': markdown(user.about)
         };
         if (!m.session || m.session.data.id !== user.id) {
             props['.edit-profile'] = { style: 'display: none;' };
@@ -46,11 +48,17 @@ module.exports = function (auth, ixf, blob) {
         }
         return hyperstream(props);
         
-        function read (key) {
+        function markdown (key) {
             if (!key) return '';
             var r = blob.createReadStream(key);
+            var stream = through();
             r.on('error', function (err) { m.error(500, err) });
-            return r;
+            r.pipe(concat(function (body) {
+                stream.end(marked(body.toString('utf8'), {
+                    sanitize: true
+                }));
+            }));
+            return stream;
         }
     }
 };

@@ -154,7 +154,7 @@ module.exports = function (users, auth, blob) {
             else next();
         }));
         
-        hq.on('error', function (err) { m.error(500, err) });
+        hq.on('error', cb);
         hq.on('response', function (res) {
             if (/^3/.test(res.statusCode)) {
                 get(res.headers.location, hops + 1, cb);
