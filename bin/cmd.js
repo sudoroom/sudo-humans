@@ -79,7 +79,9 @@ var blob = store({ path: dir.blob });
 var layout = require('../lib/layout.js')(auth);
 
 var router = require('routes')();
-router.addRoute('/', layout('main.html', require('../routes/main.js')(users)));
+router.addRoute('/', layout('main.html',
+    require('../routes/main.js')(ixf.index)
+));
 router.addRoute('/account/create', layout('create_account.html'));
 router.addRoute('/account/create/post',
     require('../routes/create_account.js')(users, auth, blob)
