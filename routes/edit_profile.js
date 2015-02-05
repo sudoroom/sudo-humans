@@ -26,17 +26,19 @@ module.exports = function (users, auth, blob) {
     }
     
     function showUser (user, error) {
-        return hyperstream({
+        var props = {
             '#edit-profile': { action: '/~' + user.name + '/edit' },
             '[name=nym]': { value: user.name },
             '[name=email]': { value: user.email },
             '[name=full-name]': { value: user.fullName },
-            '[name=visibility]': { value: user.visibility },
             '[name=avatar]': { value: user.avatar },
             '[name=about]': { _text: readblob(user.about) },
             '[name=ssh]': { _text: readblob(user.ssh) },
             '[name=gpg]': { _text: readblob(user.gpg) }
-        });
+        };
+        var opkey = '[name=visibility] option[value="' + user.visibility + '"]';
+        props[opkey] = { selected: true };
+        return hyperstream(props);
         
         function readblob (hash) {
             if (!hash) return '';
