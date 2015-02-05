@@ -34,7 +34,10 @@ module.exports = function (users, auth, blob) {
             '[name=avatar]': { value: user.avatar },
             '[name=about]': { _text: readblob(user.about) },
             '[name=ssh]': { _text: readblob(user.ssh) },
-            '[name=gpg]': { _text: readblob(user.gpg) }
+            '[name=gpg]': { _text: readblob(user.gpg) },
+            '[key=avatar]': user.avatar
+                ? { src: '/~' + user.name + '.png' }
+                : { src: '/default.png' }
         };
         var opkey = '[name=visibility] option[value="' + user.visibility + '"]';
         props[opkey] = { selected: true };

@@ -25,6 +25,7 @@
     "minimist": "^1.1.0",
     "mkdirp": "^0.5.0",
     "persona-id": "~0.0.2",
+    "retricon": "0.0.3",
     "routes": "^2.0.0",
     "shasum": "^1.0.1",
     "subleveldown": "^1.0.6",

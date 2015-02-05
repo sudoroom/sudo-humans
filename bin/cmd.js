@@ -82,7 +82,7 @@ var router = require('routes')();
 router.addRoute('/', layout('main.html', require('../routes/main.js')(users)));
 router.addRoute('/account/create', layout('create_account.html'));
 router.addRoute('/account/create/post',
-    require('../routes/create_account.js')(users, auth)
+    require('../routes/create_account.js')(users, auth, blob)
 );
 router.addRoute('/account/sign-in', layout('sign_in.html'));
 router.addRoute('/account/sign-in/post', 

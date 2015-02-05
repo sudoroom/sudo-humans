@@ -16,7 +16,7 @@ module.exports = function (users, blob) {
                 stream = read(user.ssh);
             }
             else if (ext === 'png') {
-                // todo
+                stream = read(user.avatar);
             }
             
             if (!stream) return m.error(404, 'not found');

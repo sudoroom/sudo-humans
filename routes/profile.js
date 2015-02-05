@@ -24,6 +24,10 @@ module.exports = function (auth, ixf, blob) {
             '[key=status]': {
                 _text: user.member ? 'member' : 'comrade'
             },
+            '[key=avatar]': user.avatar
+                ? { src: '/~' + user.name + '.png' }
+                : { src: '/default.png' }
+            ,
             '[key=ssh]': user.ssh
                 ? { href: '/~' + user.name + '.pub' }
                 : { style: 'display: none' }
