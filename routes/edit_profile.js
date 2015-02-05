@@ -101,6 +101,7 @@ module.exports = function (users, auth, blob) {
         }
         
         function wsave (key) {
+            if (!/\S/.test(m.params[key])) return done();
             blob.createWriteStream().end(m.params[key], function () {
                 doc[key] = this.key;
                 done();
