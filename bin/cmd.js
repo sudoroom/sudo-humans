@@ -62,7 +62,8 @@ ixf.index.add(function (row, cb) {
             'user.id': row.value.id,
             'user.name': row.value.name,
             'user.member': row.value.member,
-            'user.visibility': row.value.visibility
+            'user.visibility': row.value.visibility,
+            'feed': [ row.change, row.prev ? row.prev.feed : null ]
         };
         if (!row.prev) {
             counts.add({

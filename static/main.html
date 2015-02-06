@@ -7,9 +7,13 @@
 
     <div class="activity">
       <h2>recent activity</h2>
-      <div class="event">event one - verbose description one!</div>
-      <div class="event">event two - verbose description two...</div>
-      <div class="event">event three - verbose description three</div>
+      <div class="event" template="event">
+        <div>
+          <a key="name"></a>
+          <span key="msg"></span>
+        </div>
+        <div class="date" key="date"></div>
+      </div>
     </div>
 
     <div class="data-hl">
@@ -17,8 +21,8 @@
       <div class="datum"><a href="#">## Newbies</a> need to be welcomed</div>
       <div class="datum"><a href="#">## Members</a> need their <a href="#">dues</a> verified</div>
       <div class="datum">
-        Total: <a href="#" key="member-count">##</a> Members
-        / <a href="#" key="user-count">##</a> Users
+        Total: <a href="#"><span key="member-count">##</span> Members</a>
+        / <a href="#"><span key="user-count">##</span> Users</a>
       </div>
     </div>
 
@@ -26,17 +30,17 @@
 
   <div class="members hbar">
     <h2 class="title">members</h2>
-    <a template="member"><button class="hitem member">
-      <div><img class="avatar"></div>
-      <div class="name"></div>
+    <a template="member" key="link"><button class="hitem member">
+      <div><img class="avatar" key="avatar"></div>
+      <div class="name" key="name"></div>
     </button></a>
   </div>
  
   <div class="comrades hbar">
     <h2 class="title">comrades</h2>
-    <a template="comrade"><button class="hitem member">
-      <div><img class="avatar"></div>
-      <div class="name"></div>
+    <a template="comrade" key="link"><button class="hitem member">
+      <div><img class="avatar" key="avatar"></div>
+      <div class="name" key="name"></div>
     </button></a>
   </div>
 </div>

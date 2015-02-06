@@ -29,7 +29,9 @@ module.exports = function (users, auth, blob) {
                 fullName: m.params['full-name'],
                 member: false,
                 visibility: m.params.visibility,
-                avatar: avatar
+                avatar: avatar,
+                created: new Date().toISOString(),
+                updated: new Date().toISOString()
             }
         };
         users.create(id, opts, function (err) {

@@ -282,6 +282,10 @@ button.bigred:hover {
   cursor: pointer;
 }
 
+#main .activity .event .date {
+  color: #7e6c6c;
+}
+
 #profile {
   max-width: 800px;
   margin: auto;
