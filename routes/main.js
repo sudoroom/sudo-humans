@@ -9,7 +9,9 @@ module.exports = function (ixf, counts) {
     return function (req, req, m) {
         var comrades = ixf.index.createReadStream('user.member', { eq: false });
         var members = ixf.index.createReadStream('user.member', { eq: true });
-        var feed = ixf.feed.createReadStream();
+        var feed = ixf.feed.createReadStream({
+            limit: 5, reverse: true
+        });
         
         var html = template();
         var member = html.template('member');
