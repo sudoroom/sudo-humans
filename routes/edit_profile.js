@@ -74,7 +74,8 @@ module.exports = function (users, auth, blob) {
             name: m.params.nym,
             email: m.params.email,
             fullName: m.params['full-name'],
-            visibility: m.params.visibility
+            visibility: m.params.visibility,
+            updated: new Date().toISOString()
         };
         if (m.params.avatar) {
             doc.avatar = m.params.avatar;

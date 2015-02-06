@@ -35,6 +35,7 @@ var mkdirp = require('mkdirp');
 
 var level = require('level');
 var sublevel = require('subleveldown');
+var bytewise = require('bytewise');
 
 var dir = {
     data: path.join(argv.datadir, 'data'),
@@ -49,7 +50,6 @@ var ixdb = level(dir.index);
 var counts = require('../lib/counts.js')(
     sublevel(ixdb, 'c', { valueEncoding: 'json' })
 );
-
 var ixf = ixfeed({
     data: level(dir.data),
     index: sublevel(ixdb, 'i'),
@@ -62,8 +62,7 @@ ixf.index.add(function (row, cb) {
             'user.id': row.value.id,
             'user.name': row.value.name,
             'user.member': row.value.member,
-            'user.visibility': row.value.visibility,
-            'feed': [ row.change, row.prev ? row.prev.feed : null ]
+            'user.visibility': row.value.visibility
         };
         if (!row.prev) {
             counts.add({

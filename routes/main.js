@@ -9,7 +9,7 @@ module.exports = function (ixf, counts) {
     return function (req, req, m) {
         var comrades = ixf.index.createReadStream('user.member', { eq: false });
         var members = ixf.index.createReadStream('user.member', { eq: true });
-        var feed = ixf.index.createReadStream('feed');
+        var feed = ixf.feed.createReadStream();
         
         var html = template();
         var member = html.template('member');
@@ -42,18 +42,29 @@ module.exports = function (ixf, counts) {
             next();
         }
         
-        function ewrite (row, enc, next) {
-            var name = row.value.name;
-            var msg = row.index[1]
-                ? 'updated their profile'
-                : 'created an account'
-            ;
-            this.push({
-                '[key=name]': { _text: name, href: '/~' + name },
-                '[key=msg]': { _text: msg },
-                '[key=date]': { _text: timeago(row.value.updated) }
+        function ewrite (update, enc, next) {
+            var self = this;
+            update.value.map(function (row) {
+                if (row.type === 'put' && row.value
+                && row.value.type === 'user') {
+                    self.push(userUpdate(row.value));
+                }
             });
             next();
+        }
+        
+        function userUpdate (user) {
+            var name = user.name;
+            var msg = user.created === user.updated
+                ? 'created an account'
+                : 'updated their profile'
+            ;
+            return {
+                '[key=name]': { _text: name, href: '/~' + name },
+                '[key=msg]': { _text: msg },
+                '[key=ago]': { _text: timeago(user.updated) },
+                '[key=date]': { _text: user.updated }
+            };
         }
     };
 };

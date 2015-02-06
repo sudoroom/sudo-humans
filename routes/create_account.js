@@ -14,6 +14,7 @@ module.exports = function (users, auth, blob) {
     });
     
     function create (res, m, id, avatar) {
+        var date = new Date().toISOString();
         var opts = {
             login: {
                 basic: {
@@ -30,8 +31,8 @@ module.exports = function (users, auth, blob) {
                 member: false,
                 visibility: m.params.visibility,
                 avatar: avatar,
-                created: new Date().toISOString(),
-                updated: new Date().toISOString()
+                created: date,
+                updated: date
             }
         };
         users.create(id, opts, function (err) {
