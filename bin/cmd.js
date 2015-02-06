@@ -61,6 +61,7 @@ ixf.index.add(function (row, cb) {
         var ix = {
             'user.id': row.value.id,
             'user.name': row.value.name,
+            'user.email': row.value.email,
             'user.member': row.value.member,
             'user.visibility': row.value.visibility
         };
@@ -116,6 +117,12 @@ router.addRoute('/~:name.:ext', require('../routes/ext.js')(ixf, blob));
 router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob));
 router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob)
+);
+router.addRoute('/email/users',
+    require('../routes/email_list.js')('users', ixf.index)
+);
+router.addRoute('/email/members',
+    require('../routes/email_list.js')('members', ixf.index)
 );
 
 var server = http.createServer(function (req, res) {
