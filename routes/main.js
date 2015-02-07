@@ -9,9 +9,7 @@ module.exports = function (ixf, counts) {
     return function (req, req, m) {
         var comrades = ixf.index.createReadStream('user.member', { eq: false });
         var members = ixf.index.createReadStream('user.member', { eq: true });
-        var feed = ixf.feed.createReadStream({
-            limit: 5, reverse: true
-        });
+        var feed = ixf.feed.createReadStream({ reverse: true });
         
         var html = template();
         var member = html.template('member');
@@ -46,13 +44,18 @@ module.exports = function (ixf, counts) {
         
         function ewrite (update, enc, next) {
             var self = this;
+            var limit = 5;
+            
             update.value.map(function (row) {
+                if (self.count >= limit) return;
                 if (row.type === 'put' && row.value
                 && row.value.type === 'user') {
                     self.push(userUpdate(row.value));
+                    self.count = (self.count || 0) + 1;
                 }
             });
-            next();
+            if (self.count < limit) next()
+            else self.push(null)
         }
         
         function userUpdate (user) {
