@@ -4,7 +4,7 @@ hackerspace membership server for sudoroom
 
 # get it running
 
-> _This application is known to work with version `0.10.21` of `node`. There are issues with the `tcp-bind` and `canvas` modules, but once they are updated you should be able to run with version `0.12` of `node`._
+> _This application is known to work with version `0.10.21` of `node`. There is an issue with the `canvas` module, but once it is updated you should be able to run with version `0.12` of `node`._
 
 Install [node](https://nodejs.org) and `libcairo2-dev`:
 
