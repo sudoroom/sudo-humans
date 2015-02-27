@@ -5,22 +5,17 @@
 
   <div class="actions clearfix">
 
-    <div class="activity">
-      <h2>recent activity</h2>
-      <div class="event" template="event">
-        <div>
-          <a key="name"></a>
-          <span key="msg"></span>
-        </div>
-        <div class="date">
-          <span key="date"></span>
-          (<span key="ago"></span>)
-        </div>
-      </div>
-    </div>
-
-    <div class="data-hl">
+   <div class="data-hl">
       <h2>data highlights</h2>
+      <div class="datum">
+        Total Users: <a href="#"><span key="member-count">##</span> Members</a>
+        / <a href="#"><span key="user-count">##</span> Comrades</a>
+      </div>
+      <div class="datum">
+        Email Addresses:
+        <a href="/email/members">members</a>
+        / <a href="/email/users">comrades</a>
+      </div>
       <div class="datum">
         <a href="#">## Newbies</a> need to be welcomed
       </div>
@@ -28,14 +23,20 @@
         <a href="#">## Members</a> need their
         <a href="#">dues</a> verified
       </div>
-      <div class="datum">
-        Total: <a href="#"><span key="member-count">##</span> Members</a>
-        / <a href="#"><span key="user-count">##</span> Users</a>
-      </div>
-      <div>
-        Email lists:
-        <a href="/email/members">members</a>
-        / <a href="/email/users">users</a>
+
+    </div>
+
+   <div class="activity">
+      <h2>recent activity</h2>
+      <div class="event" template="event">
+        <div>
+          <a key="name"></a>
+          <span key="msg"></span>
+          <div class="date timestamp">
+            (<span key="ago"></span>)
+            @ <span key="date"></span>
+          </div>
+        </div>
       </div>
     </div>
 

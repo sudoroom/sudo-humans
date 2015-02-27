@@ -42,7 +42,6 @@ body {
 }
 
 #header h1 .signed-in {
-  margin-left: 0.5ex;
 }
 
 #header h1 img {
@@ -194,35 +193,43 @@ button.bigred:hover {
 }
 
 #content .activity {
-  padding: 10px;
-  margin-bottom: 2em;
-  display:inline-block;
-  float:left;
-}
-
-#content .activity h2 {
-  margin-top: 0em;
-  margin-bottom: 0em;
-}
-
-#content .activity .event {
-  margin-left: 1em;
-}
-
-#content .data-hl {
+  max-width:380px;
   padding: 10px;
   margin-bottom: 2em;
   display:inline-block;
   float:right;
 }
 
+#content .activity h2 {
+  margin-top: 0em;
+  margin-bottom: 0.5em;
+}
+
+#content .activity .event {
+  margin-left: 1em;
+}
+
+#content .activity .timestamp {
+  font-size:80%;
+  font-style:italic;
+  margin: 0 0 0.5em 1em;
+}
+
+#content .data-hl {
+  max-width:380px;
+  padding: 10px;
+  margin-bottom: 2em;
+  display:inline-block;
+  float:left;
+}
+
 #content .data-hl h2 {
   margin-top: 0em;
-  margin-bottom: 0em;
+  margin-bottom: 0.5em;
 }
 
 #content .data-hl .datum {
-  margin-left: 1em;
+  margin: 0 0 1em 1em;
 }
 
 #content .hbar {
