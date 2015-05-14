@@ -6,6 +6,8 @@ var path = require('path');
 var alloc = require('tcp-bind');
 var xtend = require('xtend');
 
+var settings = require('../settings.js');
+
 var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
     alias: {
@@ -118,6 +120,10 @@ router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob));
 router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob)
 );
+router.addRoute('/~:name/payment',
+    require('../routes/payment.js')(users, auth, blob)
+);
+
 router.addRoute('/email/users',
     require('../routes/email_list.js')('users', ixf.index)
 );

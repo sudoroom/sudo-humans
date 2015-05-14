@@ -13,6 +13,12 @@ $ sudo apt-get install nodejs libcairo2-dev
 $ sudo ln -s `which nodejs` /usr/local/bin/node
 ```
 
+Make a settings file (and edit to taste):
+
+```
+$ cp -a settings.js.example settings.js
+```
+
 then:
 
 ```

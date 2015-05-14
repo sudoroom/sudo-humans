@@ -1,0 +1,113 @@
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<script type="text/javascript" src="/js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript">
+
+  $(document).ready(function() {
+
+    var pubKey = $("#publishableKey").val();
+     Stripe.setPublishableKey(pubKey);
+
+    $('#paymentForm').submit(function(e) {
+      $('#saveButton').disabled = true;
+
+      var form = $(this);
+
+      if(!$("#card_name").val()) {
+        // if the card name isn't filled, out, 
+        // then we don't have a new credit card number
+        // so just clear the fields and submit
+
+        $(".creditcard input").val('');
+        form.get(0).submit();
+        return false;
+      }
+  
+      Stripe.card.createToken(form, function(status, resp) {
+        if(resp.error) {
+          alert("TODO handle error: " + resp.error.message);
+          return;      
+        }
+        var token = resp.id;
+
+        $(".creditcard input").val('');
+
+        form.append($('<input type="hidden" name="stripeToken" />').val(token));
+  console.log(token);
+        form.get(0).submit();
+
+      });
+      return false;
+    });
+
+
+  });
+</script>
+
+<input type="hidden" id="publishableKey" />
+
+<form id="paymentForm" method="post" class="chunk">
+
+  <h1>recurring payment status</h1>
+    
+  <div class="block">
+    <div key="status">
+    </div>
+    <div>
+      <a key="action"></a>
+    </div>
+  </div>
+
+  <h1>subscription type</h1>
+
+  <table>
+    <tr>
+      <th>Monthly subscription</th>
+      <td>
+        <select name="subscription_plan">
+          <option value="">[please select]</option>          
+          <option value="tendollar">$10.00</option>
+          <option value="twentydollar">$20.00</option>
+          <option value="fortydollar">$40.00</option>
+        </select>
+      </td>
+    </tr>
+  </table>
+
+  <h1 key="cc_title"></h1>
+  <p key="cc_current"></p>
+
+  <table class="creditcard">
+    <tr>
+      <th>Cardholder name</th>
+      <td><input id="card_name" type="text" name="card_name" data-stripe="name">
+        (as written on card)
+      </td>
+    </tr>
+    <tr>
+      <th>Card number</th>
+      <td><input type="text" name="card_number" data-stripe="number"></td>
+    </tr>
+    <tr>
+      <th>Expiration month</th>
+      <td><input type="text" name="exp_month" data-stripe="exp_month">
+        (e.g. 03)
+      </td> 
+    </tr>
+    <tr>
+      <th>Expiration year</th>
+      <td><input type="text" name="exp_year" data-stripe="exp_year">
+        (e.g. 17)
+      </td> 
+    </tr>
+    <tr>
+      <th>Card security code</th>
+      <td><input type="text" name="cvc" data-stripe="cvc">
+        (last three digits on back of card)
+      </td> 
+    </tr>
+  </table>
+
+  <div class="block center">
+    <button id="saveButton" class="bigred">save</button>
+  </div>
+</form>
