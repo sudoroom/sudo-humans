@@ -8,7 +8,7 @@ module.exports = {
         host: "localhost", // only needed for type: "smtp"
         port: 25, // only needed for type: "smtp"
         from_address: "noreply@example.com"
-    }.
+    },
 
     stripe_api_key: "ADD_YOUR_KEY",
     stripe_publishable_key: "ADD_YOUR_PUBKEY"
