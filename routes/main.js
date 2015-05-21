@@ -35,8 +35,8 @@ module.exports = function (ixf, counts) {
         function write (row, enc, next) {
             var name = row.value.name;
             this.push({
-                '[key=link]': { href: '/~' + name },
-                '[key=avatar]': { src: '/~' + name + '.png' },
+                '[key=link]': { href: '~' + name },
+                '[key=avatar]': { src: '~' + name + '.png' },
                 '[key=name]': { _text: name }
             });
             next();
@@ -65,7 +65,7 @@ module.exports = function (ixf, counts) {
                 : 'updated their profile'
             ;
             return {
-                '[key=name]': { _text: name, href: '/~' + name },
+                '[key=name]': { _text: name, href: '~' + name },
                 '[key=msg]': { _text: msg },
                 '[key=ago]': { _text: timeago(user.updated) },
                 '[key=date]': { _text: user.updated }

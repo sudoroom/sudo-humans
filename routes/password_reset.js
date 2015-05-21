@@ -27,11 +27,7 @@ if(settings.mailer.type == 'direct') {
     }
 }
 
-
-
-
 module.exports = function (users, index) {
-
 
     function updateLogin(user, password, cb) {
         users.removeLogin(user.id, 'basic', function (err) {
@@ -46,7 +42,7 @@ module.exports = function (users, index) {
     return post(function (req, res, m) {
 
         if(!m.params.email_or_username) {
-            res.writeHead(303, { location: '/account/password-reset' });
+            res.writeHead(303, { location: 'password-reset' });
             res.end();
             return;
         }
@@ -63,7 +59,7 @@ module.exports = function (users, index) {
             if(err) return m.error(500, err);
 
             if(!user || !user.email) {
-                res.writeHead(303, { location: '/account/password-reset-success' });
+                res.writeHead(303, { location: 'password-reset-success' });
                 res.end();
                 return;
             }
@@ -83,27 +79,16 @@ module.exports = function (users, index) {
                         to: user.email,
                         subject: "[sudo-humans] Password reset!",
                         text: "Your password has been reset.\n\nYour new password is: " + password + "\n\nYou can log in at: " + settings.base_url + "/account/sign-in\n\nhack hack hack"
-                }, function(err, info) {
-                    if(err) return m.error(500, err);
-
-                    res.writeHead(303, { location: '/account/password-reset-success' });
-                    res.end();
-                    return;
-
+                    }, function(err, info) {
+                        if(err) return m.error(500, err);
+                        
+                        res.writeHead(303, { location: 'password-reset-success' });
+                        res.end();
+                        return;
+                        
+                    });
                 });
-
-
-                    
-                    
-                });
-
-
-
             });
-
-
         });
-
-
     });
 };

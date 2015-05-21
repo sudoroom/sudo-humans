@@ -171,7 +171,7 @@ module.exports = function (users, auth, blob) {
         saveUser(user, function(err, user) {
             if(err) {return m.error(500, err)}
             res.statusCode = 302;
-            res.setHeader('location', '/~' + user.name + '/payment');
+            res.setHeader('location', 'payment');
             res.end('redirect');       
         });
     }

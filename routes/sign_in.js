@@ -10,7 +10,7 @@ module.exports = function (users, auth) {
         });
         function onlogin (err, session) {
             if (err) return m.error(400, err);
-            res.writeHead(303, { location: '/' });
+            res.writeHead(303, { location: '../../' });
             res.end();
         }
     });

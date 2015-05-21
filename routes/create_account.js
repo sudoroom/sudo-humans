@@ -51,7 +51,7 @@ module.exports = function (users, auth, blob) {
         });
         function onlogin (err, session) {
             if (err) return m.error(400, err);
-            res.writeHead(303, { location: '/account/welcome' });
+            res.writeHead(303, { location: 'welcome' });
             res.end();
         }
     }

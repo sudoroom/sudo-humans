@@ -28,22 +28,22 @@ module.exports = function (users, auth, blob) {
     }
     
     function showUser (user, error) {
-        var paymentUrl = '/~' + user.name + '/payment';
+        var paymentUrl = 'payment';
         var props = {
-            '#edit-profile': { action: '/~' + user.name + '/edit' },
+            '#edit-profile': { action: 'edit' },
             '[name=nym]': { value: user.name },
             '[name=email]': { value: user.email },
             '[name=full-name]': { value: user.fullName },
             '[name=about]': { _text: readblob(user.about) },
-            '[key=payment]': user.payment
+            '[key=payment]': user.stripe.subscription_id
                 ? { href: paymentUrl, _text: "Edit recurring payment" }
                 : { href: paymentUrl, _text: "Set up recurring payment" }
             ,
             '[name=ssh]': { _text: readblob(user.ssh) },
             '[name=pgp]': { _text: readblob(user.pgp) },
             '[key=avatar]': user.avatar
-                ? { src: '/~' + user.name + '.png' }
-                : { src: '/default.png' }
+                ? { src: '../~' + user.name + '.png' }
+                : { src: '../default.png' }
         };
         var opkey = '[name=visibility] option[value="' + user.visibility + '"]';
         props[opkey] = { selected: true };
@@ -139,7 +139,7 @@ module.exports = function (users, auth, blob) {
             users.put(m.session.data.id, doc, function (err) {
                 if (err) return m.error(500, err);
                 res.statusCode = 302;
-                res.setHeader('location', '/~' + doc.name);
+                res.setHeader('location', '../~' + doc.name);
                 res.end('redirect');
             });
         }

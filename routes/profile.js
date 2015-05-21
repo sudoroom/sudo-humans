@@ -28,15 +28,15 @@ module.exports = function (auth, ixf, blob) {
                 _text: user.member ? 'member' : 'comrade'
             },
             '[key=avatar]': user.avatar
-                ? { src: '/~' + user.name + '.png' }
-                : { src: '/default.png' }
+                ? { src: '~' + user.name + '.png' }
+                : { src: 'default.png' }
             ,
             '[key=ssh]': user.ssh
-                ? { href: '/~' + user.name + '.pub' }
+                ? { href: '~' + user.name + '.pub' }
                 : { style: 'display: none' }
             ,
             '[key=pgp]': user.pgp
-                ? { href: '/~' + user.name + '.asc' }
+                ? { href: '~' + user.name + '.asc' }
                 : { style: 'display: none' }
             ,
             '[key=about]': markdown(user.about)
@@ -45,7 +45,7 @@ module.exports = function (auth, ixf, blob) {
             props['.edit-profile'] = { style: 'display: none;' };
         }
         else {
-            props['.edit-link'] = { href: '/~' + user.name + '/edit' };
+            props['.edit-link'] = { href: '~' + user.name + '/edit' };
         }
         return hyperstream(props);
         

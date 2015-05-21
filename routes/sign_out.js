@@ -15,7 +15,7 @@ module.exports = function (auth) {
             else done()
         });
         function done () {
-            res.writeHead(303, { location: '/' });
+            res.writeHead(303, { location: '../../' });
             res.end();
         }
     };
