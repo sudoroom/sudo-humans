@@ -1,6 +1,10 @@
 
 module.exports = {
 
+    base_url: "https://humans.sudoroom.org",
+
+    mail_from_address: "noreply@sudoroom.org",
+
     stripe_api_key: "ADD_YOUR_KEY",
     stripe_publishable_key: "ADD_YOUR_PUBKEY"
 };

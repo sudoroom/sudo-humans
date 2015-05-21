@@ -111,6 +111,13 @@ router.addRoute('/account/sign-in', layout('sign_in.html'));
 router.addRoute('/account/sign-in/post', 
     require('../routes/sign_in.js')(users, auth)
 );
+
+router.addRoute('/account/password-reset', layout('password_reset.html'));
+router.addRoute('/account/password-reset-success', layout('password_reset_success.html'));
+router.addRoute('/account/password-reset/post', 
+    require('../routes/password_reset.js')(users, ixf.index)
+);
+
 router.addRoute('/account/sign-out/:token', 
     require('../routes/sign_out.js')(auth)
 );
