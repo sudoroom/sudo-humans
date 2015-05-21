@@ -1,8 +1,32 @@
 var post = require('../lib/post.js');
 var userFromX = require('../lib/user_from_x.js');
 var xkcdPassword = require('xkcd-password');
-var mailer = require('nodemailer').createTransport();
+
 var settings = require('../settings.js');
+
+var mailer; 
+
+if(settings.mailer.type == 'direct') {
+    mailer = require('nodemailer').createTransport();
+} else if(settings.mailer.type == 'smtp') {
+    var smtpTransport = require('nodemailer-smtp-transport');
+    mailer = require('nodemailer').createTransport(smtpTransport({
+        host: settings.mailer.host || "localhost",
+        port: settings.mailer.port || 25
+    }));
+} else { // console output only
+    mailer = {
+        sendMail: function(data, cb) {
+            console.log("Not actually sending email:");
+            console.log("  From: " + data.from);
+            console.log("  To: " + data.to);
+            console.log("  Subject: " + data.subject);
+            console.log("  Content: \n" + (data.html || data.text));
+            cb(null, null);
+        }
+    }
+}
+
 
 
 
@@ -55,7 +79,7 @@ module.exports = function (users, index) {
                     if(err) return m.error(500, err);
 
                     mailer.sendMail({
-                        from: settings.mail_from_address,
+                        from: settings.mailer.from_address,
                         to: user.email,
                         subject: "[sudo-humans] Password reset!",
                         text: "Your password has been reset.\n\nYour new password is: " + password + "\n\nYou can log in at: " + settings.base_url + "/account/sign-in\n\nhack hack hack"

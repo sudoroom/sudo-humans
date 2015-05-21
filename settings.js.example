@@ -1,9 +1,14 @@
 
 module.exports = {
 
-    base_url: "https://humans.sudoroom.org",
+    base_url: "https://example.com",
 
-    mail_from_address: "noreply@sudoroom.org",
+    mailer: {
+        type: "smtp", // can also be "direct" or "console"
+        host: "localhost", // only needed for type: "smtp"
+        port: 25, // only needed for type: "smtp"
+        from_address: "noreply@example.com"
+    }.
 
     stripe_api_key: "ADD_YOUR_KEY",
     stripe_publishable_key: "ADD_YOUR_PUBKEY"
