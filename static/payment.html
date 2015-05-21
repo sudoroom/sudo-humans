@@ -4,6 +4,32 @@
 
   $(document).ready(function() {
 
+    $('#cancel').click(function(e) {
+      var el = $('#cancelParent');
+      var delay = 3;
+
+      function waitCheck() {
+        delay--;
+        if(delay > 0) {
+          el.html("Wait " + delay + " seconds");
+          setTimeout(waitCheck, 1000);
+        } else {
+          var a = document.createElement("A");
+          a.href = "#";
+          a.innerHTML = "Click again to confirm that you really want to cancel your subscription.";
+          el.html(a);
+
+          $(a).click(function(e) {
+            $("#cancelForm").submit();
+          });
+        }
+      }
+      delay++;
+      waitCheck();
+
+      return false;
+    })
+
     var pubKey = $("#publishableKey").val();
      Stripe.setPublishableKey(pubKey);
 
@@ -12,7 +38,7 @@
 
       var form = $(this);
 
-      if(!$("#card_name").val()) {
+      if(!$("input[name=card_name]").val()) {
         // if the card name isn't filled, out, 
         // then we don't have a new credit card number
         // so just clear the fields and submit
@@ -29,10 +55,13 @@
         }
         var token = resp.id;
 
+        var lastTwoDigits = $("input[name=card_number]").val().slice(-2);
+
         $(".creditcard input").val('');
 
+        form.append($('<input type="hidden" name="lastTwoDigits" />').val(lastTwoDigits));
         form.append($('<input type="hidden" name="stripeToken" />').val(token));
-  console.log(token);
+
         form.get(0).submit();
 
       });
@@ -43,6 +72,10 @@
   });
 </script>
 
+<form id="cancelForm" method="post">
+  <input type="hidden" name="cancel" value="yes" />
+</form>
+
 <input type="hidden" id="publishableKey" />
 
 <form id="paymentForm" method="post" class="chunk">
@@ -51,9 +84,6 @@
     
   <div class="block">
     <div key="status">
-    </div>
-    <div>
-      <a key="action"></a>
     </div>
   </div>
 
@@ -64,14 +94,15 @@
       <th>Monthly subscription</th>
       <td>
         <select name="subscription_plan">
-          <option value="">[please select]</option>          
-          <option value="tendollar">$10.00</option>
-          <option value="twentydollar">$20.00</option>
-          <option value="fortydollar">$40.00</option>
+          <!-- filled out by server side js -->
         </select>
       </td>
     </tr>
   </table>
+
+  <div id="cancelParent">
+    <a href="#" id="cancel"></a>
+  </div>
 
   <h1 key="cc_title"></h1>
   <p key="cc_current"></p>
@@ -79,7 +110,7 @@
   <table class="creditcard">
     <tr>
       <th>Cardholder name</th>
-      <td><input id="card_name" type="text" name="card_name" data-stripe="name">
+      <td><input type="text" name="card_name" data-stripe="name">
         (as written on card)
       </td>
     </tr>

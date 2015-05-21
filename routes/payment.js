@@ -25,26 +25,73 @@ module.exports = function (users, auth, blob) {
         var input = through(), output = through();
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(err);
-            input.pipe(showPayment(user, m.error)).pipe(output);
+            computeStream(user, m.error, function(hypstr) {
+                input.pipe(hypstr).pipe(output);
+            });
         });
         return duplexer(input, output);
     }
     
-    function showPayment (user, error) {
-        console.log(user);
-        var cancelUrl = '/~' + user.name + '/payment/cancel';
+    function computeStream(user, error, cb) {
+
+        stripe.plans.list(function(err, plans) {
+            if(err) return cb(m.error(err));
+            plans = plans.data.sort(function(a, b) {
+                if(a.amount > b.amount) {
+                    return 1;
+                } else if(a.amount < b.amount) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+
+            if(user.stripe && user.stripe.customer_id && user.stripe.subscription_id) {
+                stripe.customers.retrieveSubscription(user.stripe.customer_id, user.stripe.subscription_id, function(err, subscription) {
+                    if(err) return cb(m.error(err));
+                    if(!subscription || !subscription.plan || !subscription.plan.id) {
+                        return cb(showPayment(user, null, plans, error));
+                    }
+                    return cb(showPayment(user, subscription.plan, plans, error));
+                });
+                
+            } else {
+                return cb(showPayment(user, null, plans, error));
+            }
+        });
+    }
+
+
+    function showPayment(user, user_plan, plans, error) {
+
+        if(!user.stripe) {
+            user.stripe = {};
+        }
+
+        planHtml = '<option value="">[please select]</option>';
+        var i, plan, selected;
+        for(i=0; i < plans.length; i++) {
+            plan = plans[i];
+            if((plan.currency != 'usd') || (plan.interval != 'month') || (plan.interval_count != 1) || plan.trial_period_days) {
+                continue;
+            }
+            selected = (user_plan && (plan.id == user_plan.id)) ? ' selected' : '';
+            planHtml += '<option value="'+plan.id+'"'+selected+'>$'+(plan.amount / 100)+'</option>';
+        }
+
         var props = {
-            '[key=status]': (user.stripe && user.stripe.subscription_id)
-                ? { _text: "You have a recurring payment set up for " + ' something ' + " every " + ' something.' }
+            '[key=status]': (user.stripe.subscription_id)
+                ? { _text: "You have a recurring payment set up for $" + (user_plan.amount / 100) + " every month." }
                 : { _text: "You have no recurring payments set up." },
-            '[key=action]': user.payment
-            ? { href: cancelUrl, _text: "cancel recurring payment" }
+            '[id=cancel]': user.stripe.subscription_id
+            ? { _text: "cancel your subscription" }
             : { style: "display: none" },
-            '[key=cc_title]': (user.stripe && user.stripe.subscription_id)
+            '[name=subscription_plan]': { _html: planHtml },
+            '[key=cc_title]': (user.stripe.subscription_id)
             ? { _text: "change credit card" }
             : { _text: "credit card" },
-            '[key=cc_current]': user.credit_card_last_two
-            ? { _text: "Your current card is the one ending in " + 'XXXX' }
+            '[key=cc_current]': user.stripe.last_two_digits
+            ? { _text: "Your current card is the one ending in xx" + user.stripe.last_two_digits }
             : { _text: "Fill in your credit card info below." },
             '[id=publishableKey]': {
                 value: settings.stripe_publishable_key
@@ -53,15 +100,34 @@ module.exports = function (users, auth, blob) {
 
         return hyperstream(props);
         
-
     }
     
     function save (req, res, m) {
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(500, err);
             if (!user) return m.error(404, 'no user data');
-            
-            console.log(m.params.stripeToken);
+
+            // are we cancelling a subscription?
+            if(m.params.cancel) {
+                
+                if(!user.stripe || !user.stripe.customer_id || !user.stripe.subscription_id) {
+                    return m.error(500, "Trying to cancel non-existant subscription");
+                }
+
+                stripe.customers.cancelSubscription(
+                    user.stripe.customer_id,
+                    user.stripe.subscription_id,
+                    function(err, confirmation) {
+                        if(err) {
+                            return m.error(500, err)
+                        }
+                        // TODO show confirmation number
+                    });
+                user.stripe = {};
+                postSave(user, m, res);
+
+                return;
+            }
 
             // TODO input validation!
 
@@ -81,6 +147,7 @@ module.exports = function (users, auth, blob) {
 
                     createOrUpdateSubscription(user, m, function(err, subscription) {
                         if(err) {return m.error(500, err)}
+                        user.stripe.last_two_digits = m.params.lastTwoDigits;
                         user.stripe.subscription_id = subscription.id;
                         postSave(user, m, res);
                     });
@@ -90,6 +157,9 @@ module.exports = function (users, auth, blob) {
             } else { // this is an existing subscription being changed
                 createOrUpdateSubscription(user, m, function(err, subscription) {
                     if(err) {return m.error(500, err)}
+                    if(m.params.lastTwoDigits) {
+                        user.stripe.last_two_digits = m.params.lastTwoDigits;
+                    }
                     user.stripe.subscription_id = subscription.id;
                     postSave(user, m, res);
                 });
@@ -141,105 +211,6 @@ module.exports = function (users, auth, blob) {
                 source: m.params.stripeToken
             }, callback);
         }
-    }
+    }    
 
-    function saveData (req, res, m) {
-        var pending = 1;
-        var doc = {
-            name: m.params.nym,
-            email: m.params.email,
-            fullName: m.params['full-name'],
-            visibility: m.params.visibility,
-            updated: new Date().toISOString()
-        };
-        if (m.params.avatar) {
-            doc.avatar = m.params.avatar;
-        }
-        
-        users.get(m.session.data.id, function (err, user) {
-            if (err) return m.error(500, err);
-            if (!user) return m.error(404, 'no user data');
-            
-            doc = xtend(user, doc);
-            if (user.name !== doc.name && !m.params.password) {
-                m.error(401, 'password required when updating a sudonym');
-            }
-            else if (user.name !== doc.name) {
-                updateLogin(function (err) {
-                    if (err) return m.error(500, err)
-                    m.session.update({ name: doc.name }, function (err) {
-                        if (err) m.error(500, err)
-                        else done()
-                    });
-                });
-            }
-            else if (m.params.password) {
-                updateLogin(function (err) {
-                    if (err) m.error(500, err);
-                    else done();
-                });
-            }
-            else done();
-        });
-        wsave('about');
-        wsave('ssh');
-        wsave('pgp');
-        
-        function updateLogin (cb) {
-            var id = m.session.data.id;
-            users.removeLogin(id, 'basic', function (err) {
-                if (err) return cb(err);
-                users.addLogin(id, 'basic', {
-                    username: m.params.nym,
-                    password: m.params.password
-                }, cb);
-            });
-        }
-        
-        function wsave (key) {
-            pending ++;
-            if (!/\S/.test(m.params[key])) return done();
-            blob.createWriteStream().end(m.params[key], function () {
-                doc[key] = this.key;
-                done();
-            });
-        }
-        function done () {
-            if (-- pending !== 0) return;
-            users.put(m.session.data.id, doc, function (err) {
-                if (err) return m.error(500, err);
-                res.statusCode = 302;
-                res.setHeader('location', '/~' + doc.name);
-                res.end('redirect');
-            });
-        }
-    }
-    
-    function get (u, hops, cb) {
-        if (hops > 3) {
-            return cb(new Error('too many redirects fetching avatar'));
-        }
-        var hq = hyperquest.get(u);
-        
-        var size = 0;
-        hq.pipe(through(function (buf, enc, next) {
-            size += buf.length;
-            if (size >= 1024 * 300) { // 300kb
-                cb(new Error('Avatar image too big. Must be < 300kb'));
-            }
-            else next();
-        }));
-        
-        hq.on('error', cb);
-        hq.on('response', function (res) {
-            if (/^3/.test(res.statusCode)) {
-                get(res.headers.location, hops + 1, cb);
-            }
-            else if (/^2/.test(res.statusCode)) {
-                var w = hq.pipe(blob.createWriteStream());
-                w.on('finish', function () { cb(null, w.key) });
-            }
-            else cb(new Error('error fetching avatar: ' + res.statusCode))
-        });
-    }
 };
