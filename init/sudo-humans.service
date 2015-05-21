@@ -1,0 +1,12 @@
+[Unit]
+Description=sudo-humans web app
+After=local-fs.target network.target
+
+[Service]
+Type=simple
+ExecStart=/etc/init.d/sudo-humans start
+ExecStop=/etc/init.d/sudo-humans stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

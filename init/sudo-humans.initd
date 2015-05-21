@@ -1,0 +1,80 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          sudo-humans
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: psy running sudo-humans
+# Description:       psy running sudo-humans
+### END INIT INFO
+#
+# initd a node app
+
+# Source function library.
+. /lib/lsb/init-functions
+
+logFile="/home/sudohumans/sudo-humans.log"
+
+command="/usr/local/bin/node"
+nodeApp="/home/sudohumans/sudo-humans/bin/cmd.js"
+runnerApp="/usr/local/bin/psy"
+workingDir="/home/sudohumans/sudo-humans"
+port="5000"
+user="sudohumans"
+
+start() {
+   echo "Starting $nodeApp"
+
+   # Notice that we change the PATH because on reboot
+   # the PATH does not include the path to node.
+
+   PATH=/usr/local/bin:$PATH
+   export NODE_ENV=production
+   export HOME="/home/sudohumans"
+
+   cd $workingDir
+
+   su $user -c "$runnerApp start --logfile $logFile --name sudo-humans -- node $nodeApp --port $port"
+
+
+   RETVAL=$?
+}
+
+restart() {
+	echo -n "Restarting sudo-humans"
+	su $user -c "$runnerApp restart sudo-humans"
+	RETVAL=$?
+}
+
+stop() {
+	echo -n "Shutting down sudo-humans"
+   su $user -c "$runnerApp stop sudo-humans"
+   RETVAL=$?
+}
+
+status() {
+   echo -n "Status sudo-humans"
+   su $user -c "$runnerApp list"
+   RETVAL=$?
+}
+
+case "$1" in
+   start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+   status)
+        status
+       ;;
+   restart)
+   	restart
+        ;;
+	*)
+       echo "Usage:  {start|stop|status|restart}"
+       exit 1
+        ;;
+esac
+exit $RETVAL
