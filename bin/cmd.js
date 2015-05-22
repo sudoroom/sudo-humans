@@ -132,10 +132,10 @@ router.addRoute('/~:name/payment',
 );
 
 router.addRoute('/email/users',
-    require('../routes/email_list.js')('users', ixf.index)
+    require('../routes/email_list.js')('users', ixf.index, users)
 );
 router.addRoute('/email/members',
-    require('../routes/email_list.js')('members', ixf.index)
+    require('../routes/email_list.js')('members', ixf.index, users)
 );
 
 var server = http.createServer(function (req, res) {
