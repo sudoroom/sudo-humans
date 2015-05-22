@@ -35,7 +35,7 @@ module.exports = function (users, auth, blob) {
     function computeStream(user, error, cb) {
 
         stripe.plans.list(function(err, plans) {
-            if(err) return cb(m.error(err));
+            if(err) return cb(error(err));
             plans = plans.data.sort(function(a, b) {
                 if(a.amount > b.amount) {
                     return 1;
@@ -48,7 +48,7 @@ module.exports = function (users, auth, blob) {
 
             if(user.stripe && user.stripe.customer_id && user.stripe.subscription_id) {
                 stripe.customers.retrieveSubscription(user.stripe.customer_id, user.stripe.subscription_id, function(err, subscription) {
-                    if(err) return cb(m.error(err));
+                    if(err) return cb(error(err));
                     if(!subscription || !subscription.plan || !subscription.plan.id) {
                         return cb(showPayment(user, null, plans, error));
                     }
