@@ -34,7 +34,7 @@ module.exports = function (users, auth, blob) {
     
     function computeStream(user, error, cb) {
 
-        stripe.plans.list(function(err, plans) {
+        stripe.plans.list({limit: 50}, function(err, plans) {
             if(err) return cb(error(err));
             plans = plans.data.sort(function(a, b) {
                 if(a.amount > b.amount) {
