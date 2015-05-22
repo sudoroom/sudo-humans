@@ -28,6 +28,11 @@ module.exports = function (users, auth, blob) {
     }
     
     function showUser (user, error) {
+
+        if(!user.stripe) {
+            user.stripe = {};
+        }
+
         var paymentUrl = 'payment';
         var props = {
             '#edit-profile': { action: 'edit' },
