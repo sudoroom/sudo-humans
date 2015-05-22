@@ -7,6 +7,7 @@ module.exports = {
         type: "smtp", // can also be "direct" or "console"
         host: "localhost", // only needed for type: "smtp"
         port: 25, // only needed for type: "smtp"
+        tls: false,
         from_address: "noreply@example.com"
     },
 

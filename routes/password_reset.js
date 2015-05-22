@@ -12,7 +12,8 @@ if(settings.mailer.type == 'direct') {
     var smtpTransport = require('nodemailer-smtp-transport');
     mailer = require('nodemailer').createTransport(smtpTransport({
         host: settings.mailer.host || "localhost",
-        port: settings.mailer.port || 25
+        port: settings.mailer.port || 25,
+        ignoreTLS: !settings.mailer.tls
     }));
 } else { // console output only
     mailer = {
