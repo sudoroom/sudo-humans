@@ -121,7 +121,9 @@ router.addRoute('/account/password-reset/post',
 router.addRoute('/account/sign-out/:token', 
     require('../routes/sign_out.js')(auth)
 );
-router.addRoute('/account/welcome', layout('welcome.html'));
+router.addRoute('/account/welcome', 
+                require('../routes/welcome.js')(auth, ixf, blob)
+);
 router.addRoute('/~:name.:ext', require('../routes/ext.js')(ixf, blob));
 router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob));
 router.addRoute('/~:name/edit',
