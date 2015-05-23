@@ -121,7 +121,7 @@ router.addRoute('/account/password-reset/post',
 router.addRoute('/account/sign-out/:token', 
     require('../routes/sign_out.js')(auth)
 );
-router.addRoute('/account/welcome', 
+router.addRoute('/~:name/welcome', 
                 require('../routes/welcome.js')(auth, ixf, blob)
 );
 router.addRoute('/~:name.:ext', require('../routes/ext.js')(ixf, blob));

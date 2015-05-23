@@ -6,7 +6,7 @@ module.exports = function (index, users) {
 
             users.get(m.session.data.id, function (err, user) {
                 if (err) return m.error(err);
-                if(user.name != 'juul') {
+                if(!user.admin) {
                     res.end("access denied");
                     return;
                 }
