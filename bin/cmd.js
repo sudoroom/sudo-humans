@@ -140,6 +140,10 @@ router.addRoute('/email/members',
     require('../routes/email_list.js')('members', ixf.index, users)
 );
 
+router.addRoute('/admin/dump',
+    require('../routes/dump.js')(ixf.index, users)
+);
+
 var server = http.createServer(function (req, res) {
     var m = router.match(req.url);
     if (!m) return ecstatic(req, res);
