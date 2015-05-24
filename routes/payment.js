@@ -76,7 +76,7 @@ module.exports = function (users, auth, blob) {
                 continue;
             }
             selected = (user_plan && (plan.id == user_plan.id)) ? ' selected' : '';
-            planHtml += '<option value="'+plan.id+'"'+selected+'>$'+(plan.amount / 100)+'</option>';
+            planHtml += '<option value="'+plan.id+'"'+selected+'>$'+(plan.amount / 100)+' - ' + plan.name + '</option>';
         }
 
         var props = {
