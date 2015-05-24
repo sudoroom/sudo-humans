@@ -391,3 +391,7 @@ button.bigred:hover {
   margin:auto;
   text-align:center;
 }
+
+.js-only {
+  display: none !important;
+}

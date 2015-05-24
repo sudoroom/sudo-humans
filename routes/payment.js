@@ -89,13 +89,21 @@ module.exports = function (users, auth, blob) {
             '[name=subscription_plan]': { _html: planHtml },
             '[key=cc_title]': (user.stripe.subscription_id)
             ? { _text: "change credit card" }
-            : { _text: "credit card" },
+            : { _text: "credit card", class: "js-only" },
             '[key=cc_current]': user.stripe.last_two_digits
             ? { _text: "Your current card is the one ending in xx" + user.stripe.last_two_digits }
-            : { _text: "Fill in your credit card info below." },
+            : { _text: "Fill in your credit card info below.", class: "js-only" },
             '[id=publishableKey]': {
                 value: settings.stripe_publishable_key
-            }
+            },
+            '[id=cancelForm]': !user.stripe.subscription_id
+            ? { style: "display: none" } : {},
+            '[key=subHeader]': !user.stripe.subscription_id
+            ? { class: "js-only" } : {},
+            '[key=subTable]': !user.stripe.subscription_id
+            ? { class: "js-only" } : {},
+            '[id=saveButton]': !user.stripe.subscription_id
+            ? { class: "js-only" } : {}
         };
 
         return hyperstream(props);

@@ -4,6 +4,9 @@
 
   $(document).ready(function() {
 
+    $('.js-only').removeClass('js-only');
+    $('.no-js').css('display', 'none');
+
     $('#cancel').click(function(e) {
       var el = $('#cancelParent');
       var delay = 3;
@@ -72,13 +75,19 @@
   });
 </script>
 
-<form id="cancelForm" method="post">
-  <input type="hidden" name="cancel" value="yes" />
-</form>
-
 <input type="hidden" id="publishableKey" />
 
 <form id="paymentForm" method="post" class="chunk">
+
+  <noscript>  
+    <h1 style="color:red">
+      javascript disabled warning
+    </h1>
+
+    <div class="block" style="color:red">
+      Your browser does not support javascript. You can change your recurring payment amount and cancel your recurring payment, but you cannot set up a new recurring payment, nor can you change your credit card unless you enable javascript! This is because we do not store your credit card information on our own servers and it is impossible to send your credit card info directly to the credit card processor without javascript.
+    </div>
+  </noscript>
 
   <h1>recurring payment status</h1>
     
@@ -87,9 +96,9 @@
     </div>
   </div>
 
-  <h1>subscription type</h1>
+  <h1 key="subHeader">subscription type</h1>
 
-  <table>
+  <table key="subTable">
     <tr>
       <th>Monthly subscription</th>
       <td>
@@ -100,14 +109,14 @@
     </tr>
   </table>
 
-  <div id="cancelParent">
+  <div id="cancelParent" class="js-only">
     <a href="#" id="cancel"></a>
   </div>
 
   <h1 key="cc_title"></h1>
   <p key="cc_current"></p>
 
-  <table class="creditcard">
+  <table class="creditcard js-only">
     <tr>
       <th>Cardholder name</th>
       <td><input type="text" name="card_name" data-stripe="name">
@@ -142,3 +151,10 @@
     <button id="saveButton" class="bigred">save</button>
   </div>
 </form>
+<p></p>
+<form id="cancelForm" method="post" class="chunk no-js">
+  <h1>cancel recurring payment</h1>
+  <input type="hidden" name="cancel" value="yes" />
+  <input type="submit" value="Click to cancel your recurring payment" />
+</form>
+
