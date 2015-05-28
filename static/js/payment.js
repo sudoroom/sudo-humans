@@ -33,7 +33,78 @@ $(document).ready(function() {
   var pubKey = $("#publishableKey").val();
   Stripe.setPublishableKey(pubKey);
 
+  function formToObj(form) {
+      var o = {};
+      var a = $(form).serializeArray();
+      $.each(a, function() {
+          if (o[this.name] !== undefined) {
+              if (!o[this.name].push) {
+                  o[this.name] = [o[this.name]];
+              }
+              o[this.name].push(this.value || '');
+          } else {
+              o[this.name] = this.value || '';
+          }
+      });
+      return o;
+  }  
+
+  function validationFail(msg) {
+      $("#flash").html(msg);
+      window.location = "#flash";
+      return false;
+  }
+
   $('#paymentForm').submit(function(e) {
+      
+      var o = formToObj("#paymentForm");
+
+      if(!o.subscription_plan) {
+          return validationFail("You must select a monthly subscription");
+      }
+
+      o.card_name = o.card_name.replace(/\s+/g, '');
+      o.card_number = o.card_number.replace(/\s+/g, '');
+      o.exp_month = o.exp_month.replace(/\s+/g, '');
+      o.exp_year = o.exp_year.replace(/\s+/g, '');
+      o.cvc = o.cvc.replace(/\s+/g, '');
+/*
+      if(o.card_name || o.card_number) {
+          if(!o.card_name) {
+              return validationFail("Cardholder name missing");
+          }
+          if(!o.card_number) {
+              return validationFail("Card number missing");
+          }
+          if(!o.card_number.match(/[0-9]{16}/)) {
+              return validationFail("Invalid credit card number");
+          }
+          if(!o.exp_month) {
+              return validationFail("Expiration month missing");
+          }
+          if(!o.exp_month.match(/[0-9]{2}/)) {
+              return validationFail("Invalid month");
+          }
+          if(!o.exp_year) {
+              return validationFail("Expiration year missing");
+          }
+          if(!o.exp_year.match(/[0-9]{2}/)) {
+              return validationFail("Invalid year. Should be two digits");
+          }
+          if(!o.cvc) {
+              return validationFail("Card security code missing");
+          }
+          if(!o.cvc.match(/[0-9]{3}/)) {
+              return validationFail("Invalid card security code");
+          }
+      } else {
+          if(!o.is_subscribed) {
+              return validationFail("You forgot to fill out your credit card information");
+          }
+      }
+*/
+      
+
     $('#saveButton').disabled = true;
 
     var form = $(this);
@@ -50,8 +121,7 @@ $(document).ready(function() {
   
     Stripe.card.createToken(form, function(status, resp) {
       if(resp.error) {
-        alert("TODO handle error: " + resp.error.message);
-        return;      
+        return validationFail(resp.error.message);
       }
       var token = resp.id;
 

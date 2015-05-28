@@ -395,3 +395,9 @@ button.bigred:hover {
 .js-only {
   display: none !important;
 }
+
+.flash {
+  color: red;
+  font-weight: bold;
+  padding-top: 20px;
+}

@@ -102,8 +102,8 @@ module.exports = function (users, auth, blob) {
             ? { class: "js-only" } : {},
             '[key=subTable]': !user.stripe.subscription_id
             ? { class: "js-only" } : {},
-            '[id=saveButton]': !user.stripe.subscription_id
-            ? { class: "js-only" } : {}
+            '[name=is_subscribed]': user.stripe.subscription_id
+            ? { value: "yes" } : {}
         };
 
         return hyperstream(props);
