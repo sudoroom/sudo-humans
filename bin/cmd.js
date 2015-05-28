@@ -133,6 +133,10 @@ router.addRoute('/~:name/payment',
     require('../routes/payment.js')(users, auth, blob)
 );
 
+router.addRoute('/members',
+    require('../routes/members.js')(users, auth, blob)
+);
+
 router.addRoute('/email/users',
     require('../routes/email_list.js')('users', ixf.index, users)
 );
