@@ -1,0 +1,39 @@
+#!/bin/sh
+ 
+# Download SSH public key for sudo room user from sudo-humans
+ 
+BASE_URL="https://sudoroom.org/humans"
+MAX_TIME="5" # Fail if download takes longer than this (in seconds)
+GET_CMD=""
+ 
+if [ "$#" -ne "1" ]; then
+  echo "Usage: sshudo <username>" >&2
+  exit 1
+fi
+ 
+USER=$1
+FILE="${USER}.pub"
+URL="${BASE_URL}/~${USER}.pub"
+ 
+if [ -e "$FILE" ]; then
+  echo "Error: ${FILE} already exists. Will not overwrite."
+  exit 1
+fi
+ 
+wget -h > /dev/null 2>&1 
+if [ "$?" -eq "0" ]; then
+  GET_CMD="wget --timeout ${MAX_TIME} -O ${FILE} ${URL}"
+else
+  curl -h > /dev/null 2>&1
+  if [ "$?" -eq "0" ]; then
+    GET_CMD="curl --max-time ${MAX_TIME} -o ${FILE} ${URL}"
+  fi
+fi
+ 
+echo "Downloading SSH pub key for ${USER} to ${FILE}"
+$GET_CMD > /dev/null 2>&1
+if [ "$?" -ne "0" ]; then
+  echo "Download failed or took longer than ${MAX_TIME} seconds" 2>&1
+else
+  echo "Downloaded!"
+fi
