@@ -12,7 +12,7 @@ var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
     alias: {
         d: 'datadir', p: 'port', u: 'uid', g: 'gid',
-        h: 'help'
+        h: 'help', D: 'debug'
     },
     default: {
         datadir: 'sudoroom-data',
@@ -60,25 +60,65 @@ var ixf = ixfeed({
 
 ixf.index.add(function (row, cb) {
     if (row.value && row.value.type === 'user') {
+
         var ix = {
             'user.id': row.value.id,
             'user.name': row.value.name,
             'user.email': row.value.email,
-            'user.member': row.value.member,
             'user.visibility': row.value.visibility
         };
+
+        var isMember = false;
+        var collective, isCollectiveMember, isCollectiveUser;
+        var c = {};
+        for(collective in settings.collectives) {
+            isCollectiveMember = false;
+            isCollectiveUser = false;
+            ix['user.'+collective] = false;
+            ix['member.'+collective] = false;
+            if(row.value.collectives && row.value.collectives[collective]) {
+                ix['user.'+collective] = true;
+                isCollectiveUser = true;
+                if(row.value.collectives[collective].privs.indexOf('member') >= 0) {
+                    ix['member.'+collective] = true;
+                    isMember = true;
+                    isCollectiveMember = true;
+                }
+            }
+
+
+            if (!row.prev) {
+                c['user.'+collective] = isCollectiveUser ? 1 : 0;
+                c['member.'+collective] = isCollectiveMember ? 1 : 0;
+            } else {
+                if(isCollectiveUser !== row.prev['user.'+collective]) {
+
+                    c['user.'+collective] = isCollectiveUser ? 1 : -1;;
+                }
+                if(isCollectiveMember !== row.prev['member.'+collective]) {
+                    c['member.'+collective] = isCollectiveMember ? 1 : -1;
+                }
+            }
+
+        }
+
+        ix['user.member'] = isMember;
+
         if (!row.prev) {
-            counts.add({
-                user: 1,
-                member: row.value.member ? 1 : 0
-            }, done);
+            c['user'] = 1;
+            c['member'] = isMember ? 1 : 0;
+            
         }
-        else if (row.value.member !== row.prev['user.member']) {
-            counts.add({
-                member: row.value.member ? 1 : -1
-            }, done);
+        else if (isMember !== row.prev['user.member']) {
+            c['member'] = isMember ? 1 : -1;
         }
-        else done()
+        
+        if(Object.keys(c).length > 0) {
+            counts.add(c, done);
+        } else { 
+            done()
+        }
+
         function done (err) { cb(err, ix) }
     }
     else cb()
@@ -101,11 +141,14 @@ var layout = require('../lib/layout.js')(auth);
 
 var router = require('routes')();
 router.addRoute('/', layout('main.html',
-    require('../routes/main.js')(ixf, counts)
+    require('../routes/main.js')(ixf, counts, settings)
+));
+router.addRoute('/c/:collective', layout('collective.html',
+    require('../routes/collective.js')(ixf, counts, settings)
 ));
 router.addRoute('/account/create', layout('create_account.html'));
 router.addRoute('/account/create/post',
-    require('../routes/create_account.js')(users, auth, blob)
+    require('../routes/create_account.js')(users, auth, blob, argv, settings)
 );
 router.addRoute('/account/sign-in', layout('sign_in.html'));
 router.addRoute('/account/sign-in/post', 
@@ -115,7 +158,7 @@ router.addRoute('/account/sign-in/post',
 router.addRoute('/account/password-reset', layout('password_reset.html'));
 router.addRoute('/account/password-reset-success', layout('password_reset_success.html'));
 router.addRoute('/account/password-reset/post', 
-    require('../routes/password_reset.js')(users, ixf.index)
+    require('../routes/password_reset.js')(users, ixf.index, argv)
 );
 
 router.addRoute('/account/sign-out/:token', 
@@ -125,23 +168,23 @@ router.addRoute('/~:name/welcome',
                 require('../routes/welcome.js')(auth, ixf, blob)
 );
 router.addRoute('/~:name.:ext', require('../routes/ext.js')(ixf, blob));
-router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob));
+router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob, settings));
 router.addRoute('/~:name/edit',
-    require('../routes/edit_profile.js')(users, auth, blob)
+    require('../routes/edit_profile.js')(users, auth, blob, settings)
 );
-router.addRoute('/~:name/payment',
-    require('../routes/payment.js')(users, auth, blob)
-);
-
-router.addRoute('/members',
-    require('../routes/members.js')(users, auth, blob)
+router.addRoute('/~:name/:collective/membership',
+    require('../routes/payment.js')(users, auth, blob, settings)
 );
 
-router.addRoute('/email/users',
-    require('../routes/email_list.js')('users', ixf.index, users)
+router.addRoute('/c/:collective/members',
+    require('../routes/members.js')(users, auth, blob, settings)
 );
-router.addRoute('/email/members',
-    require('../routes/email_list.js')('members', ixf.index, users)
+
+router.addRoute('/c/:collective/email/users',
+    require('../routes/email_list.js')('users', ixf.index, users, settings)
+);
+router.addRoute('/c/:collective/email/members',
+    require('../routes/email_list.js')('members', ixf.index, users, settings)
 );
 
 router.addRoute('/admin/dump',
@@ -178,5 +221,12 @@ var server = http.createServer(function (req, res) {
     }
 });
 server.listen({ fd: fd }, function () {
+    if(argv.debug) {
+        // debug mode will print plaintext passwords to stdout 
+        // during account creation and password reset
+        // it will however not leak credit card information 
+        // since that is never sent to the server (it is only sent to stripe)
+        console.log('WARNING: Debug mode enabled. Will leak private user data to stdout (though not credit card info).');
+    }
     console.log('listening on :' + server.address().port);
 });

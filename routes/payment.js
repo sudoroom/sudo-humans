@@ -8,31 +8,51 @@ var xtend = require('xtend');
 var once = require('once');
 
 var settings = require('../settings.js');
-var stripe = require('stripe')(settings.stripe_api_key);
+var Stripe = require('stripe');
 
-module.exports = function (users, auth, blob) {
+module.exports = function (users, auth, blob, settings) {
     return function (req, res, m) {
         if (!m.session) {
-            m.error(401, 'You must be signed in to use this page.');
+            return m.error(401, 'You must be signed in to use this page.');
         }
-        else if (req.method === 'POST') {
-            post(save)(req, res, m);
+
+        var collective = m.params.collective;
+
+        if(!settings.collectives || !settings.collectives[collective]) {
+            return m.error("No collective by that name exists.");
         }
-        else { layout(auth)('payment.html', show)(req, res, m) }
+
+        var stripe = Stripe(settings.collectives[collective].stripe_api_key);
+
+        if (req.method === 'POST') {
+            post(save)(req, res, m, collective, stripe);
+        } else {
+            layout(auth)('payment.html', show)(req, res, m);
+        }
     };
     
     function show (req, res, m) {
         var input = through(), output = through();
         users.get(m.session.data.id, function (err, user) {
+
+            var collective = m.params.collective;
+
+            if(!user.collectives[collective].stripe) {
+                user.collectives[collective].stripe = {};
+            }
+
+            var stripe = Stripe(settings.collectives[collective].stripe_api_key);
+            var userStripe = user.collectives[collective].stripe;
+
             if (err) return m.error(err);
-            computeStream(user, m.error, function(hypstr) {
+            computeStream(user, m.error, collective, stripe, userStripe, function(hypstr) {
                 input.pipe(hypstr).pipe(output);
             });
         });
         return duplexer(input, output);
     }
     
-    function computeStream(user, error, cb) {
+    function computeStream(user, error, collective, stripe, userStripe, cb) {
 
         stripe.plans.list({limit: 50}, function(err, plans) {
             if(err) return cb(error(err));
@@ -46,27 +66,26 @@ module.exports = function (users, auth, blob) {
                 }
             });
 
-            if(user.stripe && user.stripe.customer_id && user.stripe.subscription_id) {
-                stripe.customers.retrieveSubscription(user.stripe.customer_id, user.stripe.subscription_id, function(err, subscription) {
+            if(userStripe && userStripe.customer_id && userStripe.subscription_id) {
+
+                stripe.customers.retrieveSubscription(userStripe.customer_id, userStripe.subscription_id, function(err, subscription) {
                     if(err) return cb(error(err));
                     if(!subscription || !subscription.plan || !subscription.plan.id) {
-                        return cb(showPayment(user, null, plans, error));
+                        return cb(showPayment(user, collective, userStripe, null, plans, error));
                     }
-                    return cb(showPayment(user, subscription.plan, plans, error));
+                    return cb(showPayment(user, collective, userStripe, subscription.plan, plans, error));
                 });
                 
             } else {
-                return cb(showPayment(user, null, plans, error));
+                return cb(showPayment(user, collective, userStripe, null, plans, error));
             }
         });
     }
 
 
-    function showPayment(user, user_plan, plans, error) {
+    function showPayment(user, collective, userStripe, user_plan, plans, error) {
 
-        if(!user.stripe) {
-            user.stripe = {};
-        }
+        console.log(user);
 
         planHtml = '<option value="">[please select]</option>';
         var i, plan, selected;
@@ -80,29 +99,30 @@ module.exports = function (users, auth, blob) {
         }
 
         var props = {
-            '[key=status]': (user.stripe.subscription_id)
+            '[key=headline]': settings.collectives[collective].name + ' membership',
+            '[key=status]': (userStripe.subscription_id)
                 ? { _text: "You have a recurring payment set up for $" + (user_plan.amount / 100) + " every month." }
                 : { _text: "You have no recurring payments set up." },
-            '[id=cancel]': user.stripe.subscription_id
+            '[id=cancel]': userStripe.subscription_id
             ? { _text: "cancel your subscription" }
             : { style: "display: none" },
             '[name=subscription_plan]': { _html: planHtml },
-            '[key=cc_title]': (user.stripe.subscription_id)
+            '[key=cc_title]': (userStripe.subscription_id)
             ? { _text: "change credit card" }
             : { _text: "credit card", class: "js-only" },
-            '[key=cc_current]': user.stripe.last_two_digits
-            ? { _text: "Your current card is the one ending in xx" + user.stripe.last_two_digits }
+            '[key=cc_current]': userStripe.last_two_digits
+            ? { _text: "Your current card is the one ending in xx" + userStripe.last_two_digits }
             : { _text: "Fill in your credit card info below.", class: "js-only" },
             '[id=publishableKey]': {
-                value: settings.stripe_publishable_key
+                value: settings.collectives[collective].stripe_publishable_key
             },
-            '[id=cancelForm]': !user.stripe.subscription_id
+            '[id=cancelForm]': !userStripe.subscription_id
             ? { style: "display: none" } : {},
-            '[key=subHeader]': !user.stripe.subscription_id
+            '[key=subHeader]': !userStripe.subscription_id
             ? { class: "js-only" } : {},
-            '[key=subTable]': !user.stripe.subscription_id
+            '[key=subTable]': !userStripe.subscription_id
             ? { class: "js-only" } : {},
-            '[name=is_subscribed]': user.stripe.subscription_id
+            '[name=is_subscribed]': userStripe.subscription_id
             ? { value: "yes" } : {}
         };
 
@@ -110,28 +130,35 @@ module.exports = function (users, auth, blob) {
         
     }
     
-    function save (req, res, m) {
+    function save (req, res, m, collective, stripe) {
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(500, err);
             if (!user) return m.error(404, 'no user data');
 
+
+            if(!user.collectives[collective].stripe) {
+                user.collectives[collective].stripe = {};
+            }
+            var userStripe = user.collectives[collective].stripe;
+
             // are we cancelling a subscription?
             if(m.params.cancel) {
                 
-                if(!user.stripe || !user.stripe.customer_id || !user.stripe.subscription_id) {
+                if(!userStripe || !userStripe.customer_id || !userStripe.subscription_id) {
                     return m.error(500, "Trying to cancel non-existant subscription");
                 }
 
                 stripe.customers.cancelSubscription(
-                    user.stripe.customer_id,
-                    user.stripe.subscription_id,
+                    userStripe.customer_id,
+                    userStripe.subscription_id,
                     function(err, confirmation) {
                         if(err) {
                             return m.error(500, err)
                         }
                         // TODO show confirmation number
                     });
-                user.stripe = {};
+                userStripe.customer_id = undefined;
+                userStripe.subscription_id = undefined;
                 postSave(user, m, res);
 
                 return;
@@ -139,7 +166,7 @@ module.exports = function (users, auth, blob) {
 
             // TODO input validation!
 
-            if(!user.stripe || !user.stripe.customer_id) {
+            if(!userStripe || !userStripe.customer_id) {
 
                 stripe.customers.create({
                     description: user.name + ' | ' + user.email,
@@ -148,15 +175,12 @@ module.exports = function (users, auth, blob) {
                         return m.error(500, err);
                     }
                     
-                    if(!user.stripe) {
-                        user.stripe = {};
-                    }
-                    user.stripe.customer_id = customer.id;
+                    userStripe.customer_id = customer.id;
 
-                    createOrUpdateSubscription(user, m, function(err, subscription) {
+                    createOrUpdateSubscription(user, userStripe, m, function(err, subscription) {
                         if(err) {return m.error(500, err)}
-                        user.stripe.last_two_digits = m.params.lastTwoDigits;
-                        user.stripe.subscription_id = subscription.id;
+                        userStripe.last_two_digits = m.params.lastTwoDigits;
+                        userStripe.subscription_id = subscription.id;
                         postSave(user, m, res);
                     });
 
@@ -166,9 +190,9 @@ module.exports = function (users, auth, blob) {
                 createOrUpdateSubscription(user, m, function(err, subscription) {
                     if(err) {return m.error(500, err)}
                     if(m.params.lastTwoDigits) {
-                        user.stripe.last_two_digits = m.params.lastTwoDigits;
+                        userStripe.last_two_digits = m.params.lastTwoDigits;
                     }
-                    user.stripe.subscription_id = subscription.id;
+                    userStripe.subscription_id = subscription.id;
                     postSave(user, m, res);
                 });
             }
@@ -192,8 +216,8 @@ module.exports = function (users, auth, blob) {
         });
     }
 
-    function createOrUpdateSubscription(user, m, callback) {
-        if(user.stripe.subscription_id) {
+    function createOrUpdateSubscription(user, userStripe, m, callback) {
+        if(userStripe.subscription_id) {
             var updatedFields = {};
 
             // If a new plan was specified
@@ -207,14 +231,14 @@ module.exports = function (users, auth, blob) {
             }
 
             stripe.customers.updateSubscription(
-                user.stripe.customer_id,
-                user.stripe.subscription_id,
+                userStripe.customer_id,
+                userStripe.subscription_id,
                 updatedFields,
                 callback
             );
         } else {
             stripe.customers.createSubscription(
-                user.stripe.customer_id, {
+                userStripe.customer_id, {
                 plan: m.params.subscription_plan,
                 source: m.params.stripeToken
             }, callback);

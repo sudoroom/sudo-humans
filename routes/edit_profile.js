@@ -4,10 +4,12 @@ var duplexer = require('duplexer2');
 var through = require('through2');
 var layout = require('../lib/layout.js');
 var post = require('../lib/post.js');
+var membership = require('../lib/membership.js');
+var payment = require('../lib/payment.js');
 var xtend = require('xtend');
 var once = require('once');
 
-module.exports = function (users, auth, blob) {
+module.exports = function (users, auth, blob, settings) {
     return function (req, res, m) {
         if (!m.session) {
             m.error(401, 'You must be signed in to use this page.');
@@ -22,12 +24,18 @@ module.exports = function (users, auth, blob) {
         var input = through(), output = through();
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(err);
-            input.pipe(showUser(user, m.error)).pipe(output);
+
+            payment.getLatestPayments(user, settings, function(err, payments) {
+                if (err) {
+                    return m.error(err);
+                }
+                input.pipe(showUser(user, payments, m.error)).pipe(output);
+            });
         });
         return duplexer(input, output);
     }
     
-    function showUser (user, error) {
+    function showUser (user, payments, error) {
 
         if(!user.stripe) {
             user.stripe = {};
@@ -40,6 +48,7 @@ module.exports = function (users, auth, blob) {
             '[name=email]': { value: user.email },
             '[name=full-name]': { value: user.fullName },
             '[name=about]': { _text: readblob(user.about) },
+            '[key=membership]': membership.table(user, settings, {editable: true, payments: payments}),
             '[key=payment]': user.stripe.subscription_id
                 ? { href: paymentUrl, _text: "Edit recurring payment" }
                 : { href: paymentUrl, _text: "Set up recurring payment" }

@@ -3,14 +3,28 @@ module.exports = {
 
     base_url: "https://example.com",
 
+    collectives: {
+        sudoroom: {
+            name: "sudo room",
+            privs: [] // privileges supported by this collective
+
+            stripe_api_key: undefined, // Add your Stripe API key
+            stripe_publishable_key: undefined // Add your Stripe publishable key
+        },
+        ccl: {
+            name: "Counter Culture Labs",
+            privs: ['admin'] // privileges supported by this collective
+
+            stripe_api_key: undefined, // Add your Stripe API key
+            stripe_publishable_key: undefined // Add your Stripe publishable key
+        }
+    },
+
     mailer: {
         type: "smtp", // can also be "direct" or "console"
         host: "localhost", // only needed for type: "smtp"
         port: 25, // only needed for type: "smtp"
         tls: false,
         from_address: "noreply@example.com"
-    },
-
-    stripe_api_key: "ADD_YOUR_KEY",
-    stripe_publishable_key: "ADD_YOUR_PUBKEY"
+    }
 };

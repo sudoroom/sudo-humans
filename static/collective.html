@@ -1,0 +1,52 @@
+<div id="main">
+  <p class="msg">
+    We are the humans of <span key="collective"></span>
+  </p>
+
+  <div class="actions clearfix">
+
+   <div class="data-hl">
+      <h2>data highlights</h2>
+      <div class="datum">
+        Total Users: <a href="#"><span key="member-count">##</span> Members</a>
+        / <a href="#"><span key="user-count">##</span> Comrades</a>
+      </div>
+      <div class="datum">
+        Email Addresses:
+        <a href="#" key="members-email-link">members</a>
+        / <a href="#" key="users-email-link">comrades</a>
+      </div>
+    </div>
+
+   <div class="activity">
+      <h2>recent activity</h2>
+      <div class="event" template="event">
+        <div>
+          <a key="name"></a>
+          <span key="msg"></span>
+          <div class="date timestamp">
+            (<span key="ago"></span>)
+            @ <span key="date"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="members hbar">
+    <h2 class="title">members</h2>
+    <a template="member" key="link"><button class="hitem member">
+      <div><img class="avatar" key="avatar"></div>
+      <div class="name" key="name"></div>
+    </button></a>
+  </div>
+ 
+  <div class="comrades hbar">
+    <h2 class="title">comrades</h2>
+    <a template="comrade" key="link"><button class="hitem member">
+      <div><img class="avatar" key="avatar"></div>
+      <div class="name" key="name"></div>
+    </button></a>
+  </div>
+</div>

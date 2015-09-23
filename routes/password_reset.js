@@ -28,7 +28,7 @@ if(settings.mailer.type == 'direct') {
     }
 }
 
-module.exports = function (users, index) {
+module.exports = function (users, index, argv) {
 
     function updateLogin(user, password, cb) {
         users.removeLogin(user.id, 'basic', function (err) {
@@ -74,6 +74,10 @@ module.exports = function (users, index) {
               
                 updateLogin(user, password, function(err) {
                     if(err) return m.error(500, err);
+
+                    if(argv.debug) {
+                        console.log('[debug] password for user', user.name, 'with email address', user.email, 'reset to:', password);
+                    }
 
                     mailer.sendMail({
                         from: settings.mailer.from_address,

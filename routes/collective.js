@@ -8,29 +8,47 @@ var membership = require('../lib/membership.js');
 
 module.exports = function (ixf, counts, settings) {
     return function (req, req, m) {
+
+        if(!settings.collectives[m.params.collective]) return m.error("Collective not found");
+        var collective = m.params.collective;
+
+        var comrades = ixf.index.createReadStream('user.'+collective, { eq: true });
+        var members = ixf.index.createReadStream('member.'+collective, { eq: true });
         var feed = ixf.feed.createReadStream({ reverse: true });
         
         var html = template();
+        var member = html.template('member');
+        var comrade = html.template('comrade');
         var event = html.template('event');
         
+        members.pipe(through.obj(write)).pipe(member);
+        comrades.pipe(through.obj(write)).pipe(comrade);
         feed.pipe(through.obj(ewrite)).pipe(event);
-
-
+        
         var input = through(), output = through();
         counts.get(function (err, c) {
             if (err) return m.error(err);
             input.pipe(hyperstream({
-                '[key=collectives]': membership.collectiveNamesSentence(settings),
-                '[key=collectives-list]': Object.keys(settings.collectives).map(function(collective) {
-                    return '<li><a href="c/'+collective+'">'+settings.collectives[collective].name+'</a></li>';
-                }).join("\n"),
-                '[key=member-count]': c.member || 0,
-                '[key=user-count]': c.user || 0
+                '[key=member-count]': c['member.'+collective] || 0,
+                '[key=user-count]': c['user.'+collective] || 0,
+                '[key=collective]': settings.collectives[collective].name,
+                '[key=members-email-link]': { href: collective+'/email/members' },
+                '[key=users-email-link]':{ href: collective+'/email/users' },
             })).pipe(output);
         });
         
         var modify = duplexer(input, output);
         return combine(modify, html);
+        
+        function write (row, enc, next) {
+            var name = row.value.name;
+            this.push({
+                '[key=link]': { href: '~' + name },
+                '[key=avatar]': { src: '../~' + name + '.png' },
+                '[key=name]': { _text: name }
+            });
+            next();
+        }
         
         function ewrite (update, enc, next) {
             var self = this;
@@ -40,6 +58,9 @@ module.exports = function (ixf, counts, settings) {
                 if (self.count >= limit) return;
                 if (row.type === 'put' && row.value
                 && row.value.type === 'user') {
+                    if(!row.value.collectives || !row.value.collectives[collective]) {
+                        return;
+                    }
                     self.push(userUpdate(row.value));
                     self.count = (self.count || 0) + 1;
                 }
