@@ -23,7 +23,8 @@ module.exports = function (auth, ixf, blob) {
     function show (user, m) {
         var props = {
             '[key=payments]': { href: '../~' + user.name + '/payment' },
-            '[key=profile]': { href: '../~' + user.name }
+            '[key=profile]': { href: '../~' + user.name },
+            '[key=profile-edit]': { href: '../~' + user.name + '/edit'}
         };
 
         return hyperstream(props);
