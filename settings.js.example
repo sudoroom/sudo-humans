@@ -6,14 +6,14 @@ module.exports = {
     collectives: {
         sudoroom: {
             name: "sudo room",
-            privs: [] // privileges supported by this collective
+            privs: [], // privileges supported by this collective
 
             stripe_api_key: undefined, // Add your Stripe API key
             stripe_publishable_key: undefined // Add your Stripe publishable key
         },
         ccl: {
             name: "Counter Culture Labs",
-            privs: ['admin'] // privileges supported by this collective
+            privs: ['admin'], // privileges supported by this collective
 
             stripe_api_key: undefined, // Add your Stripe API key
             stripe_publishable_key: undefined // Add your Stripe publishable key
