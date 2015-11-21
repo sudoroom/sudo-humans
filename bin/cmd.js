@@ -6,13 +6,11 @@ var path = require('path');
 var alloc = require('tcp-bind');
 var xtend = require('xtend');
 
-var settings = require('../settings.js');
-
 var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
     alias: {
         d: 'datadir', p: 'port', u: 'uid', g: 'gid',
-        h: 'help', D: 'debug'
+        h: 'help', D: 'debug', S: 'settings',
     },
     default: {
         datadir: 'sudoroom-data',
@@ -23,6 +21,11 @@ if (argv.help || argv._[0] === 'help') {
     fs.createReadStream(__dirname + '/usage.txt').pipe(process.stdout);
     return;
 }
+
+if (argv.settings) settings = require(argv.settings);
+else settings = require('../settings.js');
+
+if (argv.debug && settings.sibboleth) console.log('[sibboleth] ', settings.sibboleth);
 
 var fd = alloc(argv.port);
 if (argv.gid) process.setgid(argv.gid);
