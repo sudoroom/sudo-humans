@@ -75,6 +75,10 @@ module.exports = function (users, index) {
                 updateLogin(user, password, function(err) {
                     if(err) return m.error(500, err);
 
+                    if(argv.debug) {
+                        console.log('[debug] password for user', user.name, 'with email address', user.email, 'reset to:', password);
+                    }
+
                     mailer.sendMail({
                         from: settings.mailer.from_address,
                         to: user.email,

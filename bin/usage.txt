@@ -8,5 +8,6 @@ OPTIONS are:
   -d --datadir  Directory to put data. 
   -u --uid      Drop to this uid after allocating the port.
   -g --gid      Drop to this gid after allocating the port.
+  -D --debug    Enable debug mode: Verbose output that may include private data.
   -h --help     Show this message.
 

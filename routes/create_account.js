@@ -47,6 +47,9 @@ module.exports = function (users, auth, blob) {
         
         users.create(id, opts, function (err) {
             if (err) return m.error(400, err);
+            if(argv.debug) {
+                console.log('[debug] created user', m.params.name, 'with email', m.params.email, 'and password', m.params.password);
+            }
             auth.login(res, { id: id, name: m.params.name }, onlogin);
         });
         function onlogin (err, session) {

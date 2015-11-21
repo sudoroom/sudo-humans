@@ -41,6 +41,7 @@ module.exports = function (auth, ixf, blob) {
             ,
             '[key=about]': markdown(user.about)
         };
+
         if (!m.session || m.session.data.id !== user.id) {
             props['.edit-profile'] = { style: 'display: none;' };
         }

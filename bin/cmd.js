@@ -12,7 +12,7 @@ var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
     alias: {
         d: 'datadir', p: 'port', u: 'uid', g: 'gid',
-        h: 'help'
+        h: 'help', D: 'debug'
     },
     default: {
         datadir: 'sudoroom-data',
@@ -178,5 +178,12 @@ var server = http.createServer(function (req, res) {
     }
 });
 server.listen({ fd: fd }, function () {
+    if(argv.debug) {
+        // debug mode will print plaintext passwords to stdout 
+        // during account creation and password reset
+        // it will however not leak credit card information 
+        // since that is never sent to the server (it is only sent to stripe)
+        console.log('WARNING: Debug mode enabled. Will leak private user data to stdout (though not credit card info).');
+    }
     console.log('listening on :' + server.address().port);
 });
