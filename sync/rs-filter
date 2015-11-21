@@ -1,0 +1,7 @@
+- /.git
+- /.git/
+- /node_modules/
+- /settings.js
+- /sync/
+- /sudoroom-data/
++ /***
