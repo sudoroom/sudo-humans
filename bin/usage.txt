@@ -9,6 +9,7 @@ OPTIONS are:
   -u --uid      Drop to this uid after allocating the port.
   -g --gid      Drop to this gid after allocating the port.
   -D --debug    Enable debug mode: Verbose output that may include private data.
-  -S --settings Look for settings.js here instead of the default location
+  -S --settings Look for settings.js here instead of the default location (overrides -H)
+  -H --home     Look for all local data in this dir (including settings.js)
   -h --help     Show this message.
 

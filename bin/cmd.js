@@ -13,12 +13,14 @@ var argv = minimist(process.argv.slice(2), {
         D: 'debug',
         g: 'gid',
         h: 'help',
+        H: 'home',
         p: 'port',
         S: 'settings',
         u: 'uid',
     },
     default: {
         datadir: 'sudoroom-data',
+        home: path.dirname(__dirname),
         port: require('is-root')() ? 80 : 8000
     }
 });
@@ -27,8 +29,8 @@ if (argv.help || argv._[0] === 'help') {
     return;
 }
 
-if (argv.settings) settings = require(argv.settings);
-else settings = require('../settings.js');
+if (!argv.settings) argv.settings = argv.home + '/settings.js';
+settings = require(argv.settings);
 
 if (argv.debug && settings.sibboleth) console.log('[sibboleth] ', settings.sibboleth);
 
@@ -48,10 +50,10 @@ var sublevel = require('subleveldown');
 var bytewise = require('bytewise');
 
 var dir = {
-    data: path.join(argv.datadir, 'data'),
-    index: path.join(argv.datadir, 'index'),
-    session: path.join(argv.datadir, 'session'),
-    blob: path.join(argv.datadir, 'blob')
+    data: path.join(argv.home, argv.datadir, 'data'),
+    index: path.join(argv.home, argv.datadir, 'index'),
+    session: path.join(argv.home, argv.datadir, 'session'),
+    blob: path.join(argv.home, argv.datadir, 'blob')
 };
 mkdirp.sync(dir.blob);
 
