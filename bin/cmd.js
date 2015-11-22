@@ -9,8 +9,13 @@ var xtend = require('xtend');
 var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
     alias: {
-        d: 'datadir', p: 'port', u: 'uid', g: 'gid',
-        h: 'help', D: 'debug', S: 'settings',
+        d: 'datadir',
+        D: 'debug',
+        g: 'gid',
+        h: 'help',
+        p: 'port',
+        S: 'settings',
+        u: 'uid',
     },
     default: {
         datadir: 'sudoroom-data',
