@@ -26,6 +26,9 @@ module.exports = function (users, auth, blob, settings) {
     function show (req, res, m) {
         var input = through(), output = through();
         users.get(m.session.data.id, function (err, user) {
+
+            var stripe = Stripe(settings.stripe_api_key);
+
             if (err) return m.error(err);
             computeStream(user, m.error, stripe, function(hypstr) {
                 input.pipe(hypstr).pipe(output);
