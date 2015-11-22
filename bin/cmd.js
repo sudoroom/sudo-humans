@@ -132,19 +132,19 @@ router.addRoute('/account/sign-out/:token',
     require('../routes/sign_out.js')(auth)
 );
 router.addRoute('/~:name/welcome', 
-                require('../routes/welcome.js')(auth, ixf, blob)
+                require('../routes/welcome.js')(auth, ixf, blob, settings)
 );
 router.addRoute('/~:name.:ext', require('../routes/ext.js')(ixf, blob));
-router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob));
+router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob, settings));
 router.addRoute('/~:name/edit',
-    require('../routes/edit_profile.js')(users, auth, blob)
+    require('../routes/edit_profile.js')(users, auth, blob, settings)
 );
 router.addRoute('/~:name/payment',
     require('../routes/payment.js')(users, auth, blob, settings)
 );
 
 router.addRoute('/members',
-    require('../routes/members.js')(users, auth, blob)
+    require('../routes/members.js')(users, auth, blob, settings)
 );
 
 router.addRoute('/email/users',

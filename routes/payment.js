@@ -20,7 +20,7 @@ module.exports = function (users, auth, blob, settings) {
         if (req.method === 'POST') {
             post(save)(req, res, m, stripe);
         }
-        else { layout(auth)('payment.html', show)(req, res, m) }
+        else { layout(auth, settings)('payment.html', show)(req, res, m) }
     };
     
     function show (req, res, m) {

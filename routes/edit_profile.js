@@ -7,7 +7,7 @@ var post = require('../lib/post.js');
 var xtend = require('xtend');
 var once = require('once');
 
-module.exports = function (users, auth, blob) {
+module.exports = function (users, auth, blob, settings) {
     return function (req, res, m) {
         if (!m.session) {
             m.error(401, 'You must be signed in to use this page.');
@@ -15,7 +15,7 @@ module.exports = function (users, auth, blob) {
         else if (req.method === 'POST') {
             post(save)(req, res, m);
         }
-        else layout(auth)('edit_profile.html', show)(req, res, m)
+        else layout(auth, settings)('edit_profile.html', show)(req, res, m)
     };
     
     function show (req, res, m) {

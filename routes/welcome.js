@@ -6,14 +6,14 @@ var fromName = require('../lib/user_from_name.js');
 var marked = require('marked');
 var concat = require('concat-stream');
 
-module.exports = function (auth, ixf, blob) {
+module.exports = function (auth, ixf, blob, settings) {
     return function (req, res, m) {
         var input = through(), output = through();
         fromName(ixf.index, m.params.name, function (err, user) {
 
             if (err) return m.error(500, err)
             else if (!user) return m.error(404, 'user not found')
-            else layout(auth)('welcome.html', function () {
+            else layout(auth, settings)('welcome.html', function () {
                 return show(user, m);
             })(req, res, m);
         });
