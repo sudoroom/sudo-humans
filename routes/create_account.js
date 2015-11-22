@@ -7,7 +7,7 @@ var retricon = require('retricon');
 
 var firstUser = false;
 
-module.exports = function (users, auth, blob) {
+module.exports = function (users, auth, blob, argv) {
     users.list().pipe(through.obj(
         function (row) { firstUser = false },
         function () { firstUser = true }
