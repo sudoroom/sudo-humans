@@ -2,33 +2,7 @@ var post = require('../lib/post.js');
 var userFromX = require('../lib/user_from_x.js');
 var xkcdPassword = require('xkcd-password');
 
-var settings = require('../settings.js');
-
-var mailer; 
-
-if(settings.mailer.type == 'direct') {
-    mailer = require('nodemailer').createTransport();
-} else if(settings.mailer.type == 'smtp') {
-    var smtpTransport = require('nodemailer-smtp-transport');
-    mailer = require('nodemailer').createTransport(smtpTransport({
-        host: settings.mailer.host || "localhost",
-        port: settings.mailer.port || 25,
-        ignoreTLS: !settings.mailer.tls
-    }));
-} else { // console output only
-    mailer = {
-        sendMail: function(data, cb) {
-            console.log("Not actually sending email:");
-            console.log("  From: " + data.from);
-            console.log("  To: " + data.to);
-            console.log("  Subject: " + data.subject);
-            console.log("  Content: \n" + (data.html || data.text));
-            cb(null, null);
-        }
-    }
-}
-
-module.exports = function (users, index) {
+module.exports = function (users, index, argv, settings) {
 
     function updateLogin(user, password, cb) {
         users.removeLogin(user.id, 'basic', function (err) {
@@ -77,6 +51,30 @@ module.exports = function (users, index) {
 
                     if(argv.debug) {
                         console.log('[debug] password for user', user.name, 'with email address', user.email, 'reset to:', password);
+                    }
+
+                    var mailer; 
+
+                    if(settings.mailer.type == 'direct') {
+                        mailer = require('nodemailer').createTransport();
+                    } else if(settings.mailer.type == 'smtp') {
+                        var smtpTransport = require('nodemailer-smtp-transport');
+                        mailer = require('nodemailer').createTransport(smtpTransport({
+                            host: settings.mailer.host || "localhost",
+                            port: settings.mailer.port || 25,
+                            ignoreTLS: !settings.mailer.tls
+                        }));
+                    } else { // console output only
+                        mailer = {
+                            sendMail: function(data, cb) {
+                                console.log("Not actually sending email:");
+                                console.log("  From: " + data.from);
+                                console.log("  To: " + data.to);
+                                console.log("  Subject: " + data.subject);
+                                console.log("  Content: \n" + (data.html || data.text));
+                                cb(null, null);
+                            }
+                        }
                     }
 
                     mailer.sendMail({

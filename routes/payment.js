@@ -7,16 +7,18 @@ var post = require('../lib/post.js');
 var xtend = require('xtend');
 var once = require('once');
 
-var settings = require('../settings.js');
-var stripe = require('stripe')(settings.stripe_api_key);
+var Stripe = require('stripe');
 
-module.exports = function (users, auth, blob) {
+module.exports = function (users, auth, blob, settings) {
     return function (req, res, m) {
         if (!m.session) {
             m.error(401, 'You must be signed in to use this page.');
         }
-        else if (req.method === 'POST') {
-            post(save)(req, res, m);
+
+        var stripe = Stripe(settings.stripe_api_key);
+
+        if (req.method === 'POST') {
+            post(save)(req, res, m, stripe);
         }
         else { layout(auth)('payment.html', show)(req, res, m) }
     };
@@ -25,14 +27,14 @@ module.exports = function (users, auth, blob) {
         var input = through(), output = through();
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(err);
-            computeStream(user, m.error, function(hypstr) {
+            computeStream(user, m.error, stripe, function(hypstr) {
                 input.pipe(hypstr).pipe(output);
             });
         });
         return duplexer(input, output);
     }
     
-    function computeStream(user, error, cb) {
+    function computeStream(user, error, stripe, cb) {
 
         stripe.plans.list({limit: 50}, function(err, plans) {
             if(err) return cb(error(err));
@@ -110,7 +112,7 @@ module.exports = function (users, auth, blob) {
         
     }
     
-    function save (req, res, m) {
+    function save (req, res, m, stripe) {
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(500, err);
             if (!user) return m.error(404, 'no user data');
@@ -153,7 +155,7 @@ module.exports = function (users, auth, blob) {
                     }
                     user.stripe.customer_id = customer.id;
 
-                    createOrUpdateSubscription(user, m, function(err, subscription) {
+                    createOrUpdateSubscription(user, m, stripe, function(err, subscription) {
                         if(err) {return m.error(500, err)}
                         user.stripe.last_two_digits = m.params.lastTwoDigits;
                         user.stripe.subscription_id = subscription.id;
@@ -163,7 +165,7 @@ module.exports = function (users, auth, blob) {
                 });
                 
             } else { // this is an existing subscription being changed
-                createOrUpdateSubscription(user, m, function(err, subscription) {
+                createOrUpdateSubscription(user, m, stripe, function(err, subscription) {
                     if(err) {return m.error(500, err)}
                     if(m.params.lastTwoDigits) {
                         user.stripe.last_two_digits = m.params.lastTwoDigits;
@@ -192,7 +194,7 @@ module.exports = function (users, auth, blob) {
         });
     }
 
-    function createOrUpdateSubscription(user, m, callback) {
+    function createOrUpdateSubscription(user, m, stripe, callback) {
         if(user.stripe.subscription_id) {
             var updatedFields = {};
 

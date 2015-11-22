@@ -105,7 +105,7 @@ var auth = require('cookie-auth')({
 var store = require('content-addressable-blob-store');
 var blob = store({ path: dir.blob });
 
-var layout = require('../lib/layout.js')(auth);
+var layout = require('../lib/layout.js')(auth, settings);
 
 var router = require('routes')();
 router.addRoute('/', layout('main.html',
@@ -123,7 +123,7 @@ router.addRoute('/account/sign-in/post',
 router.addRoute('/account/password-reset', layout('password_reset.html'));
 router.addRoute('/account/password-reset-success', layout('password_reset_success.html'));
 router.addRoute('/account/password-reset/post', 
-    require('../routes/password_reset.js')(users, ixf.index)
+    require('../routes/password_reset.js')(users, ixf.index, argv, settings)
 );
 
 router.addRoute('/account/sign-out/:token', 
@@ -138,7 +138,7 @@ router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob)
 );
 router.addRoute('/~:name/payment',
-    require('../routes/payment.js')(users, auth, blob)
+    require('../routes/payment.js')(users, auth, blob, settings)
 );
 
 router.addRoute('/members',
