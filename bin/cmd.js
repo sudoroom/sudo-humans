@@ -164,6 +164,8 @@ router.addRoute('/account/password-reset/post',
 router.addRoute('/account/sign-out/:token', 
     require('../routes/sign_out.js')(auth)
 );
+
+
 router.addRoute('/~:name/welcome', 
                 require('../routes/welcome.js')(auth, ixf, blob)
 );
@@ -172,9 +174,11 @@ router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob, sett
 router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob, settings)
 );
-router.addRoute('/~:name/:collective/membership',
+
+router.addRoute('/~:name/edit/:collective',
     require('../routes/payment.js')(users, auth, blob, settings)
 );
+
 
 router.addRoute('/c/:collective/members',
     require('../routes/members.js')(users, auth, blob, settings)

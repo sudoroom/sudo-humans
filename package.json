@@ -6,7 +6,7 @@
     "sudo-humans": "bin/cmd.js"
   },
   "dependencies": {
-    "accountdown": "^4.0.0",
+    "accountdown": "^4.1.0",
     "accountdown-basic": "^1.0.0",
     "async": "^1.4.2",
     "body": "^4.5.0",
