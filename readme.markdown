@@ -2,7 +2,31 @@
 
 hackerspace membership server for sudoroom
 
-WARNING! We are in the process of implementing features to support multiple collectives/organizations on a single instance of sudo-humans but this work is not yet complete. Expect things to be broken. Go back to when this notice disappears to get something that works.
+WARNING! We are in the process of implementing features to support multiple collectives/organizations on a single instance of sudo-humans but this work is not yet complete. Expect things to be broken. Use the main branch until then.
+
+# In-progress multi-collective features
+
+Define your collectives in settings.js (you need to define all of the fields you see in settings.js.example).
+
+When you create your first user it will be granted all priveleges for all collectives.
+
+Payments for multi-collective is working, just edit your profile and you can edit your membership for each collective.
+
+Admins can also access a per-collective admin dashboard. Currently it is not linked anywhere but it is located at:
+
+```
+/admin/<collective_name>
+```
+
+We still need to implement the following:
+
+* A way for users to join collectives (as unprivileged comrades)
+* A way for admins to grant/revoke privileges (membership, admin)
+* A way to migrate the old user database to the new multi-collective format
+
+And it would be really nice to have:
+
+* Automatic emails sent to members when their payments fail.
 
 # get it running
 

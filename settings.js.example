@@ -6,9 +6,11 @@ module.exports = {
     collectives: {
         sudoroom: {
             name: "sudo room",
-            privs: [], // privileges supported by this collective
+            privs: ['member', 'admin'], // privileges supported by this collective
+
+            // membership levels
             memberships: {
-                base: 10 // base membership is $10 a month or more
+                base: 10 // base membership is $10 per month
             },
 
             stripe_api_key: undefined, // Add your Stripe API key
@@ -16,10 +18,12 @@ module.exports = {
         },
         ccl: {
             name: "Counter Culture Labs",
-            privs: ['admin'], // privileges supported by this collective
+            privs: ['member', 'admin'], // privileges supported by this collective
+
+            // membership levels
             memberships: {
-                food_safe_only: 20,
-                bsl_1: 80
+                food_safe_only: 20, // Food safe only membership at $20 per month
+                bsl_1: 80 // BSL-1 membership at $80 per month
             },
 
             stripe_api_key: undefined, // Add your Stripe API key
