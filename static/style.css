@@ -405,3 +405,7 @@ button.bigred:hover {
 h1.big {
   font-size: 250%;
 }
+
+.i {
+  font-style: italic;
+}

@@ -7,6 +7,9 @@ module.exports = {
         sudoroom: {
             name: "sudo room",
             privs: [], // privileges supported by this collective
+            memberships: {
+                base: 10 // base membership is $10 a month or more
+            },
 
             stripe_api_key: undefined, // Add your Stripe API key
             stripe_publishable_key: undefined // Add your Stripe publishable key
@@ -14,6 +17,10 @@ module.exports = {
         ccl: {
             name: "Counter Culture Labs",
             privs: ['admin'], // privileges supported by this collective
+            memberships: {
+                food_safe_only: 20,
+                bsl_1: 80
+            },
 
             stripe_api_key: undefined, // Add your Stripe API key
             stripe_publishable_key: undefined // Add your Stripe publishable key

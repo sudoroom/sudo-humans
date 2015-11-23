@@ -165,6 +165,9 @@ router.addRoute('/account/sign-out/:token',
     require('../routes/sign_out.js')(auth)
 );
 
+router.addRoute('/admin/:collective',
+    require('../routes/collective_admin.js')(users, auth, blob, settings)
+);
 
 router.addRoute('/~:name/welcome', 
                 require('../routes/welcome.js')(auth, ixf, blob)
@@ -191,9 +194,11 @@ router.addRoute('/c/:collective/email/members',
     require('../routes/email_list.js')('members', ixf.index, users, settings)
 );
 
+/*
 router.addRoute('/admin/dump',
     require('../routes/dump.js')(ixf.index, users)
 );
+*/
 
 var server = http.createServer(function (req, res) {
     var m = router.match(req.url);

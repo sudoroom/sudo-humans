@@ -1,0 +1,24 @@
+<div id="profile">
+  <h2 class="header">
+    Admin dashboard for <span key="collective"></span>
+  </h2>
+  
+  <div>
+    <p>Your collective in numbers:</p>
+    <ul>
+      <li>Total members: <span key="member-count"></span></li>
+      <li>Total comrades: <span key="comrade-count"></span></li>
+    </ul>
+    <ul key="paying-counts">
+    </ul>
+    <p>Note that payments from non-members are counted as well.</p>
+    <ul>
+      <li>Total income from stripe in past month: $<span key="stripe-income"></span></li>
+    </ul>
+    <p>If there have been more than 100 payments in the past month then the number will be wrong. See <a href="https://github.com/sudoroom/sudo-humans/issues/45">this bug</a>. The total income might also be very slightly higher than the actual income. Currently any fees associated with refunds are not counted (though refunds themselves are counted and fees associated with income are counted).</p>
+  </div>
+
+  <div>
+
+  </div>
+</div>
