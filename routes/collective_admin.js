@@ -10,10 +10,7 @@ var async = require('async');
 var payment = require('../lib/payment.js');
 var membership = require('../lib/membership.js');
 var userFromX = require('../lib/user_from_x.js');
-
-var settings = require('../settings.js');
 var Stripe = require('stripe');
-
 var streamEach = require('../lib/stream_each.js');
 
 function monthsAgo(months) {
@@ -30,7 +27,7 @@ function formatLevel(level, capitalize) {
 }
 
 // get the highest level of membership granted by the paid amount
-function getMembershipLevel(collective, paidAmount) {
+function getMembershipLevel(collective, paidAmount, settings) {
 
     var memberships = settings.collectives[collective].memberships;
 
@@ -65,7 +62,7 @@ function calcStripeAmount(charge) {
     return (charge.balance_transaction.net - charge.amount_refunded) / 100;
 }
 
-function getStripeCharges(collective, opts, cb) {
+function getStripeCharges(collective, opts, settings, cb) {
     if(typeof opts == 'function') {
         cb = opts;
         opts = {};
@@ -96,7 +93,7 @@ function getStripeCharges(collective, opts, cb) {
             return getStripeCharges(collective, {
                 prev: obj.data[obj.data.length - 1].id,
                 charges: charges
-            }, cb);
+            }, settings, cb);
         }
         cb(null, charges);
     })
@@ -143,7 +140,7 @@ module.exports = function (index, users, auth, blob, settings) {
                     
                 });
 
-            });
+            }, settings);
         });
     };
 
@@ -196,7 +193,7 @@ module.exports = function (index, users, auth, blob, settings) {
                         if(charge.refunded) continue;
                         if(charge.paid) {
                             amount = charge.amount - charge.amount_refunded;
-                            level = getMembershipLevel(collective, amount);
+                            level = getMembershipLevel(collective, amount, settings);
                             if(level) {
                                 payment_status = "Paying for "+formatLevel(level)+" membership";
                                 last_payment = payment.format(charge);
@@ -259,7 +256,7 @@ module.exports = function (index, users, auth, blob, settings) {
                 chargeAmount = calcStripeAmount(charges[i]);
                 if(!chargeAmount) continue;
                 counts.income += chargeAmount;                
-                highestLevel = getMembershipLevel(collective, chargeAmount);
+                highestLevel = getMembershipLevel(collective, chargeAmount, settings);
 
                 if(highestLevel) {
                     counts.memberships[highestLevel]++;
