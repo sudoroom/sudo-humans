@@ -83,6 +83,9 @@ ixf.index.add(function (row, cb) {
                     ix['member.'+collective] = true;
                     isMember = true;
                     isCollectiveMember = true;
+                    if(row.value.collectives[collective].stripe && row.value.collectives[collective].stripe.customer_id) {
+                        ix['user.'+collective+'.stripe_customer_id'] = row.value.collectives[collective].stripe.customer_id;
+                    }
                 }
             }
 
@@ -166,7 +169,7 @@ router.addRoute('/account/sign-out/:token',
 );
 
 router.addRoute('/admin/:collective',
-    require('../routes/collective_admin.js')(users, auth, blob, settings)
+    require('../routes/collective_admin.js')(ixf.index, users, auth, blob, settings)
 );
 
 router.addRoute('/~:name/welcome', 

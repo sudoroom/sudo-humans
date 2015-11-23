@@ -44,7 +44,6 @@ module.exports = function (users, auth, blob, settings) {
             var stripe = Stripe(settings.collectives[collective].stripe_api_key);
             var userStripe = user.collectives[collective].stripe;
 
-
             if (err) return m.error(err);
             computeStream(user, m.error, collective, stripe, userStripe, function(hypstr) {
                 input.pipe(hypstr).pipe(output);
