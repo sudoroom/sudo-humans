@@ -76,7 +76,7 @@ module.exports = function (ixf, counts, settings) {
                 : 'updated their profile'
             ;
             return {
-                '[key=name]': { _text: name, href: '~' + name },
+                '[key=name]': { _text: name, href: '../~' + name },
                 '[key=msg]': { _text: msg },
                 '[key=ago]': { _text: timeago(user.updated) },
                 '[key=date]': { _text: user.updated }
