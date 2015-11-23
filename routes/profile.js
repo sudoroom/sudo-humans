@@ -3,6 +3,7 @@ var duplexer = require('duplexer2');
 var through = require('through2');
 var layout = require('../lib/layout.js');
 var fromName = require('../lib/user_from_name.js');
+var membership = require('../lib/membership.js');
 var marked = require('marked');
 var concat = require('concat-stream');
 
@@ -21,12 +22,11 @@ module.exports = function (auth, ixf, blob, settings) {
     };
     
     function show (user, m) {
+
         var props = {
             '[key=name]': { _text: user.name },
             '[key=email]': { _text: user.email },
-            '[key=status]': {
-                _text: user.member ? 'member' : 'comrade'
-            },
+            '[key=collectives]': membership.table(user, settings),
             '[key=avatar]': user.avatar
                 ? { src: '~' + user.name + '.png' }
                 : { src: 'default.png' }

@@ -401,3 +401,11 @@ button.bigred:hover {
   font-weight: bold;
   padding-top: 20px;
 }
+
+h1.big {
+  font-size: 250%;
+}
+
+.i {
+  font-style: italic;
+}

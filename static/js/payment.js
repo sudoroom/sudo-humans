@@ -50,6 +50,9 @@ $(document).ready(function() {
   }  
 
   function validationFail(msg) {
+      if(typeof msg == 'object') {
+          msg = JSON.stringify(msg);
+      }
       $("#flash").html(msg);
       window.location = "#flash";
       return false;
@@ -68,7 +71,7 @@ $(document).ready(function() {
       o.exp_month = o.exp_month.replace(/\s+/g, '');
       o.exp_year = o.exp_year.replace(/\s+/g, '');
       o.cvc = o.cvc.replace(/\s+/g, '');
-/*
+
       if(o.card_name || o.card_number) {
           if(!o.card_name) {
               return validationFail("Cardholder name missing");
@@ -83,7 +86,11 @@ $(document).ready(function() {
               return validationFail("Expiration month missing");
           }
           if(!o.exp_month.match(/[0-9]{2}/)) {
-              return validationFail("Invalid month");
+              if(o.exp_month.match(/[0-9]/)) {
+                  o.exp_month = '0'+o.exp_month;
+              } else {
+                  return validationFail("Invalid month");
+              }
           }
           if(!o.exp_year) {
               return validationFail("Expiration year missing");
@@ -102,8 +109,7 @@ $(document).ready(function() {
               return validationFail("You forgot to fill out your credit card information");
           }
       }
-*/
-      
+     
 
     $('#saveButton').disabled = true;
 
@@ -130,6 +136,7 @@ $(document).ready(function() {
       $(".creditcard input").val('');
 
       form.append($('<input type="hidden" name="lastTwoDigits" />').val(lastTwoDigits));
+
       form.append($('<input type="hidden" name="stripeToken" />').val(token));
 
        form.get(0).submit();

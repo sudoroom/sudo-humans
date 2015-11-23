@@ -7,7 +7,7 @@ var retricon = require('retricon');
 
 var firstUser = false;
 
-module.exports = function (users, auth, blob, argv) {
+module.exports = function (users, auth, blob, argv, settings) {
     users.list().pipe(through.obj(
         function (row) { firstUser = false },
         function () { firstUser = true }
@@ -36,13 +36,25 @@ module.exports = function (users, auth, blob, argv) {
                 name: m.params.name,
                 email: m.params.email,
                 fullName: m.params['full-name'],
-                member: firstUser ? true : false,
+                member: firstUser ? true : false, // TODO remove
                 visibility: m.params.visibility,
                 avatar: avatar,
                 created: date,
-                updated: date
+                updated: date,
+                collectives: {}
             }
         };
+        // add first user to all collectives
+        // and grant user all available privileges for each collective
+        if(firstUser) {
+            var collective;
+            for(collective in settings.collectives) {
+                opts.value.collectives[collective] = {
+                    privs: settings.collectives[collective].privs
+                }
+            }
+        }
+
         firstUser = false;
         
         users.create(id, opts, function (err) {
