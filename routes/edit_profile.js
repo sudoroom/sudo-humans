@@ -23,11 +23,11 @@ module.exports = function (users, auth, blob, settings) {
     function show (req, res, m) {
         var input = through(), output = through();
         users.get(m.session.data.id, function (err, user) {
-            if (err) return m.error(err);
+            if (err) return m.error(500, err);
 
             payment.getLatestPayments(user, settings, function(err, payments) {
                 if (err) {
-                    return m.error(err);
+                    return m.error(401, err);
                 }
                 input.pipe(showUser(user, payments, m.error)).pipe(output);
             });

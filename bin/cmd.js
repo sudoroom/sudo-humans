@@ -83,6 +83,9 @@ ixf.index.add(function (row, cb) {
                     ix['member.'+collective] = true;
                     isMember = true;
                     isCollectiveMember = true;
+                    if(row.value.collectives[collective].stripe && row.value.collectives[collective].stripe.customer_id) {
+                        ix['user.'+collective+'.stripe_customer_id'] = row.value.collectives[collective].stripe.customer_id;
+                    }
                 }
             }
 
@@ -164,6 +167,11 @@ router.addRoute('/account/password-reset/post',
 router.addRoute('/account/sign-out/:token', 
     require('../routes/sign_out.js')(auth)
 );
+
+router.addRoute('/admin/:collective',
+    require('../routes/collective_admin.js')(ixf.index, users, auth, blob, settings)
+);
+
 router.addRoute('/~:name/welcome', 
                 require('../routes/welcome.js')(auth, ixf, blob)
 );
@@ -172,9 +180,11 @@ router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob, sett
 router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob, settings)
 );
-router.addRoute('/~:name/:collective/membership',
+
+router.addRoute('/~:name/edit/:collective',
     require('../routes/payment.js')(users, auth, blob, settings)
 );
+
 
 router.addRoute('/c/:collective/members',
     require('../routes/members.js')(users, auth, blob, settings)
@@ -187,9 +197,11 @@ router.addRoute('/c/:collective/email/members',
     require('../routes/email_list.js')('members', ixf.index, users, settings)
 );
 
+/*
 router.addRoute('/admin/dump',
     require('../routes/dump.js')(ixf.index, users)
 );
+*/
 
 var server = http.createServer(function (req, res) {
     var m = router.match(req.url);

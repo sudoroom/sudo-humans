@@ -11,6 +11,7 @@ var settings = require('../settings.js');
 var Stripe = require('stripe');
 
 module.exports = function (users, auth, blob, settings) {
+
     return function (req, res, m) {
         if (!m.session) {
             return m.error(401, 'You must be signed in to use this page.');
@@ -23,7 +24,6 @@ module.exports = function (users, auth, blob, settings) {
         }
 
         var stripe = Stripe(settings.collectives[collective].stripe_api_key);
-
         if (req.method === 'POST') {
             post(save)(req, res, m, collective, stripe);
         } else {
@@ -85,8 +85,6 @@ module.exports = function (users, auth, blob, settings) {
 
     function showPayment(user, collective, userStripe, user_plan, plans, error) {
 
-        console.log(user);
-
         planHtml = '<option value="">[please select]</option>';
         var i, plan, selected;
         for(i=0; i < plans.length; i++) {
@@ -133,8 +131,9 @@ module.exports = function (users, auth, blob, settings) {
     function save (req, res, m, collective, stripe) {
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(500, err);
-            if (!user) return m.error(404, 'no user data');
-
+            if (!user) return m.error(404, "No user data");
+            if (!m.params.collective) return m.error(404, "No collective specified");
+            if (!user.collectives[collective]) m.error(404, "User "+user.name+" isn't even a comrade of this collective. The user should join as a comrade before trying to pay.");
 
             if(!user.collectives[collective].stripe) {
                 user.collectives[collective].stripe = {};
@@ -157,9 +156,10 @@ module.exports = function (users, auth, blob, settings) {
                         }
                         // TODO show confirmation number
                     });
+                userStripe.last_two_digits = undefined;
                 userStripe.customer_id = undefined;
                 userStripe.subscription_id = undefined;
-                postSave(user, m, res);
+                postSave(user, collective, m, res);
 
                 return;
             }
@@ -177,34 +177,35 @@ module.exports = function (users, auth, blob, settings) {
                     
                     userStripe.customer_id = customer.id;
 
-                    createOrUpdateSubscription(user, userStripe, m, function(err, subscription) {
+                    createOrUpdateSubscription(stripe, user, userStripe, m, function(err, subscription) {
                         if(err) {return m.error(500, err)}
+                        console.log("created: ", subscription);
                         userStripe.last_two_digits = m.params.lastTwoDigits;
                         userStripe.subscription_id = subscription.id;
-                        postSave(user, m, res);
+                        postSave(user, collective, m, res);
                     });
 
                 });
                 
             } else { // this is an existing subscription being changed
-                createOrUpdateSubscription(user, m, function(err, subscription) {
+                createOrUpdateSubscription(stripe, user, userStripe,  m, function(err, subscription) {
                     if(err) {return m.error(500, err)}
                     if(m.params.lastTwoDigits) {
                         userStripe.last_two_digits = m.params.lastTwoDigits;
                     }
                     userStripe.subscription_id = subscription.id;
-                    postSave(user, m, res);
+                    postSave(user, collective, m, res);
                 });
             }
         });
     }
 
-    function postSave(user, m, res) {
+    function postSave(user, collective, m, res) {
         saveUser(user, function(err, user) {
             if(err) {return m.error(500, err)}
             res.statusCode = 302;
-            res.setHeader('location', 'payment');
-            res.end('redirect');       
+            res.setHeader('location', settings.base_url + '/~'+user.name+'/edit/'+collective);
+            res.end('done');       
         });
     }
 
@@ -216,7 +217,8 @@ module.exports = function (users, auth, blob, settings) {
         });
     }
 
-    function createOrUpdateSubscription(user, userStripe, m, callback) {
+    function createOrUpdateSubscription(stripe, user, userStripe, m, callback) {
+
         if(userStripe.subscription_id) {
             var updatedFields = {};
 
@@ -237,6 +239,7 @@ module.exports = function (users, auth, blob, settings) {
                 callback
             );
         } else {
+            console.log("Creating with id:", userStripe.customer_id, "and opts:", m.params);
             stripe.customers.createSubscription(
                 userStripe.customer_id, {
                 plan: m.params.subscription_plan,
