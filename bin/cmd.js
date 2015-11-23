@@ -172,7 +172,7 @@ router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob, sett
 router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob, settings)
 );
-router.addRoute('/~:name/membership/:collective',
+router.addRoute('/~:name/:collective/membership',
     require('../routes/payment.js')(users, auth, blob, settings)
 );
 

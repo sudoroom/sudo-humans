@@ -11,7 +11,6 @@ var settings = require('../settings.js');
 var Stripe = require('stripe');
 
 module.exports = function (users, auth, blob, settings) {
-
     return function (req, res, m) {
         if (!m.session) {
             return m.error(401, 'You must be signed in to use this page.');
