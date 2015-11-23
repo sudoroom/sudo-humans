@@ -17,7 +17,7 @@ module.exports = function (users, auth, blob, settings) {
         else if (req.method === 'POST') {
             post(save)(req, res, m);
         }
-        else layout(auth)('edit_profile.html', show)(req, res, m)
+        else layout(auth, settings)('edit_profile.html', show)(req, res, m)
     };
     
     function show (req, res, m) {

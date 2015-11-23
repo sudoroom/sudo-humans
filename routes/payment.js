@@ -7,7 +7,6 @@ var post = require('../lib/post.js');
 var xtend = require('xtend');
 var once = require('once');
 
-var settings = require('../settings.js');
 var Stripe = require('stripe');
 
 module.exports = function (users, auth, blob, settings) {
@@ -27,7 +26,7 @@ module.exports = function (users, auth, blob, settings) {
         if (req.method === 'POST') {
             post(save)(req, res, m, collective, stripe);
         } else {
-            layout(auth)('payment.html', show)(req, res, m);
+            layout(auth, settings)('payment.html', show)(req, res, m);
         }
     };
     

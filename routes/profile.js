@@ -14,7 +14,7 @@ module.exports = function (auth, ixf, blob, settings) {
 
             if (err) return m.error(500, err)
             else if (!user) return m.error(404, 'user not found')
-            else layout(auth)('profile.html', function () {
+            else layout(auth, settings)('profile.html', function () {
                 return show(user, m);
             })(req, res, m);
         });

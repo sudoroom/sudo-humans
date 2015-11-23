@@ -6,16 +6,21 @@ var path = require('path');
 var alloc = require('tcp-bind');
 var xtend = require('xtend');
 
-var settings = require('../settings.js');
-
 var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
     alias: {
-        d: 'datadir', p: 'port', u: 'uid', g: 'gid',
-        h: 'help', D: 'debug'
+        d: 'datadir',
+        D: 'debug',
+        g: 'gid',
+        h: 'help',
+        H: 'home',
+        p: 'port',
+        S: 'settings',
+        u: 'uid',
     },
     default: {
         datadir: 'sudoroom-data',
+        home: path.dirname(__dirname),
         port: require('is-root')() ? 80 : 8000
     }
 });
@@ -23,6 +28,11 @@ if (argv.help || argv._[0] === 'help') {
     fs.createReadStream(__dirname + '/usage.txt').pipe(process.stdout);
     return;
 }
+
+if (!argv.settings) argv.settings = argv.home + '/settings.js';
+settings = require(argv.settings);
+
+if (argv.debug && settings.sibboleth) console.log('[sibboleth] ', settings.sibboleth);
 
 var fd = alloc(argv.port);
 if (argv.gid) process.setgid(argv.gid);
@@ -40,10 +50,10 @@ var sublevel = require('subleveldown');
 var bytewise = require('bytewise');
 
 var dir = {
-    data: path.join(argv.datadir, 'data'),
-    index: path.join(argv.datadir, 'index'),
-    session: path.join(argv.datadir, 'session'),
-    blob: path.join(argv.datadir, 'blob')
+    data: path.join(argv.home, argv.datadir, 'data'),
+    index: path.join(argv.home, argv.datadir, 'index'),
+    session: path.join(argv.home, argv.datadir, 'session'),
+    blob: path.join(argv.home, argv.datadir, 'blob')
 };
 mkdirp.sync(dir.blob);
 
@@ -140,7 +150,7 @@ var auth = require('cookie-auth')({
 var store = require('content-addressable-blob-store');
 var blob = store({ path: dir.blob });
 
-var layout = require('../lib/layout.js')(auth);
+var layout = require('../lib/layout.js')(auth, settings);
 
 var router = require('routes')();
 router.addRoute('/', layout('main.html',
@@ -161,7 +171,7 @@ router.addRoute('/account/sign-in/post',
 router.addRoute('/account/password-reset', layout('password_reset.html'));
 router.addRoute('/account/password-reset-success', layout('password_reset_success.html'));
 router.addRoute('/account/password-reset/post', 
-    require('../routes/password_reset.js')(users, ixf.index, argv)
+    require('../routes/password_reset.js')(users, ixf.index, argv, settings)
 );
 
 router.addRoute('/account/sign-out/:token', 
@@ -173,7 +183,7 @@ router.addRoute('/admin/:collective',
 );
 
 router.addRoute('/~:name/welcome', 
-                require('../routes/welcome.js')(auth, ixf, blob)
+                require('../routes/welcome.js')(auth, ixf, blob, settings)
 );
 router.addRoute('/~:name.:ext', require('../routes/ext.js')(ixf, blob));
 router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob, settings));
