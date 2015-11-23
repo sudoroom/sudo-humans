@@ -18,7 +18,7 @@
     "cookie-auth": "^2.4.1",
     "duplexer2": "0.0.2",
     "ecstatic": "~0.5.8",
-    "html-template": "^1.2.1",
+    "html-template": "^1.2.2",
     "hyperquest": "^1.0.1",
     "hyperstream": "^1.2.2",
     "index-feed": "^1.0.0",

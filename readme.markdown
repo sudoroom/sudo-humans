@@ -20,13 +20,14 @@ Admins can also access a per-collective admin dashboard. Currently it is not lin
 
 We still need to implement the following:
 
-* A way for users to join collectives (as unprivileged comrades)
+* A way for users to join collectives (as unprivileged comrades) on signup and in general
 * A way for admins to grant/revoke privileges (membership, admin)
 * A way to migrate the old user database to the new multi-collective format
 
 And it would be really nice to have:
 
 * Automatic emails sent to members when their payments fail.
+* Payment history page for each user that admins can access.
 
 # get it running
 
@@ -49,19 +50,6 @@ then:
 
 ```
 $ npm install
-```
-
-For now there is a problem with html-template (actually it is due to its dependency 'readable-stream' not using semantic versioning). To fix this:
-
-```
-$ cd node_modules/html-template/
-$ rm -rf node_modules
-
-# edit package.json changing the readable-stream dependency line to:
-    "readable-stream": "1.0.33"
-
-$ npm install
-$ cd ../../
 ```
 
 Start sudo-humans:
