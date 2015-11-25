@@ -67,7 +67,7 @@ body {
   color: #000;
 }
 
-button.bigred {
+.bigred {
   display: inline-block;
   vertical-align: middle;
   min-width: 15ex;
@@ -83,7 +83,7 @@ button.bigred {
   cursor: pointer;
 }
 
-button.bigred:hover {
+.bigred:hover {
   background-color: #ff222b;
 } 
 

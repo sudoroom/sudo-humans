@@ -83,13 +83,48 @@ module.exports = function (index, users, auth, blob, settings) {
                 }
 
                 if (req.method === 'POST') {
-                    return post(save)(req, res, m);
+                    return post(save)(req, res, m, users, user, adminUser, collectives);
                 }
                 
                 layout(auth, settings)('user_admin.html', show)(req, res, m, users, adminUser, user, collectives);
 
             });
         });
+    };
+
+    function save (req, res, m, users, user, adminUser, collectives) {
+        var o = {};
+        var mtch, name, col, priv;
+        for(name in m.params) {
+            mtch = name.match(/priv\[([^]+)\]\[(.*)\]/);
+            if(!mtch || (mtch.length != 3)) continue;
+            col = mtch[1];
+            priv = mtch[2];
+            if(!collectives[col]) continue;
+            if(o[col]) {
+                o[col].push(priv);
+            } else {
+                o[col] = [priv];
+            }
+        }
+        for(col in o) {
+            // don't allow admins to remove their own admin status
+            if(user.id == adminUser.id) {
+                if(o[col].indexOf('admin') < 0) {
+                    o[col].push('admin');
+                }
+            }
+            user.collectives[col].privs = o[col];
+        }
+
+        user.updated = new Date().toISOString();
+        users.put(user.id, user, function (err) {
+            if(err) return m.error(500, err);
+            res.statusCode = 302;
+            res.setHeader('location', '../../admin/u/' + user.name);
+            res.end('redirect');
+        });
+
     };
 
     function show (req, res, m, users, adminUser, user, collectives) {
