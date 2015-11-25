@@ -196,7 +196,7 @@ router.addRoute('/account/password-reset/post',
 );
 
 router.addRoute('/account/sign-out/:token', 
-    require('../routes/sign_out.js')(auth)
+    require('../routes/sign_out.js')(auth, settings)
 );
 
 router.addRoute('/admin/c/:collective',

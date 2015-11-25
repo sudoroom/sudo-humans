@@ -1,6 +1,6 @@
 var shasum = require('shasum');
 
-module.exports = function (auth) {
+module.exports = function (auth, settings) {
     return function (req, res, m) {
         auth.handle(req, res, function (err, session) {
             if (session && shasum(session.session) === m.params.token) {
