@@ -2,7 +2,7 @@ var post = require('../lib/post.js');
 var userFromX = require('../lib/user_from_x.js');
 var xkcdPassword = require('xkcd-password');
 
-module.exports = function (users, index, argv, settings) {
+module.exports = function (users, index, settings) {
 
     function updateLogin(user, password, cb) {
         users.removeLogin(user.id, 'basic', function (err) {
@@ -49,7 +49,7 @@ module.exports = function (users, index, argv, settings) {
                 updateLogin(user, password, function(err) {
                     if(err) return m.error(500, err);
 
-                    if(argv.debug) {
+                    if(settings.debug) {
                         console.log('[debug] password for user', user.name, 'with email address', user.email, 'reset to:', password);
                     }
 

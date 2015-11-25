@@ -8,7 +8,7 @@ var layout = require('../lib/layout.js');
 var hyperstream = require('hyperstream');
 var duplexer = require('duplexer2');
 
-module.exports = function (users, auth, blob, argv, settings) {
+module.exports = function (users, auth, blob, settings) {
 
 
     return function (req, res, m) {
@@ -115,7 +115,7 @@ module.exports = function (users, auth, blob, argv, settings) {
         
         users.create(id, opts, function (err) {
             if (err) return m.error(400, err);
-            if(argv.debug) {
+            if(settings.debug) {
                 console.log('[debug] created user', m.params.name, 'with email', m.params.email, 'and password', m.params.password);
             }
             auth.login(res, { id: id, name: m.params.name }, onlogin);

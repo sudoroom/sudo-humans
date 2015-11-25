@@ -32,9 +32,12 @@ if (argv.help || argv._[0] === 'help') {
 }
 
 if (!argv.settings) argv.settings = argv.home + '/settings.js';
-settings = require(argv.settings);
+var settings = require(argv.settings);
 
-if (argv.debug && settings.sibboleth) console.log('[sibboleth] ', settings.sibboleth);
+if (argv.debug) {
+    settings.debug = argv.debug;
+    if (settings.sibboleth) console.log('[sibboleth] ', settings.sibboleth);
+}
 
 var fd = alloc(argv.port);
 if (argv.gid) process.setgid(argv.gid);
@@ -178,7 +181,7 @@ router.addRoute('/c/:collective', layout('collective.html',
     require('../routes/collective.js')(users, ixf, counts, settings)
 ));
 router.addRoute('/account/create', 
-    require('../routes/create_account.js')(users, auth, blob, argv, settings)
+    require('../routes/create_account.js')(users, auth, blob, settings)
 );
 
 router.addRoute('/account/sign-in', layout('sign_in.html'));
@@ -189,7 +192,7 @@ router.addRoute('/account/sign-in/post',
 router.addRoute('/account/password-reset', layout('password_reset.html'));
 router.addRoute('/account/password-reset-success', layout('password_reset_success.html'));
 router.addRoute('/account/password-reset/post', 
-    require('../routes/password_reset.js')(users, ixf.index, argv, settings)
+    require('../routes/password_reset.js')(users, ixf.index, settings)
 );
 
 router.addRoute('/account/sign-out/:token', 
@@ -259,14 +262,14 @@ var server = http.createServer(function (req, res) {
     
     function error (code, err) {
         res.statusCode = code;
-        if (argv.debug) console.log('error: ' + err);
+        if (settings.debug) console.log('error: ' + err);
         layout('error.html', function () {
             return hyperstream({ '.error': { _text: err + '\n' } });
         })(req, res, rparams);
     }
-}, argv);
+});
 server.listen({ fd: fd }, function () {
-    if(argv.debug) {
+    if(settings.debug) {
         // debug mode will print plaintext passwords to stdout 
         // during account creation and password reset
         // it will however not leak credit card information 
@@ -274,6 +277,6 @@ server.listen({ fd: fd }, function () {
         console.log('WARNING: Debug mode enabled. Will leak private user data to stdout (though not credit card info).');
     }
     console.log('listening on :' + server.address().port);
-}, argv);
+});
 
 }
