@@ -259,11 +259,12 @@ var server = http.createServer(function (req, res) {
     
     function error (code, err) {
         res.statusCode = code;
+        if (argv.debug) console.log('error: ' + err);
         layout('error.html', function () {
             return hyperstream({ '.error': { _text: err + '\n' } });
         })(req, res, rparams);
     }
-});
+}, argv);
 server.listen({ fd: fd }, function () {
     if(argv.debug) {
         // debug mode will print plaintext passwords to stdout 
@@ -273,6 +274,6 @@ server.listen({ fd: fd }, function () {
         console.log('WARNING: Debug mode enabled. Will leak private user data to stdout (though not credit card info).');
     }
     console.log('listening on :' + server.address().port);
-});
+}, argv);
 
 }
