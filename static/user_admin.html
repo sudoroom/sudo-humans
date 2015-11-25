@@ -7,8 +7,28 @@
     <div key="privs">
       <p>User privileges for each collective.</p>
     </div>
+
+    <div>
+      <h3>THE CREDIT SYSTEM DOES NOT YET WORK!</h3>
+      <p>Grant membership credit to user:</p>
+      <ul>
+        <li>Collective to grant credit for: <select key="col-select"></select>
+
+        <li key="credit-start">When should the credit begin? <input id="creditStart" type="text" name="creditStart" /> (format: mm/dd/yyyy)</li>
+        <li key="credit-end">When should the credit end? <input id="creditEnd" type="text" name="creditEnd" /> (format: mm/dd/yyyy)</li>
+        <li key="credit-months">Or, how many months should the credit last? <input type="text" name="creditMonths" /> (overrules end date)</li>
+      </ul>
+      <p>NOTE: If user already has credit then the credit start date must not be after the end date of the existing credit (in which case you get an error). If the user has credit and you set the credit start date to nothing (clear) then the granted credit will simply extend the existing credit.</p>
+    </div>
+
+
     <div class="block center">
       <input class="bigred" type="submit" value="Save changes" />
     </div>
   </div>
 </form>
+<script type="text/javascript" src="../../js/tiny-date-picker.min.js"></script>
+<script type="text/javascript">
+  TinyDatePicker(document.getElementById('creditStart'));
+  TinyDatePicker(document.getElementById('creditEnd'));
+</script>

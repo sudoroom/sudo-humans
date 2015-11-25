@@ -12,6 +12,7 @@ var membership = require('../lib/membership.js');
 var userFromX = require('../lib/user_from_x.js');
 var Stripe = require('stripe');
 var streamEach = require('../lib/stream_each.js');
+var moment = require('moment');
 
 function monthsAgo(months) {
     var d = new Date;
@@ -101,6 +102,7 @@ module.exports = function (index, users, auth, blob, settings) {
             col = mtch[1];
             priv = mtch[2];
             if(!collectives[col]) continue;
+            if(m.params[name] != 'on') continue;
             if(o[col]) {
                 o[col].push(priv);
             } else {
@@ -141,8 +143,9 @@ module.exports = function (index, users, auth, blob, settings) {
             user.stripe = {};
         }
 
-        var chtml = '\n<table><tr><th>Collective</th><th>Privileges</th>';
-        var col, priv, privName;
+        var shtml = '<option value="">[Select a collective]</option>';
+        var chtml = '\n<table><tr><th>Collective</th><th>Privileges</th><th>Credit</th>';
+        var col, priv, privName, creditExp;
         for(col in collectives) {
             chtml += '<tr><td>'+settings.collectives[col].name+'</td><td><ul>'
             for(priv in settings.collectives[col].privs) {
@@ -155,13 +158,26 @@ module.exports = function (index, users, auth, blob, settings) {
                 chtml += '/>';
                 chtml += '</li>';
             }
-            chtml += '</ul></td></tr>\n';
+            chtml += '</ul></td>';
+            if(credit = membership.userHasCredit(user, col)) {
+                if(credit.active) {
+                    chtml += "<td>Credit until " + moment(credit.end).format('M/D/YYY')+"</td>";
+                } else {
+                    chtml += "<td>Credit starting " + moment(credit.begin).format('M/D/YYY')+" and </td>";
+                }
+            } else {
+                chtml += "<td>No credit</td>";
+            }
+            chtml += '</tr>\n';
+            shtml += '<option value="'+col+'">'+settings.collectives[col].name+'</option>\n';
         }
         chtml += "</table>";
+        
 
         var props = {
             '[key=privs]': { _appendHtml: chtml },
-            '[key=user-name]': { _text: user.name }
+            '[key=user-name]': { _text: user.name },
+            '[key=col-select]': { _html: shtml }
         };
 
         return hyperstream(props);
