@@ -122,7 +122,7 @@ module.exports = function (users, auth, blob, argv, settings) {
         });
         function onlogin (err, session) {
             if (err) return m.error(400, err);
-            res.writeHead(303, { location: '../../~' + m.params.name + '/welcome' });
+            res.writeHead(303, { location: settings.base_url + '/~' + m.params.name + '/welcome' });
             res.end();
         }
     }

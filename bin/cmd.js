@@ -183,7 +183,7 @@ router.addRoute('/account/create',
 
 router.addRoute('/account/sign-in', layout('sign_in.html'));
 router.addRoute('/account/sign-in/post', 
-    require('../routes/sign_in.js')(users, auth)
+    require('../routes/sign_in.js')(users, auth, settings)
 );
 
 router.addRoute('/account/password-reset', layout('password_reset.html'));

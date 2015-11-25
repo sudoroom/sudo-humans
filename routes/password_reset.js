@@ -17,7 +17,7 @@ module.exports = function (users, index, argv, settings) {
     return post(function (req, res, m) {
 
         if(!m.params.email_or_username) {
-            res.writeHead(303, { location: '../password-reset' });
+            res.writeHead(303, { location: settings.base_url + '/account/password-reset' });
             res.end();
             return;
         }
@@ -34,7 +34,7 @@ module.exports = function (users, index, argv, settings) {
             if(err) return m.error(500, err);
 
             if(!user || !user.email) {
-                res.writeHead(303, { location: '../password-reset-success' });
+                res.writeHead(303, { location: settings.base_url + '/account/password-reset-success' });
                 res.end();
                 return;
             }
@@ -85,7 +85,7 @@ module.exports = function (users, index, argv, settings) {
                     }, function(err, info) {
                         if(err) return m.error(500, err);
                         
-                        res.writeHead(303, { location: '../password-reset-success' });
+                        res.writeHead(303, { location: settings.base_url + '/account/password-reset-success' });
                         res.end();
                         return;
                         
