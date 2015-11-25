@@ -157,12 +157,12 @@ router.addRoute('/', layout('main.html',
     require('../routes/main.js')(ixf, counts, settings)
 ));
 router.addRoute('/c/:collective', layout('collective.html',
-    require('../routes/collective.js')(ixf, counts, settings)
+    require('../routes/collective.js')(users, ixf, counts, settings)
 ));
-router.addRoute('/account/create', layout('create_account.html'));
-router.addRoute('/account/create/post',
+router.addRoute('/account/create', 
     require('../routes/create_account.js')(users, auth, blob, argv, settings)
 );
+
 router.addRoute('/account/sign-in', layout('sign_in.html'));
 router.addRoute('/account/sign-in/post', 
     require('../routes/sign_in.js')(users, auth)
@@ -178,8 +178,12 @@ router.addRoute('/account/sign-out/:token',
     require('../routes/sign_out.js')(auth)
 );
 
-router.addRoute('/admin/:collective',
+router.addRoute('/admin/c/:collective',
     require('../routes/collective_admin.js')(ixf.index, users, auth, blob, settings)
+);
+
+router.addRoute('/admin/u/:username',
+    require('../routes/user_admin.js')(ixf.index, users, auth, blob, settings)
 );
 
 router.addRoute('/~:name/welcome', 

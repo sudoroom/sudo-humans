@@ -21,10 +21,16 @@ module.exports = function (auth, ixf, blob, settings) {
     };
     
     function show (user, m) {
+
+        var mhtml = '';
+        var col;
+        for(col in user.collectives) {
+            mhtml += '<li>Set up <a href="edit/'+col+'">recurring payments for '+settings.collectives[col].name+'</a></li>\n';
+        }
+
         var props = {
-            '[key=payments]': { href: '../~' + user.name + '/payment' },
-            '[key=profile]': { href: '../~' + user.name },
-            '[key=profile-edit]': { href: '../~' + user.name + '/edit'}
+            '[key=profile-edit]': { href: '../~' + user.name + '/edit'},
+            '[key=links]': { _appendHtml: mhtml }
         };
 
         return hyperstream(props);

@@ -19,49 +19,6 @@ function monthsAgo(months) {
     return Math.floor(d.valueOf() / 1000);
 }
 
-function formatLevel(level, capitalize) {
-    if(capitalize) {
-        level = level.charAt(0).toUpperCase() + level.slice(1);
-    }
-    return level.replace(/_/g, ' ');
-}
-
-// get the highest level of membership granted by the paid amount
-function getMembershipLevel(collective, paidAmount, settings) {
-
-    var memberships = settings.collectives[collective].memberships;
-
-    var highest = {amount: 0};
-    var level, levelAmount;
-    for(level in memberships) {
-        levelAmount = memberships[level];
-        if(paidAmount >= levelAmount) {
-            if(paidAmount > highest.amount ) {
-                highest = {
-                    amount: levelAmount,
-                    level: level
-                }
-            }
-        }
-    }
-    if(highest.amount > 0) {
-        return highest.level;
-    }
-    return null;
-}
-
-function calcStripeAmount(charge) {
-    if(!charge.paid) return 0;
-    if(charge.refunded) return 0;
-
-    // TODO charge.amount_refunded does not include fees
-    // we should instead iterate through charge.refunds 
-    // and retrieve the balance_transaction for each
-    // but that's a bunch of extra api calls
-
-    return (charge.balance_transaction.net - charge.amount_refunded) / 100;
-}
-
 function getStripeCharges(collective, opts, settings, cb) {
     if(typeof opts == 'function') {
         cb = opts;
@@ -116,7 +73,8 @@ module.exports = function (index, users, auth, blob, settings) {
 */
 
         users.get(m.session.data.id, function (err, user) {
-            if(err) return m.error(err);
+            if(err) return m.error(500, err);
+            if(!user) return m.error(401, "You are not logged in");
 
             if(!membership.hasPriv(user, collective, 'admin')) {
                 return m.error(401, "Only admins can access this page.");
@@ -134,7 +92,7 @@ module.exports = function (index, users, auth, blob, settings) {
                     
                     userTable(index, collective, charges, function(err, table) {
 
-                        layout(auth)('collective_admin.html', show)(req, res, m, users, user, collective, counts, table);
+                        layout(auth, settings)('collective_admin.html', show)(req, res, m, users, user, collective, counts, table);
 
                     });
                     
@@ -193,9 +151,9 @@ module.exports = function (index, users, auth, blob, settings) {
                         if(charge.refunded) continue;
                         if(charge.paid) {
                             amount = charge.amount - charge.amount_refunded;
-                            level = getMembershipLevel(collective, amount, settings);
+                            level = membership.getMembershipLevel(collective, amount, settings);
                             if(level) {
-                                payment_status = "Paying for "+formatLevel(level)+" membership";
+                                payment_status = "Paying for "+membership.formatLevel(level)+" membership";
                                 last_payment = payment.format(charge);
                                 paid = true;
                                 break;
@@ -210,7 +168,7 @@ module.exports = function (index, users, auth, blob, settings) {
                 }
                 html += "<td>"+payment_status+"</td>";
                 html += "<td>"+last_payment+"</td>";
-                html += '<td><a href="#">edit</a></td>';
+                html += '<td><a href="../u/'+user.name+'">edit</a></td>';
                 
                 next();
             }, function() {
@@ -253,10 +211,10 @@ module.exports = function (index, users, auth, blob, settings) {
                 
             var level, levelAmount, i, chargeAmount, highestLevel;
             for(i=0; i < charges.length; i++) {
-                chargeAmount = calcStripeAmount(charges[i]);
+                chargeAmount = membership.calcStripeAmount(charges[i]);
                 if(!chargeAmount) continue;
                 counts.income += chargeAmount;                
-                highestLevel = getMembershipLevel(collective, chargeAmount, settings);
+                highestLevel = membership.getMembershipLevel(collective, chargeAmount, settings);
 
                 if(highestLevel) {
                     counts.memberships[highestLevel]++;
@@ -288,7 +246,7 @@ module.exports = function (index, users, auth, blob, settings) {
         for(level in counts.memberships) {
             amount = collective.memberships[level];
             count = counts.memberships[level];
-            payingHTML += "<li>Total paying at the <span class='i'>"+formatLevel(level, true)+"</span> ($"+amount+") level: " + count + "</li>\n";
+            payingHTML += "<li>Total paying at the <span class='i'>"+membership.formatLevel(level, true)+"</span> ($"+amount+") level: " + count + "</li>\n";
             payingCount += count;
         }
         payingHTML += "<li>Total paying: "+payingCount+"</li>";

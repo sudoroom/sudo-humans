@@ -15,7 +15,6 @@ module.exports = function (ixf, counts, settings) {
         
         feed.pipe(through.obj(ewrite)).pipe(event);
 
-
         var input = through(), output = through();
         counts.get(function (err, c) {
             if (err) return m.error(err);

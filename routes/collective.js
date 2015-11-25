@@ -6,8 +6,8 @@ var hyperstream = require('hyperstream');
 var timeago = require('timeago');
 var membership = require('../lib/membership.js');
 
-module.exports = function (ixf, counts, settings) {
-    return function (req, req, m) {
+module.exports = function (users, ixf, counts, settings) {
+    return function (req, res, m) {
 
         if(!settings.collectives[m.params.collective]) return m.error("Collective not found");
         var collective = m.params.collective;
@@ -25,16 +25,34 @@ module.exports = function (ixf, counts, settings) {
         comrades.pipe(through.obj(write)).pipe(comrade);
         feed.pipe(through.obj(ewrite)).pipe(event);
         
+
         var input = through(), output = through();
         counts.get(function (err, c) {
             if (err) return m.error(err);
-            input.pipe(hyperstream({
+            var opts = {
                 '[key=member-count]': c['member.'+collective] || 0,
                 '[key=user-count]': c['user.'+collective] || 0,
                 '[key=collective]': settings.collectives[collective].name,
                 '[key=members-email-link]': { href: collective+'/email/members' },
                 '[key=users-email-link]':{ href: collective+'/email/users' },
-            })).pipe(output);
+            };
+            
+            var userID;
+            if(m.session && m.session.data && m.session.data.id) {
+                users.get(m.session.data.id, function (err, user) {
+                    if(!err && user && user.collectives && user.collectives[collective]) {
+                        opts['[key=admin-link]'] = { 
+                            href: '../admin/c/'+collective,
+                            _text: "Administrate this collective"
+                        };
+                    }
+                
+                    input.pipe(hyperstream(opts)).pipe(output);
+                });    
+            } else {
+                input.pipe(hyperstream(opts)).pipe(output);
+            }
+
         });
         
         var modify = duplexer(input, output);
@@ -43,7 +61,7 @@ module.exports = function (ixf, counts, settings) {
         function write (row, enc, next) {
             var name = row.value.name;
             this.push({
-                '[key=link]': { href: '~' + name },
+                '[key=link]': { href: '../~' + name },
                 '[key=avatar]': { src: '../~' + name + '.png' },
                 '[key=name]': { _text: name }
             });
@@ -76,7 +94,7 @@ module.exports = function (ixf, counts, settings) {
                 : 'updated their profile'
             ;
             return {
-                '[key=name]': { _text: name, href: '~' + name },
+                '[key=name]': { _text: name, href: '../~' + name },
                 '[key=msg]': { _text: msg },
                 '[key=ago]': { _text: timeago(user.updated) },
                 '[key=date]': { _text: user.updated }

@@ -36,7 +36,7 @@ body {
 }
 
 #header h1 .humans {
-  margin-left: 0.5ex;
+  margin-left: 0;
   vertical-align: middle;
   margin-bottom: 0.25em;
 }
@@ -408,4 +408,8 @@ h1.big {
 
 .i {
   font-style: italic;
+}
+
+input[type="checkbox"]{
+  transform:scale(1.5, 1.5);
 }

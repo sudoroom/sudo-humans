@@ -1,5 +1,4 @@
-<form id="create-account" action="../account/create/post"
-method="POST" class="chunk">
+<form id="create-account" method="POST" class="chunk">
   <h2>create an account</h2>
   
   <p>
@@ -16,6 +15,13 @@ method="POST" class="chunk">
   <p><input type="text" name="email" placeholder="email"></p>
   <p><input type="text" name="full-name" placeholder="full name (optional)"></p>
   
+  <div class="privacy">
+    <h3>Collectives to join</h3>
+    <p>Which collectives would you like to join?</p>
+    <div key="collectives"></div>
+    <p>You can always join more collectives later, or leave the ones you joined.
+  </div>
+
   <div class="privacy">
     <h3>privacy settings</h3>
     <p>
