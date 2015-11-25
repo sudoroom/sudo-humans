@@ -33,10 +33,10 @@ And it would be really nice to have:
 
 > _This application is known to work with version `0.10.21` of `node`. There is an issue with the `canvas` module, but once it is updated you should be able to run with version `0.12` of `node`._
 
-Install [node](https://nodejs.org) and `libcairo2-dev`:
+Install [node](https://nodejs.org), [npm](https://nodejs.org/) and [Cairo](http://cairographics.org/) development files.
 
 ```
-$ sudo apt-get install nodejs libcairo2-dev
+$ sudo apt-get install nodejs npm libcairo2-dev
 $ sudo ln -s `which nodejs` /usr/local/bin/node
 ```
 
