@@ -17,7 +17,9 @@ var argv = minimist(process.argv.slice(2), {
         p: 'port',
         S: 'settings',
         u: 'uid',
+        M: 'migrate'
     },
+    string: ['migrate'],
     default: {
         datadir: 'sudoroom-data',
         home: path.dirname(__dirname),
@@ -150,6 +152,22 @@ var auth = require('cookie-auth')({
 var store = require('content-addressable-blob-store');
 var blob = store({ path: dir.blob });
 
+
+// run database migration script
+if(argv.migrate) {
+    var script = require(argv.migrate);
+    
+    script(users, ixf, counts, blob, argv, settings, function(err) {
+        if(err) {
+            console.error("Migration script error:", err);
+            process.exit(1);
+        }
+        process.exit(0);
+    });
+
+} else {
+
+
 var layout = require('../lib/layout.js')(auth, settings);
 
 var router = require('routes')();
@@ -256,3 +274,5 @@ server.listen({ fd: fd }, function () {
     }
     console.log('listening on :' + server.address().port);
 });
+
+}

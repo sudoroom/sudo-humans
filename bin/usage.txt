@@ -12,4 +12,4 @@ OPTIONS are:
   -S --settings Look for settings.js here instead of the default location (overrides -H)
   -H --home     Look for all local data in this dir (including settings.js)
   -h --help     Show this message.
-
+  -M --migrate  Run db migration script. Takes filename of script as argument.
