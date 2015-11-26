@@ -10,7 +10,10 @@ var duplexer = require('duplexer2');
 
 module.exports = function (users, auth, blob, settings) {
 
-
+    // if no users exist yet, set firstUser = true
+    // if users already exist, set firstuser = false
+    //
+    // this fun idiom uses the stream API like an if/else block
     return function (req, res, m) {
         users.list().pipe(through.obj(
             function (row) { goOn(req, res, m, false) },
