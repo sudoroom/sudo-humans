@@ -1,3 +1,6 @@
+
+var through = require('through2');
+
 /*
   Migrate database from single-collective to multi-collective operation.
   This script is necessary when upgrading from the old single-collective codebase.
@@ -14,22 +17,60 @@
 */
 
 
-function migrate(collective, index, users, settings, cb) {
-    var r = index.createReadStream('user.name');
+function migrate(collectiveName, users, settings, callback) {
+    var r = users.list();
     r.once('error', function (err) { cb(err) });
     r.pipe(through.obj(write, end));
-     
-    function write(row, cb) {
-        var user = user.row;
-        users.put(user.id, doc, function (err) {
-            if (err) return cb(err);
+    var collective = settings.collectives[collectiveName];
 
+    var count = 0;
+     
+    function write(row, enc, cb) {
+        if(!row) return;
+        var user = row.value
+
+        if(typeof user.collectives === 'object') {
+            console.log("Skipping", user.name, "(user had already been migrated)");
+            cb();
+            return;
+        }
+
+
+        var privs = [];
+        if(user.member && (collective.privs.indexOf('member') >= 0)) {
+            privs.push('member');
+        }
+
+        user.collectives = {};
+        user.collectives[collectiveName] = {
+            privs: privs,
+            stripe: user.stripe
+        };
+
+        delete user.stripe;
+        delete user.member;
+        process.stdout.write("Migrating " + user.name + ": ");
+
+
+
+        user.fullName = "foobar";
+
+
+        users.put(user.id, user, function (err) {
+            if(err) {
+                console.log(''); // add newline
+                callback(err);
+                return
+            }
+            count++;
+            console.log("Done.");
+            cb();
         });
+
     }
-    function end () { cb() }
+    function end () { callback(null, count) }
 }
 
-/* NOT DONE! DO NOT RUN!
 
 module.exports = function(users, ixf, counts, blob, argv, settings, callback) {
     if(argv._.length != 1) {
@@ -38,12 +79,20 @@ module.exports = function(users, ixf, counts, blob, argv, settings, callback) {
        return callback("Try reading the comment at the top of the source code of the migration file");
     }
 
-    var collective = argv._[0];
-    migrate(collective, ixf.index, users, settings, function(err) {
-        callback("Migration failed part-way through! This is bad but probably not terrible. The migration is designed to be runnable on a partially migrated database, so if you fix the problem you can simply run it again then everything should work. The error was: " + err);
-        
+    var collectiveName = argv._[0];
+    var collective = settings.collectives[collectiveName];
+    if(!collective || !collective.name || !collective.privs) {
+        console.error("You haven't defined your collectives with at least their names and privileges in your settings file.");
+        return callback("Look at settings.js.example");
+    }
+    migrate(collectiveName, users, settings, function(err, count) {
+        if(err) {
+            callback("Migration failed part-way through! This is bad but probably not terrible. The migration is designed to be runnable on a partially migrated database, so if you fix the problem you can simply run it again then everything should work. The error was: " + err);
+            return;
+        }
+        console.log("Migrated", count, "accounts.");
+        console.log("Migration complete!");
     });
 
 
 };
-*/

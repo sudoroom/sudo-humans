@@ -158,7 +158,7 @@ var blob = store({ path: dir.blob });
 
 // run database migration script
 if(argv.migrate) {
-    var script = require(argv.migrate);
+    var script = require(path.resolve(argv.migrate));
     
     script(users, ixf, counts, blob, argv, settings, function(err) {
         if(err) {

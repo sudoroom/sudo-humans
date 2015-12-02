@@ -112,9 +112,6 @@ module.exports = function (users, auth, blob, settings) {
                 opts.value.collectives[colName] = {privs:[]};
             }
         }
-
-        console.log(opts.value.collectives);
-        
         
         users.create(id, opts, function (err) {
             if (err) return m.error(400, err);
