@@ -133,7 +133,7 @@ module.exports = function (index, users, auth, blob, settings) {
             var r = index.createReadStream('user.'+collective);
             r.pipe(through.obj(function(row, enc, next) {
                 user = row.value;
-                
+                if(!user.collectives[collective) return next();
                 html += "<tr>";
                 html += "<td>"+user.name+"</td>";
                 html += "<td>"+user.email+"</td>";
