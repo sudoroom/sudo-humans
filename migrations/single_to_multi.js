@@ -51,11 +51,6 @@ function migrate(collectiveName, users, settings, callback) {
         delete user.member;
         process.stdout.write("Migrating " + user.name + ": ");
 
-
-
-        user.fullName = "foobar";
-
-
         users.put(user.id, user, function (err) {
             if(err) {
                 console.log(''); // add newline
