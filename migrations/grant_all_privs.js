@@ -47,8 +47,7 @@ function grant(collectiveName, userName, users, settings, callback) {
             found = true;
         }
 
-        cb();
-/*
+
         users.put(user.id, user, function (err) {
             if(err) {
                 console.log(''); // add newline
@@ -59,7 +58,6 @@ function grant(collectiveName, userName, users, settings, callback) {
             console.log("Done.");
             cb();
         });
-*/
 
     }
     function end () { callback(null, found, addedPrivs) }
