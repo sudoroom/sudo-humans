@@ -39,7 +39,6 @@ if (argv.debug) {
     if (settings.sibboleth) console.log('[sibboleth] ', settings.sibboleth);
 }
 
-var fd = alloc(argv.port);
 if (argv.gid) process.setgid(argv.gid);
 if (argv.uid) process.setgid(argv.uid);
 
@@ -170,6 +169,7 @@ if(argv.migrate) {
 
 } else {
 
+var fd = alloc(argv.port);
 
 var layout = require('../lib/layout.js')(auth, settings);
 
