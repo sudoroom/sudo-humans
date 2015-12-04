@@ -81,7 +81,7 @@ module.exports = function (users, index, settings) {
                         from: settings.mailer.from_address,
                         to: user.email,
                         subject: "[sudo-humans] Password reset!",
-                        text: "Your password has been reset.\n\nYour new password is: " + password + "\n\nYou can log in at: " + settings.base_url + "/account/sign-in\n\nhack hack hack"
+                        text: "Your password has been reset.\n\nYour new password is: " + password + "\n\nYour pseudonym is still: " + user.name + "\n\nYou can log in at: " + settings.base_url + "/account/sign-in\n\nhack hack hack"
                     }, function(err, info) {
                         if(err) return m.error(500, err);
                         
