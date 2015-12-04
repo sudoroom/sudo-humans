@@ -69,6 +69,10 @@ module.exports = function (users, auth, blob, settings) {
     
     function create (res, m, firstUser, id, avatar) {
         var date = new Date().toISOString();
+
+        if (!m.params.name || !m.params.name.match(/^[a-z0-9]{3,16}$/i)) return m.error(400,"Error: invalid username");
+        m.params.name = m.params.name.toLowerCase();
+
         var opts = {
             login: {
                 basic: {
