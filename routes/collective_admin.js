@@ -146,8 +146,8 @@ module.exports = function (index, users, auth, blob, settings) {
                 var failed;
                 if(paying) {
                     var i, charge, amount, level;
-                    for(i=0; i < charges.length; i++) {
-                        charge = charges[i];
+                    for(i=0; i < paying.charges.length; i++) {
+                        charge = paying.charges[i];
                         if(charge.refunded) continue;
                         if(charge.paid) {
                             amount = charge.amount - charge.amount_refunded;
