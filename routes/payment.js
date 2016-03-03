@@ -33,6 +33,7 @@ module.exports = function (users, auth, blob, settings) {
     function show (req, res, m) {
         var input = through(), output = through();
         users.get(m.session.data.id, function (err, user) {
+            if (err) return m.error(err);
 
             var collective = m.params.collective;
 
@@ -43,7 +44,6 @@ module.exports = function (users, auth, blob, settings) {
             var stripe = Stripe(settings.collectives[collective].stripe_api_key);
             var userStripe = user.collectives[collective].stripe;
 
-            if (err) return m.error(err);
             computeStream(user, m.error, collective, stripe, userStripe, function(hypstr) {
                 input.pipe(hypstr).pipe(output);
             });
@@ -55,6 +55,7 @@ module.exports = function (users, auth, blob, settings) {
 
         stripe.plans.list({limit: 50}, function(err, plans) {
             if(err) return cb(error(err));
+
             plans = plans.data.sort(function(a, b) {
                 if(a.amount > b.amount) {
                     return 1;
@@ -67,11 +68,17 @@ module.exports = function (users, auth, blob, settings) {
 
             if(userStripe && userStripe.customer_id && userStripe.subscription_id) {
 
+
                 stripe.customers.retrieveSubscription(userStripe.customer_id, userStripe.subscription_id, function(err, subscription) {
-                    if(err) return cb(error(err));
+                    if(err) {
+                        if(err.statusCode !== 404) return cb(error(err));
+                        return cb(showPayment(user, collective, userStripe, null, plans, error));
+                    }
+
                     if(!subscription || !subscription.plan || !subscription.plan.id) {
                         return cb(showPayment(user, collective, userStripe, null, plans, error));
                     }
+
                     return cb(showPayment(user, collective, userStripe, subscription.plan, plans, error));
                 });
                 
@@ -97,7 +104,7 @@ module.exports = function (users, auth, blob, settings) {
 
         var props = {
             '[key=headline]': settings.collectives[collective].name + ' membership',
-            '[key=status]': (userStripe.subscription_id)
+            '[key=status]': (userStripe.subscription_id && user_plan)
                 ? { _text: "You have a recurring payment set up for $" + (user_plan.amount / 100) + " every month." }
                 : { _text: "You have no recurring payments set up." },
             '[id=cancel]': userStripe.subscription_id
