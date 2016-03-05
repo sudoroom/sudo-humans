@@ -31,14 +31,13 @@ And it would be really nice to have:
 
 # get it running
 
-> _This application is known to work with version `0.10.29` of `node`. There is an issue with the `canvas` module, but once it is updated you should be able to run with version `0.12` of `node`._
+## prerequisites
+First, set up Docker. Then, make sure your user has permission to use Docker.
+Typically this will involve being a member of a group named docker.
 
-Install [node](https://nodejs.org), [npm](https://nodejs.org/) and [Cairo](http://cairographics.org/) development files.
+If you can successfully run `docker info`, things are probably okay.
 
-```
-$ sudo apt-get install nodejs npm libcairo2-dev
-$ sudo ln -s `which nodejs` /usr/local/bin/node
-```
+## build an image in which to run the app
 
 Make a settings file (and edit to taste):
 
@@ -46,17 +45,53 @@ Make a settings file (and edit to taste):
 $ cp -a settings.js.example settings.js
 ```
 
-then:
+Build your container:
 
 ```
-$ npm install
+$ docker build -t $LOGNAME/sudo-humans .
 ```
 
-Start sudo-humans:
+The suggested tag format begins with your username, which is especially useful
+if you're on a shared system. If you are running on your own box, feel free
+to tag your image any way you like.
+
+Building the container will take a while the first time you do it, since it
+pulls in several package dependencies. On subsequent runs, it will reuse what
+has already been set up, so it shouldn't take nearly as long.
+
+Start the application:
 
 ```
-$ npm start
+$ docker run -d -p 8080:80 $LOGNAME/sudo-humans
 ```
+
+The immediate output of the `docker run` command will be a long hexadecimal
+string. This is the container ID.
+
+In this example, your app listens on real port 8080. Adjust the port number
+to suit your preference. Within the container, the app listens on port 80.
+To run the app in the foreground, omit the -d flag.
+
+If all goes according to plan, you'll be able to see that the application
+is running inside of its container:
+
+```
+rcsheets@odin:~/sudo-humans$ docker ps
+CONTAINER ID        IMAGE                  COMMAND             CREATED             STATUS              PORTS                  NAMES
+bcbccd48a5f4        rcsheets/sudo-humans   "npm start"         3 minutes ago       Up 3 minutes        0.0.0.0:8080->80/tcp   sick_colden
+```
+
+Note that your container can be referred to by its ID or name. The name is
+usually easier to type. The ID is more suited for automation purposes.
+
+Stop the application:
+
+```
+$ docker stop sick_colden
+```
+
+Your container name will vary. You can also specify the container by its ID.
+
 
 # usage
 
