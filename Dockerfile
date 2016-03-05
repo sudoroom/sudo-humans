@@ -17,6 +17,6 @@ RUN npm install
 # Get everything else
 COPY . /usr/src/app
 # Expose the port we listen on
-EXPOSE 5000
+EXPOSE 80
 # Run it
 CMD [ "npm", "start" ]
