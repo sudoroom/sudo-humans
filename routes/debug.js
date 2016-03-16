@@ -19,7 +19,7 @@ module.exports = function (index, users, auth, blob, settings) {
             res.end();
         });
 
-
-    };
 */
+    };
+
 }
