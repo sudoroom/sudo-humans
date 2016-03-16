@@ -66,12 +66,6 @@ module.exports = function (index, users, auth, blob, settings) {
             return m.error(401, "No collective by that name exists.");
         }
 
-/*
-        if(settings.collectives[collective].privs.indexOf('admin') <= 0) {
-            return m.error(401, "This collective does not allow admins. Take you hierarchical power-tripping mindset elsewhere Ⓐ.");
-        }
-*/
-
         users.get(m.session.data.id, function (err, user) {
             if(err) return m.error(500, err);
             if(!user) return m.error(401, "You are not logged in");

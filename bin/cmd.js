@@ -97,9 +97,9 @@ ixf.index.add(function (row, cb) {
                     ix['member.'+collective] = true;
                     isMember = true;
                     isCollectiveMember = true;
-                    if(row.value.collectives[collective].stripe && row.value.collectives[collective].stripe.customer_id) {
-                        ix['user.'+collective+'.stripe_customer_id'] = row.value.collectives[collective].stripe.customer_id;
-                    }
+                }
+                if(row.value.collectives[collective].stripe && row.value.collectives[collective].stripe.customer_id) {
+                    ix['user.'+collective+'.stripe_customer_id'] = row.value.collectives[collective].stripe.customer_id;
                 }
             }
 
@@ -182,6 +182,10 @@ router.addRoute('/c/:collective', layout('collective.html',
 ));
 router.addRoute('/account/create', 
     require('../routes/create_account.js')(users, auth, blob, settings)
+);
+
+router.addRoute('/debug', 
+    require('../routes/debug.js')(ixf.index, users, auth, blob, settings)
 );
 
 router.addRoute('/account/sign-in', layout('sign_in.html'));
