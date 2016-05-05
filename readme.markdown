@@ -59,7 +59,25 @@ Building the container will take a while the first time you do it, since it
 pulls in several package dependencies. On subsequent runs, it will reuse what
 has already been set up, so it shouldn't take nearly as long.
 
-Start the application:
+If the build process completes successfully, a message like the following will
+be displayed:
+
+```
+Successfully built d5a48c5c39d0
+```
+
+The last part of this message is the image ID, which will vary.
+
+Once the image has been created, you should be able to see it in the image
+list:
+
+```
+rcsheets@odin:~/sudo-humans$ docker images
+REPOSITORY               TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
+rcsheets/sudo-humans     latest              d5a48c5c39d0        About a minute ago   534 MB
+```
+
+Now that your image has been created, you can start the application:
 
 ```
 $ docker run -d -p 8080:80 $LOGNAME/sudo-humans
