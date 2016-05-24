@@ -29,7 +29,7 @@ module.exports = function (users, auth, blob, settings) {
             layout(auth, settings)('payment.html', show)(req, res, m);
         }
     };
-    
+
     function show (req, res, m) {
         var input = through(), output = through();
         users.get(m.session.data.id, function (err, user) {
@@ -50,12 +50,11 @@ module.exports = function (users, auth, blob, settings) {
         });
         return duplexer(input, output);
     }
-    
-    function computeStream(user, error, collective, stripe, userStripe, cb) {
+
+    function computeStream(user, onerror, collective, stripe, userStripe, cb) {
 
         stripe.plans.list({limit: 50}, function(err, plans) {
-            if(err) return cb(error(err));
-
+            if(err) return onerror(err);
             plans = plans.data.sort(function(a, b) {
                 if(a.amount > b.amount) {
                     return 1;
@@ -71,8 +70,8 @@ module.exports = function (users, auth, blob, settings) {
 
                 stripe.customers.retrieveSubscription(userStripe.customer_id, userStripe.subscription_id, function(err, subscription) {
                     if(err) {
-                        if(err.statusCode !== 404) return cb(error(err));
-                        return cb(showPayment(user, collective, userStripe, null, plans, error));
+                        if(err.statusCode !== 404) return onerror(err);
+                        return cb(showPayment(user, collective, userStripe, null, plans, onerror));
                     }
 
                     if(!subscription || !subscription.plan || !subscription.plan.id) {
@@ -81,7 +80,7 @@ module.exports = function (users, auth, blob, settings) {
 
                     return cb(showPayment(user, collective, userStripe, subscription.plan, plans, error));
                 });
-                
+
             } else {
                 return cb(showPayment(user, collective, userStripe, null, plans, error));
             }
@@ -131,9 +130,9 @@ module.exports = function (users, auth, blob, settings) {
         };
 
         return hyperstream(props);
-        
+
     }
-    
+
     function save (req, res, m, collective, stripe) {
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(500, err);
@@ -148,7 +147,7 @@ module.exports = function (users, auth, blob, settings) {
 
             // are we cancelling a subscription?
             if(m.params.cancel) {
-                
+
                 if(!userStripe || !userStripe.customer_id || !userStripe.subscription_id) {
                     return m.error(500, "Trying to cancel non-existant subscription");
                 }
@@ -180,7 +179,7 @@ module.exports = function (users, auth, blob, settings) {
                     if(err) {
                         return m.error(500, err);
                     }
-                    
+
                     userStripe.customer_id = customer.id;
 
                     createOrUpdateSubscription(stripe, user, userStripe, m, function(err, subscription) {
@@ -192,7 +191,7 @@ module.exports = function (users, auth, blob, settings) {
                     });
 
                 });
-                
+
             } else { // this is an existing subscription being changed
                 createOrUpdateSubscription(stripe, user, userStripe,  m, function(err, subscription) {
                     if(err) {return m.error(500, err)}
@@ -211,7 +210,7 @@ module.exports = function (users, auth, blob, settings) {
             if(err) {return m.error(500, err)}
             res.statusCode = 302;
             res.setHeader('location', settings.base_url + '/~'+user.name+'/edit/'+collective);
-            res.end('done');       
+            res.end('done');
         });
     }
 
@@ -252,6 +251,6 @@ module.exports = function (users, auth, blob, settings) {
                 source: m.params.stripeToken
             }, callback);
         }
-    }    
+    }
 
 };
