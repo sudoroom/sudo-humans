@@ -75,14 +75,14 @@ module.exports = function (users, auth, blob, settings) {
                     }
 
                     if(!subscription || !subscription.plan || !subscription.plan.id) {
-                        return cb(showPayment(user, collective, userStripe, null, plans, error));
+                        return cb(showPayment(user, collective, userStripe, null, plans, onerror));
                     }
 
-                    return cb(showPayment(user, collective, userStripe, subscription.plan, plans, error));
+                    return cb(showPayment(user, collective, userStripe, subscription.plan, plans, onerror));
                 });
 
             } else {
-                return cb(showPayment(user, collective, userStripe, null, plans, error));
+                return cb(showPayment(user, collective, userStripe, null, plans, onerror));
             }
         });
     }
