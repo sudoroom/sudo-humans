@@ -79,7 +79,8 @@ $(document).ready(function() {
           if(!o.card_number) {
               return validationFail("Card number missing");
           }
-          if(!o.card_number.match(/[0-9]{16}/)) {
+          // yes credit cards can have numbers from 12 to 19 digits in length
+          if(!o.card_number.match(/^[0-9]{12,19}$/)) {
               return validationFail("Invalid credit card number");
           }
           if(!o.exp_month) {
