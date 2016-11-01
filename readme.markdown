@@ -46,19 +46,24 @@ Make a settings file (and edit to taste):
 $ cp -a settings.js.example settings.js
 ```
 
-Build your container:
+Build a new docker image using the `sudo-humans` source code:
 
 ```
 $ docker build -t $LOGNAME/sudo-humans .
 ```
 
-The suggested tag format begins with your username, which is especially useful
-if you're on a shared system. If you are running on your own box, feel free
-to tag your image any way you like.
+Note that `$LOGNAME` will expand to your username, so the `-t` flag, which
+applies a repository name to the newly created image, will apply a repository
+name that begins with your username. This is a common and recommended practice,
+and is, but of course you can call your image anything you like.
+
+Note also that the `docker build` command ends in a dot, which is being used
+to specify the current directory.
 
 Building the container will take a while the first time you do it, since it
-pulls in several package dependencies. On subsequent runs, it will reuse what
-has already been set up, so it shouldn't take nearly as long.
+pulls in a base Debian image and several package dependencies. On subsequent
+runs, it will reuse what has already been set up, so it shouldn't take nearly
+as long.
 
 If the build process completes successfully, a message like the following will
 be displayed:
