@@ -32,7 +32,8 @@ And it would be really nice to have:
 # get it running
 
 ## prerequisites
-First, set up Docker. Then, make sure your user has permission to use Docker.
+First, [set up Docker](https://docs.docker.com/engine/installation/). Then,
+make sure your user has permission to use Docker.
 Typically this will involve being a member of a group named docker.
 
 If you can successfully run `docker info`, things are probably okay.
