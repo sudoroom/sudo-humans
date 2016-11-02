@@ -3,6 +3,7 @@ FROM debian:jessie
 # Get prerequisites
 RUN apt-get update && apt-get install -y \
   libcairo2-dev \
+  man-db \
   nodejs \
   nodejs-legacy \
   npm
