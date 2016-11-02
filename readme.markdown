@@ -55,7 +55,7 @@ $ docker build -t $LOGNAME/sudo-humans .
 Note that `$LOGNAME` will expand to your username, so the `-t` flag, which
 applies a repository name to the newly created image, will apply a repository
 name that begins with your username. This is a common and recommended practice,
-and is, but of course you can call your image anything you like.
+but of course you can call your image anything you like.
 
 Note also that the `docker build` command ends in a dot, which is being used
 to specify the current directory.
