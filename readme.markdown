@@ -83,6 +83,8 @@ REPOSITORY               TAG                 IMAGE ID            CREATED        
 rcsheets/sudo-humans     latest              d5a48c5c39d0        About a minute ago   534 MB
 ```
 
+## running sudo-humans within a container
+
 Now that your image has been created, you can start the application:
 
 ```
@@ -119,6 +121,8 @@ $ docker stop sick_colden
 ```
 
 Your container name will vary. You can also specify the container by its ID.
+
+## other possibilities
 
 In addition to simply running the app, you can also get an interactive shell
 inside the Docker container. To do this, supply the `-i` and `-t` flags to
