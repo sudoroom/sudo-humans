@@ -136,4 +136,7 @@ A few details of the above bear explanation:
   (within the container) to `/tmp`. This is done so that programs like `npm`,
   which cache things in your home directory, work properly. Otherwise, the
   home directory would be `/`, which is not writable by your user.
+- The example `npm install` command installs mocha into `/tmp`, which is
+  discarded after the container is stopped; however the effect of `--save-dev`,
+  which results in a change to `package.json`, is preserved.
 
