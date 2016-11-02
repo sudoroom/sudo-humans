@@ -117,10 +117,12 @@ $ docker run -it -p 8080:80 --user $(id -u) -e HOME=/usr/src/app -v $(pwd):/usr/
 
 Now, in a shell within the container, changes you make will be preserved when
 the container is stopped. For example, this could be used to add a new npm
-dependency:
+development dependency:
 
 ```
 I have no name!@89431f8e79ac:~$ npm install --save-dev mocha
+sudo-humans@0.0.0 /usr/src/app
+`-- mocha@3.1.2
 ```
 
 A few details of the above bear explanation:
