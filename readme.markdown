@@ -31,7 +31,7 @@ And it would be really nice to have:
 
 # get it running
 
-> _This application is known to work with version `0.10.29` of `node`. There is an issue with the `canvas` module, but once it is updated you should be able to run with version `0.12` of `node`._
+> _This application is known to work with version `0.10.29` of `node`. There was an issue with the `canvas` module, but now that we're not using it, we should be able to run with version `0.12` of `node`._
 
 Install [node](https://nodejs.org), [npm](https://nodejs.org/) and [Cairo](http://cairographics.org/) development files.
 
