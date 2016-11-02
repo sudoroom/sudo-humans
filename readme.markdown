@@ -108,6 +108,10 @@ bcbccd48a5f4        rcsheets/sudo-humans   "npm start"         3 minutes ago    
 Note that your container can be referred to by its ID or name. The name is
 usually easier to type. The ID is more suited for automation purposes.
 
+Now that the application is running, you should be able to test it out with
+your web browser. Be sure to access port 8080, as that's the real port opened
+by Docker (refer to the the `PORTS` column in the output of `docker ps`).
+
 Stop the application:
 
 ```
@@ -116,6 +120,49 @@ $ docker stop sick_colden
 
 Your container name will vary. You can also specify the container by its ID.
 
+In addition to simply running the app, you can also get an interactive shell
+inside the Docker container. To do this, supply the `-i` and `-t` flags to
+the `docker run` command, and also specify a shell to run. As we invoked
+`docker run` the first time, without specifying a command, the command
+came from our Dockerfile. In the following example, we will get an interactive
+bash shell:
+
+```
+$ docker run -it -p 8080:80 $LOGNAME/sudo-humans bash
+root@ad488e91f56b:/usr/src/app#
+```
+
+Within the Docker container, `/usr/src/app` is a *copy* of our source code.
+Once the container is destroyed, the copy is lost. If you want to attach the
+container's `/usr/src/app` to your source code in such a way that changes will
+persist, Docker can be configured to [mount a directory from the host within
+the container][1] with the `-v` option:
+
+[1]: https://docs.docker.com/engine/tutorials/dockervolumes/#/mount-a-host-directory-as-a-data-volume
+
+```
+$ docker run -it -p 8080:80 --user $(id -u) -e HOME=/usr/src/app -v $(pwd):/usr/src/app $LOGNAME/sudo-humans bash
+```
+
+Now, in a shell within the container, changes you make will be preserved when
+the container is stopped. For example, this could be used to add a new npm
+dependency:
+
+```
+I have no name!@89431f8e79ac:~$ npm install --save-dev mocha
+```
+
+A few details of the above bear explanation:
+- We're now running our containerized process using the same user ID we are
+  logged in as on the host. This is done so that write access to the file
+  system works as expected. Otherwise, the containerized process would attempt
+  to write files owned by root, which would fail under most circumstances.
+- The prompt now begins with `I have no name!` because, within the container,
+  your user ID does not map to a username. This is harmless.
+- We are changing the environment slightly, setting our home directory
+  (within the container) to `/tmp`. This is done so that programs like `npm`,
+  which cache things in your home directory, work properly. Otherwise, the
+  home directory would be `/`, which is not writable by your user.
 
 # usage
 
