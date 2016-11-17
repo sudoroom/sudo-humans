@@ -4,3 +4,6 @@ sudoroom-data
 settings.js
 *~
 *.bak
+.bash_history
+.node-gyp/
+.npm/
