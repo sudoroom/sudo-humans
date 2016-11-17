@@ -112,7 +112,7 @@ the container][1] with the `-v` option:
 [1]: https://docs.docker.com/engine/tutorials/dockervolumes/#/mount-a-host-directory-as-a-data-volume
 
 ```
-$ docker run -it -p 8080:80 --user $(id -u) -e HOME=/usr/src/app -v $(pwd):/usr/src/app $LOGNAME/sudo-humans bash
+$ docker run -it -p 8080:8000 --user $(id -u) -e HOME=/usr/src/app -v $(pwd):/usr/src/app $LOGNAME/sudo-humans bash
 ```
 
 Now, in a shell within the container, changes you make will be preserved when
@@ -139,4 +139,43 @@ A few details of the above bear explanation:
 - The example `npm install` command installs mocha into `/tmp`, which is
   discarded after the container is stopped; however the effect of `--save-dev`,
   which results in a change to `package.json`, is preserved.
+- The port mapping (`-p 8080:8000`) is changed from the previous setting
+  because the app is no longer running as root inside the container. Only root
+  can bind to low port numbers (such as 80), so the app default to listening on
+  port 8000 since it knows it isn't running as root. The "real" port (which
+  would be used in your browser, for example) stays the same at 8080.
 
+# fixing bugs
+
+Let's say you've found a bug. For example, once you have the app up and running
+inside a Docker container (at least as of the current revision as this document
+is being written), you could do the following to see the first few lines of
+HTML output when the default page is requested:
+
+```
+rcsheets@fireball:~/sudo-humans$ curl -s http://localhost:8080/ | head -3
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+```
+
+You might then notice that the HTML document doesn't begin with a [document
+type declaration](https://en.wikipedia.org/wiki/Document_type_declaration).
+If you wanted to add one, you could do the following:
+
+1. Stop the container, as described above. You're stopping the container in
+   order to restart it with a directory mounted, making it easier to preserve
+   any changes made in pursuit of fixing the bug.
+2. Start the container interactively with its directory mounted, as described
+   above. Once the container is started, if you haven't done so already, you'll
+   need to run `npm install` in order to get all of the npm dependencies ready.
+   If you're not sure, it's fine to run a superfluous `npm install`.
+3. Start the application using `npm start`.
+4. Double-check that you can still observe the bug. In this example, you could
+   run the curl command again and verify that there's still no document type
+   declaration.
+5. In this example, we can fix the bug by editing `static/layout.html` and
+   adding the document type declaration at the top of the file.
+6. Once the file has been saved, check that the bug has been fixed.
+7. If your fix worked, you can now submit a pull request to get your fix into
+   the official sudo-humans repository.
