@@ -129,9 +129,13 @@ module.exports = function (index, users, auth, blob, settings) {
                 user = row.value;
                 if(!user.collectives[collective]) return next();
                 html += "<tr>";
-                html += "<td>"+user.name+"</td>";
-                html += "<td>"+user.email+"</td>";
-                html += "<td>"+(membership.isMemberOf(user, collective) ? "member" : "comrade")+"</td>";
+                html += "<td>" + user.name + "</td>";
+                html += "<td>" + user.email + "</td>";
+                html += "<td>" +
+                  (membership.isMemberOf(user, collective) ? "member" : "comrade") +
+                  (membership.hasPriv(user, collective, 'admin') ?
+                    "&nbsp;<sup><abbr title='This user is an admin'>A</abbr></sup>" : "") +
+                  "</td>";
                 
                 var paying = payingMembers[user.id];
                 var payment_status = "Not paying";
@@ -178,6 +182,7 @@ module.exports = function (index, users, auth, blob, settings) {
 
         var userStream = users.list();
         var counts = {
+            admins: 0,
             comrades: 0,
             members: 0,
             income: 0,
@@ -194,6 +199,9 @@ module.exports = function (index, users, auth, blob, settings) {
         streamEach(userStream, function(row) {
             var user = row.value;
             if(user.collectives[collective]) {
+                if(membership.hasPriv(user, collective, 'admin')) {
+                    counts.admins++;
+                }
                 if(membership.isMemberOf(user, collective)) {
                     counts.members++;
                 } else {
@@ -248,6 +256,7 @@ module.exports = function (index, users, auth, blob, settings) {
         var paymentUrl = 'payment';
         var props = {
             '[key=collective]': { _text: collective.name},
+            '[key=admin-count]': { _text: counts.admins},
             '[key=comrade-count]': { _text: counts.comrades},
             '[key=member-count]': { _text: counts.members},
             '[key=paying-counts]': { _html: payingHTML},
