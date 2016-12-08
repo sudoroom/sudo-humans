@@ -6,6 +6,7 @@
 # - Assumes the existence of an existing, deployed codebase. Can't be used to
 #   bootstrap a brand new deploy without significant manual work that is not
 #   yet documented anywhere.
+# - Can only deploy from a remote named 'origin' and a branch named 'master'.
 # - Does not integrate with init script in any meaningful way, so changes to
 #   this script or to its config file may require simultaneous changes to the
 #   init script. Also does not deploy the init script or the psy runner.
