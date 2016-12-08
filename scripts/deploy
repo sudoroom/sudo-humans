@@ -3,9 +3,12 @@
 # deploy - get the code for the latest version of sudo-humans and deploy it.
 #
 # Limitations:
+# - Assumes the existence of an existing, deployed codebase. Can't be used to
+#   bootstrap a brand new deploy without significant manual work that is not
+#   yet documented anywhere.
 # - Does not integrate with init script in any meaningful way, so changes to
 #   this script or to its config file may require simultaneous changes to the
-#   init script.
+#   init script. Also does not deploy the init script or the psy runner.
 # - Duplicates default configuration information regarding app data directory,
 #   which is also defined as datadir in bin/cmd.js. Changes to that default
 #   value (or overriding it in the init script) will require simultaneous
