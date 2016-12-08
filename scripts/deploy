@@ -13,8 +13,6 @@
 # - Makes an unlimited number of safety copies of the base directory.
 #   It should probably be a limited number, so we don't accidentally the
 #   entire file system.
-# - Can behave in unexpected ways if run with CWD inside the base dir and the
-#   deploy fails.
 
 set -e
 
@@ -66,6 +64,17 @@ then
   insane=1
   echo "Error: This deploy script must be run as root, but you are $(id -nu)."
 fi
+
+# Probably shouldn't be running from inside a failed deploy directory.
+# That's unlikely to end well.
+case $(readlink -f .)/ in $(readlink -f $basedir)/*)
+  if readlink -f . | grep _FAILED_ >/dev/null
+  then
+    echo 'Warning: You appear to be running from within a failed deploy dir.'
+    insane=1
+  fi
+  ;;
+esac
 
 if test $insane = 1
 then
