@@ -5,6 +5,25 @@ var fs = require('fs');
 var path = require('path');
 var alloc = require('tcp-bind');
 var xtend = require('xtend');
+var humans_version;
+
+// See if there is a version file available, so we can report what version of
+// code is being run. The version file is written by the deploy script, and
+// would be in the parent directory, if it exists at all. (__dirname is the bin
+// directory where this script lives.)
+var versionFile = path.join(__dirname, '..', 'version.txt');
+try {
+    var v = fs.readFileSync(versionFile, {encoding: 'utf-8'}).trim();
+    humans_version = 'sudo-humans <a href="https://github.com/sudoroom/sudo-humans/commits/' + v;
+    humans_version += '">' + v + '</a>';
+} catch (e) {
+    if (e.name == 'Error' && e.message.match(/^ENOENT:/)) {
+        // no version file... ¯\_(ツ)_/¯
+        humans_version = "sudo-humans";
+    } else {
+        throw e;
+    }
+}
 
 var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
@@ -33,6 +52,8 @@ if (argv.help || argv._[0] === 'help') {
 
 if (!argv.settings) argv.settings = argv.home + '/settings.js';
 var settings = require(argv.settings);
+// Send the version info along with the settings object
+settings.humans_version = humans_version;
 
 if (argv.debug) {
     settings.debug = argv.debug;
