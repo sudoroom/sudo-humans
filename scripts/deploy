@@ -118,7 +118,7 @@ elif test -f "$basedir"/.git
 then
   # $basedir is a submodule
   tmp=$(grep '^gitdir: ' "$basedir"/.git | cut -d' ' -f2)
-  maybe chown -R "$SRC_USER": "$tmp"
+  maybe chown -R "$SRC_USER": "$basedir/$tmp"
 else
   # quite unexpected
   echo 'Warning: Unable to ensure correct permissions for .git directory'
