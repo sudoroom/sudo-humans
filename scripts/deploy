@@ -1,0 +1,154 @@
+#!/bin/bash
+#
+# deploy - get the code for the latest version of sudo-humans and deploy it.
+#
+# Limitations:
+# - Assumes the existence of an existing, deployed codebase. Can't be used to
+#   bootstrap a brand new deploy without significant manual work that is not
+#   yet documented anywhere.
+# - Can only deploy from a remote named 'origin' and a branch named 'master'.
+# - Does not integrate with init script in any meaningful way, so changes to
+#   this script or to its config file may require simultaneous changes to the
+#   init script. Also does not deploy the init script or the psy runner.
+# - Duplicates default configuration information regarding app data directory,
+#   which is also defined as datadir in bin/cmd.js. Changes to that default
+#   value (or overriding it in the init script) will require simultaneous
+#   changes to this script's config file.
+# - Makes an unlimited number of safety copies of the base directory.
+#   It should probably be a limited number, so we don't accidentally the
+#   entire file system.
+
+set -e
+
+# Defaults and initializations
+deploydir=$(readlink -f $(dirname $0))
+basedir=$(readlink -f $(dirname $0)/..)
+# seems optimistic
+insane=0
+force=0
+no_act=0
+
+source "${deploydir}/deploy.conf"
+
+# Handle command line options
+OPTIND=1
+while getopts 'fn' opt
+do
+  case "$opt" in
+  f)
+    force=1
+    ;;
+  n)
+    no_act=1
+    ;;
+  \?)
+    echo 'Exiting due to illegal option'
+    exit 10
+    ;;
+  esac
+done
+
+if test $no_act = 1
+then
+  maybe () {
+    echo "$@"
+  }
+else
+  maybe () {
+    "$@"  
+  }
+fi
+
+### Sanity checks - if a check fails, we set insane accordingly and exit
+
+id -u "$APP_USER" >/dev/null || insane=1
+id -u "$SRC_USER" >/dev/null || insane=1
+if test $(id -u) != 0
+then
+  insane=1
+  echo "Error: This deploy script must be run as root, but you are $(id -nu)."
+fi
+
+# Probably shouldn't be running from inside a failed deploy directory.
+# That's unlikely to end well.
+case $(readlink -f .)/ in $(readlink -f $basedir)/*)
+  if readlink -f . | grep _FAILED_ >/dev/null
+  then
+    echo 'Warning: You appear to be running from within a failed deploy dir.'
+    insane=1
+  fi
+  ;;
+esac
+
+if test $insane = 1
+then
+  echo "Sanity check failed -- see error messages above for more information."
+  if test $force = 1
+  then
+    echo "Continuing anyway..."
+  else
+    exit 1
+  fi
+fi
+
+### Stop the service in preparation for the files being moved about
+
+# Emit a warning if the service is not already running. This isn't a major
+# problem, but is not what's generally expected.
+maybe service sudo-humans status >/dev/null 2>&1 || true
+svc_orig_status=$?
+
+if test $svc_orig_status != 0
+then
+  echo "Warning: sudo-humans service status check returned nonzero"
+fi
+
+# Shut down the service
+maybe service sudo-humans stop || echo service stop failed
+
+### Make a safety copy of the base directory
+safety="${basedir}_$(date -u +%Y%m%d%H%M%S%N)"
+maybe cp -a "$basedir" "$safety"
+
+### Adjust permissions so that git will work
+maybe chown -R "$SRC_USER": "$basedir"/.git
+
+### Fetch from upstream
+maybe sudo -u "$SRC_USER" git -C "$basedir" fetch origin master
+
+### Merge changes from upstream
+echo "Attempting to merge changes..."
+
+if maybe sudo -u "$SRC_USER" git -C "$basedir" merge --ff-only --log
+then
+  # Everything seems generally okay. :)
+  version=$(sudo -u "$SRC_USER" git -C "$basedir" rev-parse --short HEAD )
+  if test $no_act = 0
+  then
+    echo "Successfully updated to $version"
+    echo "$version" > "$basedir/version.txt"
+  else
+    echo "Successfully pretended to update to $version"
+  fi
+
+  ### Set correct permissions
+  maybe chown -R "$SRC_USER": "$basedir"
+  for f in "${RESTRICTED_FILES[@]}"
+  do
+    maybe chown "$SRC_USER":$(id -g $APP_USER) "$basedir/$f"
+    maybe chmod o-rwx,g-w "$basedir/$f"
+  done
+else
+  # Something went wrong! Oh no!
+  failed="${basedir}_FAILED_$(date -u +%Y%m%d%H%M%S%N)"
+  echo "Something went wrong trying to merge changes. Putting things back how"
+  echo "they started. This failed deploy saved at:"
+  echo "  $failed"
+  echo "Please inspect the failed deploy directory as required, and delete if"
+  echo "it's not needed."
+  maybe mv "$basedir" "$failed"
+  maybe mv "$safety" "$basedir"
+fi
+
+### Start the service
+maybe service sudo-humans start
