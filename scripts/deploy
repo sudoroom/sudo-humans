@@ -111,7 +111,18 @@ safety="${basedir}_$(date -u +%Y%m%d%H%M%S%N)"
 maybe cp -a "$basedir" "$safety"
 
 ### Adjust permissions so that git will work
-maybe chown -R "$SRC_USER": "$basedir"/.git
+if test -d "$basedir"/.git
+then
+  maybe chown -R "$SRC_USER": "$basedir"/.git
+elif test -f "$basedir"/.git
+then
+  # $basedir is a submodule
+  tmp=$(grep '^gitdir: ' "$basedir"/.git | cut -d' ' -f2)
+  maybe chown -R "$SRC_USER": "$tmp"
+else
+  # quite unexpected
+  echo 'Warning: Unable to ensure correct permissions for .git directory'
+fi
 
 ### Fetch from upstream
 maybe sudo -u "$SRC_USER" git -C "$basedir" fetch origin master
