@@ -138,8 +138,21 @@ module.exports = function (index, users, auth, blob, settings) {
                 user = row.value;
                 if(!user.collectives[collective]) return next();
                 html += "<tr>\n";
-                html += "  <td>" + escape_html(user.name) + "</td>\n";
-                html += "  <td>" + escape_html(user.email) + "</td>\n";
+                html += "  <td";
+                if (!user.name.match(/^[a-z0-9]{3,16}$/)) {
+                    // username would not pass validation if account were
+                    // created today, so flag it as problematic
+                    html += ' style="background: #ffbaba;"';
+                    html += ' title="Username fails validation test"';
+                }
+                html += ">" + escape_html(user.name) + "</td>\n";
+                html += "  <td";
+                if (!user.email.match(/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/)) {
+                    // email is probably syntactically invalid
+                    html += ' style="background: #ffbaba;"';
+                    html += ' title="Email fails syntax check"';
+                }
+                html += ">" + escape_html(user.email) + "</td>\n";
                 html += "  <td>" +
                   (membership.isMemberOf(user, collective) ? "member" : "comrade") +
                   (membership.hasPriv(user, collective, 'admin') ?

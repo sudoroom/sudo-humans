@@ -45,10 +45,15 @@ module.exports = function (users, auth, blob, settings) {
             chtml = '<p style="color:red">You are the first user in the system. You will receive all privileges for all collectives!</p>';
         } else {
             var shortname, col;
+            chtml = '<ul>\n';
             for(shortname in settings.collectives) {
                 col = settings.collectives[shortname];
-                chtml += '<label for="'+shortname+'">'+col.name+'</label><input type="checkbox" id="'+shortname+'" name="collective['+shortname+']" /><br/>';
+                chtml += '  <li>';
+                chtml += '<input type="checkbox" id="'+shortname+'" name="collective['+shortname+']" />';
+                chtml += '&nbsp;<label for="'+shortname+'">'+col.name+'</label>';
+                chtml += '</li>\n';
             }
+            chtml += '</ul>';
         }
 
         var props = {
@@ -68,9 +73,30 @@ module.exports = function (users, auth, blob, settings) {
 
     function create (res, m, firstUser, id, avatar) {
         var date = new Date().toISOString();
+        // Top 25 most common passwords according to 
+        // http://www.telegraph.co.uk/technology/2017/01/16/worlds-common-passwords-revealed-using/
+        var common_passwords = ['123456', '123456789', 'qwerty', '12345678',
+            '111111', '1234567890', '1234567', 'password', '123123',
+            '987654321', 'qwertyuiop', 'mynoob', '123321', '666666',
+            '18atcskd2w', '7777777', '1q2w3e4r', '654321', '555555',
+            '3rjs1la7qe', 'google', '1q2w3e4r5t', '123qwe', 'zxcvbnm',
+            '1q2w3e'];
 
-        if (!m.params.name || !m.params.name.match(/^[a-z0-9]{3,16}$/i)) return m.error(400,"Error: invalid username");
-        m.params.name = m.params.name.toLowerCase();
+        if (!m.params.name || !m.params.name.match(/^[a-z0-9]{3,16}$/)) {
+            return m.error(400,"Error: invalid username");
+        }
+
+        if (!m.params.password) {
+            return m.error(400, "Error: a password is required");
+        } else if (common_passwords.indexOf(m.params.password) >= 0) {
+            return m.error(400, "Error: you chose a very common, and therefore insecure, password. Please go back and pick a better password.");
+        }
+
+        if (!m.params.email) {
+            return m.error(400, "Error: an email address is required");
+        } else if (!m.params.email.match(/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/)) {
+            return m.error(400, "Error: your email address is very likely syntactically invalid. Please go back and fix it. If your real, valid, working email address failed this test, please report the issue using the link at the bottom of this page.");
+        }
 
         var opts = {
             login: {

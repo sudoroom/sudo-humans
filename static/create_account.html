@@ -2,24 +2,29 @@
   <h2>create an account</h2>
   
   <p>
-    Create an account to get access to sudoroom internet resources.
+    Create an account to get access to our collectives' internet resources.
   </p>
   
   <p>
     Creating an account is the first step towards becoming a fully-fledged
-    member.
+    member. Depending on which collectives you choose to join, additional
+    steps will be involved. Please ask to find out what those steps involve.
   </p>
   
-  <p><input type="text" name="name" placeholder="sudonym"> (3-16 alphanumerals)</p>
-  <p><input type="password" name="password" placeholder="password"></p>
-  <p><input type="text" name="email" placeholder="email"></p>
+  <p><input type="text" name="name" maxlength="16" placeholder="sudonym"> (3-16 lowercase alphanumerals)</p>
+  <p><input type="password" name="password" placeholder="password"> (pick a good one!)</p>
+  <p><input type="text" name="email" placeholder="email"> (so we can get in touch)</p>
   <p><input type="text" name="full-name" placeholder="full name (optional)"></p>
   
   <div class="privacy">
     <h3>Collectives to join</h3>
-    <p>Which collectives would you like to join?</p>
+    <p>Which collectives would you like to join? Please choose at least one.</p>
     <div key="collectives"></div>
-    <p>You can always join more collectives later, or leave the ones you joined.
+    <p>
+      You can always join more collectives later, or leave the ones you joined,
+      but this system is of no use to you if you don't associate your account
+      with at least one collective.
+    </p>
   </div>
 
   <div class="privacy">
@@ -37,6 +42,10 @@
   
   <p>
     Once you've created an account, you can add more authentication mechanisms.
+    We are also open to communication methods other than email, but we need a
+    working email address in order to get in touch initially. If you do not
+    have an email address you're willing to provide, please come to a meeting
+    so we can discuss other options in person.
   </p>
   
   <button type="submit" class="bigred">
