@@ -5,6 +5,23 @@ var fs = require('fs');
 var path = require('path');
 var alloc = require('tcp-bind');
 var xtend = require('xtend');
+var ixfeed = require('index-feed');
+var minimist = require('minimist');
+var hyperstream = require('hyperstream');
+var mkdirp = require('mkdirp');
+var level = require('level');
+var sublevel = require('subleveldown');
+var bytewise = require('bytewise');
+var counts_js = require('../lib/counts.js');
+var is_root = require('is-root');
+var accountdown = require('accountdown');
+var accountdown_basic = require('accountdown-basic');
+var store = require('content-addressable-blob-store');
+var cookie_auth = require('cookie-auth');
+var layout_js = require('../lib/layout.js');
+var routes = require('routes');
+var package = require('../package.json');
+
 var humans_version;
 
 // See if there is a version file available, so we can report what version of
@@ -25,7 +42,6 @@ try {
     }
 }
 
-var minimist = require('minimist');
 var argv = minimist(process.argv.slice(2), {
     alias: {
         d: 'datadir',
@@ -42,7 +58,7 @@ var argv = minimist(process.argv.slice(2), {
     default: {
         datadir: 'sudoroom-data',
         home: path.dirname(__dirname),
-        port: require('is-root')() ? 80 : 8000
+        port: is_root() ? 80 : 8000
     }
 });
 if (argv.help || argv._[0] === 'help') {
@@ -63,28 +79,27 @@ if (argv.debug) {
 if (argv.gid) process.setgid(argv.gid);
 if (argv.uid) process.setgid(argv.uid);
 
-var hyperstream = require('hyperstream');
 var ecstatic = require('ecstatic')({
     root: __dirname + '/../static',
     gzip: true
 });
-var mkdirp = require('mkdirp');
-
-var level = require('level');
-var sublevel = require('subleveldown');
-var bytewise = require('bytewise');
 
 var dir = {
     data: path.join(argv.home, argv.datadir, 'data'),
+
+    // location of ixdb
     index: path.join(argv.home, argv.datadir, 'index'),
+
+    // location of auth sessions database
     session: path.join(argv.home, argv.datadir, 'session'),
+
+    // location of content addressable blob store
     blob: path.join(argv.home, argv.datadir, 'blob')
 };
 mkdirp.sync(dir.blob);
 
-var ixfeed = require('index-feed');
 var ixdb = level(dir.index);
-var counts = require('../lib/counts.js')(
+var counts = counts_js(
     sublevel(ixdb, 'c', { valueEncoding: 'json' })
 );
 var ixf = ixfeed({
@@ -162,17 +177,16 @@ ixf.index.add(function (row, cb) {
     else cb()
 });
 
-var accountdown = require('accountdown');
 var users = accountdown(sublevel(ixf.db, 'users'), {
-    login: { basic: require('accountdown-basic') }
+    login: { basic: accountdown_basic }
 });
 
-var auth = require('cookie-auth')({
-    name: require('../package.json').name,
+
+var auth = cookie_auth({
+    name: package.name,
     sessions: level(dir.session)
 });
 
-var store = require('content-addressable-blob-store');
 var blob = store({ path: dir.blob });
 
 
@@ -192,9 +206,9 @@ if(argv.migrate) {
 
 var fd = alloc(argv.port);
 
-var layout = require('../lib/layout.js')(auth, settings);
+var layout = layout_js(auth, settings);
 
-var router = require('routes')();
+var router = routes();
 router.addRoute('/', layout('main.html',
     require('../routes/main.js')(ixf, counts, settings)
 ));
