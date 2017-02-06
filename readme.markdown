@@ -2,8 +2,6 @@
 
 hackerspace membership server for sudoroom
 
-WARNING! We are in the process of implementing features to support multiple collectives/organizations on a single instance of sudo-humans but this work is not yet complete. Expect things to be broken. Use the main branch until then.
-
 # In-progress multi-collective features
 
 Define your collectives in settings.js (you need to define all of the fields you see in settings.js.example).
