@@ -147,7 +147,7 @@ module.exports = function (index, users, auth, blob, settings) {
                 }
                 html += ">" + escape_html(user.name) + "</td>\n";
                 html += "  <td";
-                if (!user.email.match(/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/)) {
+                if (!user.email.match(/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i)) {
                     // email is probably syntactically invalid
                     html += ' style="background: #ffbaba;"';
                     html += ' title="Email fails syntax check"';

@@ -94,7 +94,7 @@ module.exports = function (users, auth, blob, settings) {
 
         if (!m.params.email) {
             return m.error(400, "Error: an email address is required");
-        } else if (!m.params.email.match(/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/)) {
+        } else if (!m.params.email.match(/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i)) {
             return m.error(400, "Error: your email address is very likely syntactically invalid. Please go back and fix it. If your real, valid, working email address failed this test, please report the issue using the link at the bottom of this page.");
         }
 
