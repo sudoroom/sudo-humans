@@ -45,7 +45,7 @@ module.exports = function (users, auth, blob, settings) {
             chtml = '<p style="color:red">You are the first user in the system. You will receive all privileges for all collectives!</p>';
         } else {
             var shortname, col;
-            chtml = '<ul>\n';
+            chtml = '<ul style="list-style: none;">\n';
             for(shortname in settings.collectives) {
                 col = settings.collectives[shortname];
                 chtml += '  <li>';
