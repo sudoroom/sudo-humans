@@ -12,6 +12,7 @@ var membership = require('../lib/membership.js');
 var userFromX = require('../lib/user_from_x.js');
 var Stripe = require('stripe');
 var streamEach = require('../lib/stream_each.js');
+var escape_html = require('escape-html');
 
 function monthsAgo(months) {
     var d = new Date;
@@ -97,7 +98,15 @@ module.exports = function (index, users, auth, blob, settings) {
     };
 
     function userTable(index, collective, charges, cb) {
-        var html = "<table><tr><th>user</th><th>email</th><th>status</th><th>payment status</th><th>last payment</th><th>edit</th>\n";
+        var html = "\n<table>\n";
+        html += "<tr>\n";
+        html += "  <th>user</th>\n";
+        html += "  <th>email</th>\n";
+        html += "  <th>status</th>\n";
+        html += "  <th>payment status</th>\n";
+        html += "  <th>last payment</th>\n";
+        html += "  <th>edit</th>\n";
+        html += "</tr>\n";
 
         var payingMembers = {};
         async.eachSeries(charges, function(charge, cb) {
@@ -129,8 +138,8 @@ module.exports = function (index, users, auth, blob, settings) {
                 user = row.value;
                 if(!user.collectives[collective]) return next();
                 html += "<tr>\n";
-                html += "  <td>" + user.name + "</td>\n";
-                html += "  <td>" + user.email + "</td>\n";
+                html += "  <td>" + escape_html(user.name) + "</td>\n";
+                html += "  <td>" + escape_html(user.email) + "</td>\n";
                 html += "  <td>" +
                   (membership.isMemberOf(user, collective) ? "member" : "comrade") +
                   (membership.hasPriv(user, collective, 'admin') ?
@@ -138,20 +147,20 @@ module.exports = function (index, users, auth, blob, settings) {
                   "</td>\n";
                 
                 var paying = payingMembers[user.id];
-                var payment_status = "Not paying";
-                var last_payment = "More than a month ago";
+                var payment_status = "<em>none</em>";
+                var last_payment = "N/A";
                 var paid;
                 var failed;
-                if(paying) {
+                if (paying) {
                     var i, charge, amount, level;
-                    for(i=0; i < paying.charges.length; i++) {
+                    for (i=0; i < paying.charges.length; i++) {
                         charge = paying.charges[i];
                         if(charge.refunded) continue;
                         if(charge.paid) {
                             amount = charge.amount - charge.amount_refunded;
                             level = membership.getMembershipLevel(collective, amount, settings);
                             if(level) {
-                                payment_status = "Paying " + membership.formatLevel(level);
+                                payment_status = membership.formatLevel(level);
                                 last_payment = payment.format(charge);
                                 paid = true;
                                 break;
@@ -164,9 +173,10 @@ module.exports = function (index, users, auth, blob, settings) {
                         last_payment = "Failed: " + charge.failure_message;
                     }
                 }
-                html += "  <td>"+payment_status+"</td>\n";
-                html += "  <td>"+last_payment+"</td>\n";
-                html += '  <td><a href="../u/'+user.name+'">edit</a></td>\n';
+                html += "  <td>" + payment_status + "</td>\n";
+                html += "  <td>" + last_payment + "</td>\n";
+                html += '  <td><a href="../u/' + encodeURIComponent(user.name);
+                html += '">edit</a></td>\n';
                 html += "</tr>\n";
                 
                 next();
