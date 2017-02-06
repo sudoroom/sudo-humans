@@ -11,7 +11,6 @@ var hyperstream = require('hyperstream');
 var mkdirp = require('mkdirp');
 var level = require('level');
 var sublevel = require('subleveldown');
-var bytewise = require('bytewise');
 var counts_js = require('../lib/counts.js');
 var is_root = require('is-root');
 var accountdown = require('accountdown');

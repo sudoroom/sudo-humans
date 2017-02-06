@@ -10,7 +10,6 @@
     "accountdown-basic": "^1.0.0",
     "async": "^1.4.2",
     "body": "^4.5.0",
-    "bytewise": "^0.7.1",
     "changes-feed": "^1.0.0",
     "changesdown": "^2.2.0",
     "concat-stream": "^1.4.7",

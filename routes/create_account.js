@@ -1,7 +1,6 @@
 var post = require('../lib/post.js');
 var crypto = require('crypto');
 var sublevel = require('subleveldown');
-var bytewise = require('bytewise');
 var through = require('through2');
 var retricon = require('retricon-without-canvas');
 var layout = require('../lib/layout.js');
