@@ -97,7 +97,7 @@ module.exports = function (index, users, auth, blob, settings) {
     };
 
     function userTable(index, collective, charges, cb) {
-        var html = "<table><tr><th>user</th><th>email</th><th>status</th><th>payment status</th><th>last payment</th><th>edit</th>";
+        var html = "<table><tr><th>user</th><th>email</th><th>status</th><th>payment status</th><th>last payment</th><th>edit</th>\n";
 
         var payingMembers = {};
         async.eachSeries(charges, function(charge, cb) {
@@ -128,14 +128,14 @@ module.exports = function (index, users, auth, blob, settings) {
             r.pipe(through.obj(function(row, enc, next) {
                 user = row.value;
                 if(!user.collectives[collective]) return next();
-                html += "<tr>";
-                html += "<td>" + user.name + "</td>";
-                html += "<td>" + user.email + "</td>";
-                html += "<td>" +
+                html += "<tr>\n";
+                html += "  <td>" + user.name + "</td>\n";
+                html += "  <td>" + user.email + "</td>\n";
+                html += "  <td>" +
                   (membership.isMemberOf(user, collective) ? "member" : "comrade") +
                   (membership.hasPriv(user, collective, 'admin') ?
                     "&nbsp;<sup><abbr title='This user is an admin'>A</abbr></sup>" : "") +
-                  "</td>";
+                  "</td>\n";
                 
                 var paying = payingMembers[user.id];
                 var payment_status = "Not paying";
@@ -151,7 +151,7 @@ module.exports = function (index, users, auth, blob, settings) {
                             amount = charge.amount - charge.amount_refunded;
                             level = membership.getMembershipLevel(collective, amount, settings);
                             if(level) {
-                                payment_status = "Paying for "+membership.formatLevel(level)+" membership";
+                                payment_status = "Paying " + membership.formatLevel(level);
                                 last_payment = payment.format(charge);
                                 paid = true;
                                 break;
@@ -164,9 +164,10 @@ module.exports = function (index, users, auth, blob, settings) {
                         last_payment = "Failed: " + charge.failure_message;
                     }
                 }
-                html += "<td>"+payment_status+"</td>";
-                html += "<td>"+last_payment+"</td>";
-                html += '<td><a href="../u/'+user.name+'">edit</a></td>';
+                html += "  <td>"+payment_status+"</td>\n";
+                html += "  <td>"+last_payment+"</td>\n";
+                html += '  <td><a href="../u/'+user.name+'">edit</a></td>\n';
+                html += "</tr>\n";
                 
                 next();
             }, function() {
