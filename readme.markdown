@@ -27,35 +27,6 @@ And it would be really nice to have:
 * Automatic emails sent to members when their payments fail.
 * Payment history page for each user that admins can access.
 
-# get it running
-
-> _This application is known to work with version `0.10.29` of `node`. There was an issue with the `canvas` module, but now that we're not using it, we should be able to run with version `0.12` of `node`._
-
-Install [node](https://nodejs.org), [npm](https://nodejs.org/) and [Cairo](http://cairographics.org/) development files.
-
-```
-$ sudo apt-get install nodejs npm libcairo2-dev
-$ sudo ln -s `which nodejs` /usr/local/bin/node
-```
-
-Make a settings file (and edit to taste):
-
-```
-$ cp -a settings.js.example settings.js
-```
-
-then:
-
-```
-$ npm install
-```
-
-Start sudo-humans:
-
-```
-$ npm start
-```
-
 # usage
 
 ```
