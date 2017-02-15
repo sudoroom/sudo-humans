@@ -23,7 +23,7 @@ And it would be really nice to have:
 * Payment history page for each user that admins can access.
 
 ## usage
-See [the usage file](https://github.com/sudoroom/sudo-humans/blob/master/bin/usage.txt)
+See [the usage file](./bin/usage.txt)
 
 ## license
 
