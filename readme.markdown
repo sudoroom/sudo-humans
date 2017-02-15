@@ -2,7 +2,14 @@
 
 hackerspace membership server for sudoroom
 
-# In-progress multi-collective features
+## Contributing
+
+Issue reports and pull requests are very welcome. If you're interested in
+contributing code, please see [HACKING.md](./HACKING.md). If the documentation
+is confusing or hard to follow, please open an issue. We want to make this
+project easy to hack on.
+
+## In-progress multi-collective features
 
 Define your collectives in settings.js (you need to define all of the fields you see in settings.js.example).
 
@@ -15,9 +22,9 @@ And it would be really nice to have:
 * Automatic emails sent to members when their payments fail. (#64)
 * Payment history page for each user that admins can access.
 
-# usage
+## usage
 See [the usage file](https://github.com/sudoroom/sudo-humans/blob/master/bin/usage.txt)
 
-# license
+## license
 
 MIT
