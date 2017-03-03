@@ -85,7 +85,7 @@ module.exports = function (index, users, auth, blob, settings) {
                 getCounts(users, collective, charges, function(err, counts) {
                     if(err) return m.error(500, err);
 
-                    userTable(index, collective, charges, function(err, table) {
+                userTable(index, collective, charges, function(err, table) {
 
                         layout(auth, settings)('collective_admin.html', show)(req, res, m, users, user, collective, counts, table);
 
@@ -187,7 +187,9 @@ module.exports = function (index, users, auth, blob, settings) {
                     }
                 }
                 html += "  <td>" + payment_status + "</td>\n";
-                html += "  <td>" + last_payment + "</td>\n";
+                html += "  <td>";
+                html += '  <a href="../payments/' + encodeURIComponent(collective) + '/' + encodeURIComponent(user.name) + '">';
+                html += last_payment + "</a></td>\n";
                 html += '  <td><a href="../u/' + encodeURIComponent(user.name);
                 html += '">edit</a></td>\n';
                 html += "</tr>\n";
