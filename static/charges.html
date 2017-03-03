@@ -1,0 +1,92 @@
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<script type="text/javascript" src="../../js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="../../js/payment.js"></script>
+
+<input type="hidden" id="publishableKey" />
+
+<form id="paymentForm" method="post" class="chunk">
+
+  <noscript>  
+    <h1 style="color:red">
+      javascript disabled warning
+    </h1>
+
+    <div class="block" style="color:red">
+      Your browser does not support javascript. You can change your recurring payment amount and cancel your recurring payment, but you cannot set up a new recurring payment, nor can you change your credit card unless you enable javascript! This is because we do not store your credit card information on our own servers and it is impossible to send your credit card info directly to the credit card processor without javascript.
+    </div>
+  </noscript>
+
+  <h1 class="big" key="headline"></h1>
+
+  <h1>recurring payment status</h1>
+
+  <div class="block">
+    <div key="status">
+    </div>
+  </div>
+
+  <a href="#flash"></a>
+  <div id="flash" class="flash">
+  </div>
+
+  <table key="chargeTable">
+    <tr>
+      <th>Amount</th>
+      <th>Status</th>
+    </tr>
+    <tbody></tbody>
+  </table>
+
+  <div id="cancelParent" class="js-only">
+    <a href="#" id="cancel"></a>
+  </div>
+
+  <h1 key="cc_title"></h1>
+  <p key="cc_current"></p>
+
+  <input type="hidden" name="is_subscribed" />
+
+  <table class="creditcard js-only">
+    <tr>
+      <th>Cardholder name</th>
+      <td><input type="text" name="card_name" data-stripe="name">
+        (as written on card)
+      </td>
+    </tr>
+    <tr>
+      <th>Card number</th>
+      <td><input type="text" name="card_number" data-stripe="number"></td>
+    </tr>
+    <tr>
+      <th>Expiration month</th>
+      <td><input type="text" name="exp_month" data-stripe="exp_month">
+        (e.g. 03)
+      </td> 
+    </tr>
+    <tr>
+      <th>Expiration year</th>
+      <td><input type="text" name="exp_year" data-stripe="exp_year">
+        (e.g. 17)
+      </td> 
+    </tr>
+    <tr>
+      <th>Card security code</th>
+      <td><input type="text" name="cvc" data-stripe="cvc">
+        (last three digits on back of card)
+      </td> 
+    </tr>
+  </table>
+
+  <p>We accept Visa, MasterCard, American Express, JCB, Discover, and Diners Club.<br/>Our credit card processor is <a href="https://stripe.com/">Stripe</a>.</p>
+
+  <div class="block center">
+    <button id="saveButton" class="bigred">save</button>
+  </div>
+</form>
+<p></p>
+<form id="cancelForm" method="post" class="chunk no-js">
+  <h1>cancel recurring payment</h1>
+  <input type="hidden" name="cancel" value="yes" />
+  <input type="submit" value="Click to cancel your recurring payment" />
+</form>
+
