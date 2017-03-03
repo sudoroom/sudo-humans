@@ -74,23 +74,23 @@ module.exports = function (index, users, auth, blob, settings) {
             if(!membership.hasPriv(user, collective, 'admin')) {
                 return m.error(401, "Only admins can access this page.");
             }
-            
+
             if (req.method === 'POST') {
                 return post(save)(req, res, m);
             }
 
             getStripeCharges(collective, function(err, charges) {
-                if(err) return cb("Failed to get stripe charges: " + err)
+                if(err) return m.error("Failed to get stripe charges: " + err)
 
                 getCounts(users, collective, charges, function(err, counts) {
                     if(err) return m.error(500, err);
-                    
+
                     userTable(index, collective, charges, function(err, table) {
 
                         layout(auth, settings)('collective_admin.html', show)(req, res, m, users, user, collective, counts, table);
 
                     });
-                    
+
                 });
 
             }, settings);
