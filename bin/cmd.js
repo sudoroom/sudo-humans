@@ -258,6 +258,10 @@ router.addRoute('/~:name/edit/:collective',
     require('../routes/payment.js')(users, auth, blob, settings)
 );
 
+router.addRoute('/admin/payments/:collective/:username',
+    require('../routes/payment_admin.js')(users, auth, blob, settings)
+);
+
 
 router.addRoute('/c/:collective/members',
     require('../routes/members.js')(users, auth, blob, settings)
@@ -300,7 +304,7 @@ var server = http.createServer(function (req, res) {
     
     function error (code, err) {
         res.statusCode = code;
-        if (settings.debug) console.log('error: ' + err);
+        if (settings.debug) console.trace('error: ' + err);
         layout('error.html', function () {
             return hyperstream({ '.error': { _text: err + '\n' } });
         })(req, res, rparams);
