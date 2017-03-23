@@ -15,7 +15,7 @@ module.exports = function (users, index, settings) {
     }
 
     return post(function (req, res, m) {
-
+        console.log('[info] password_reset in post()');
         if(!m.params.email_or_username) {
             res.writeHead(303, { location: settings.base_url + '/account/password-reset' });
             res.end();
