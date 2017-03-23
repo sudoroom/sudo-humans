@@ -35,7 +35,7 @@ try {
     humans_version += '">' + v + '</a>';
     humans_version_plain = v;
 } catch (e) {
-    if (e.name == 'Error' && e.message.match(/^ENOENT:/)) {
+    if (e.name == 'Error' && e.message.match(/^ENOENT/)) {
         // no version file... ¯\_(ツ)_/¯
         humans_version = "sudo-humans";
         humans_version_plain = "unknown";
