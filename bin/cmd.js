@@ -22,6 +22,7 @@ var routes = require('routes');
 var package = require('../package.json');
 
 var humans_version;
+var humans_version_plain;
 
 // See if there is a version file available, so we can report what version of
 // code is being run. The version file is written by the deploy script, and
@@ -32,10 +33,12 @@ try {
     var v = fs.readFileSync(versionFile, {encoding: 'utf-8'}).trim();
     humans_version = 'sudo-humans <a href="https://github.com/sudoroom/sudo-humans/commits/' + v;
     humans_version += '">' + v + '</a>';
+    humans_version_plain = v;
 } catch (e) {
     if (e.name == 'Error' && e.message.match(/^ENOENT:/)) {
         // no version file... ¯\_(ツ)_/¯
         humans_version = "sudo-humans";
+        humans_version_plain = "unknown";
     } else {
         throw e;
     }
@@ -314,6 +317,8 @@ server.listen({ fd: fd }, function () {
         // since that is never sent to the server (it is only sent to stripe)
         console.log('WARNING: Debug mode enabled. Will leak private user data to stdout (though not credit card info).');
     }
+    console.log('sudo-humans version', humans_version_plain, 'started at',
+        new Date().toISOString());
     console.log('listening on :' + server.address().port);
 });
 
