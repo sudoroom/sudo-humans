@@ -34,6 +34,10 @@ module.exports = function (users, index, settings) {
             if(err) return m.error(500, err);
 
             if(!user || !user.email) {
+                // user doesn't exist; don't disclose this to the user, but
+                // log it so admins can see what's going on
+                console.log('[info] Password reset mail not sent: user',
+                    m.params.email_or_username, 'not found');
                 res.writeHead(303, { location: settings.base_url + '/account/password-reset-success' });
                 res.end();
                 return;
@@ -52,6 +56,7 @@ module.exports = function (users, index, settings) {
                     if(settings.debug) {
                         console.log('[debug] password for user', user.name, 'with email address', user.email, 'reset to:', password);
                     }
+                    console.log('[info] password for user', user.name, 'with email address', user.email, 'reset');
 
                     var mailer; 
 
