@@ -19,7 +19,7 @@ module.exports = function (users, auth, blob, settings) {
         var collective = m.params.collective;
 
         if(!settings.collectives || !settings.collectives[collective]) {
-            return m.error("No collective by that name exists.");
+            return m.error(404, "No collective by that name exists.");
         }
 
         var stripe = Stripe(settings.collectives[collective].stripe_api_key);
@@ -38,9 +38,7 @@ module.exports = function (users, auth, blob, settings) {
             var collective = m.params.collective;
 
             if (!user.collectives[collective]) {
-                res.statusCode = 404;
-                res.end("You are not a member of that collective.");
-                return;
+                return m.error(404, "You are not a member of that collective.");
             }
 
             if(!user.collectives[collective].stripe) {
