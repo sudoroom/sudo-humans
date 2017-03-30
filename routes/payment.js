@@ -38,7 +38,9 @@ module.exports = function (users, auth, blob, settings) {
             var collective = m.params.collective;
 
             if (!user.collectives[collective]) {
-                return m.error("You are not a member of that collective.");
+                res.statusCode = 404;
+                res.end("You are not a member of that collective.");
+                return;
             }
 
             if(!user.collectives[collective].stripe) {
