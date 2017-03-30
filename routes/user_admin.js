@@ -144,7 +144,7 @@ module.exports = function (index, users, auth, blob, settings) {
         }
 
         var shtml = '<option value="">[Select a collective]</option>';
-        var chtml = '\n<table><tr><th>Collective</th><th>Privileges</th><th>Credit</th>';
+        var chtml = '\n<table><tr><th>Collective</th><th>Privileges</th><!--<th>Credit</th>-->';
         var col, priv, privName, creditExp;
         for(col in collectives) {
             chtml += '<tr><td>'+settings.collectives[col].name+'</td><td><ul>'
@@ -159,15 +159,16 @@ module.exports = function (index, users, auth, blob, settings) {
                 chtml += '</li>';
             }
             chtml += '</ul></td>';
-            if(credit = membership.userHasCredit(user, col)) {
-                if(credit.active) {
-                    chtml += "<td>Credit until " + moment(credit.end).format('M/D/YYY')+"</td>";
-                } else {
-                    chtml += "<td>Credit starting " + moment(credit.begin).format('M/D/YYY')+" and </td>";
-                }
-            } else {
-                chtml += "<td>No credit</td>";
-            }
+            
+            //if(credit = membership.userHasCredit(user, col)) {
+            //    if(credit.active) {
+            //        chtml += "<td>Credit until " + moment(credit.end).format('M/D/YYY')+"</td>";
+            //    } else {
+            //        chtml += "<td>Credit starting " + moment(credit.begin).format('M/D/YYY')+" and </td>";
+            //    }
+            //} else {
+            //    chtml += "<td>No credit</td>";
+            //}
             chtml += '</tr>\n';
             shtml += '<option value="'+col+'">'+settings.collectives[col].name+'</option>\n';
         }
