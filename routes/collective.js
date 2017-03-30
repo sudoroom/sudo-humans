@@ -15,16 +15,16 @@ module.exports = function (users, ixf, counts, settings) {
         var comrades = ixf.index.createReadStream('user.'+collective, { eq: true });
         var members = ixf.index.createReadStream('member.'+collective, { eq: true });
         var feed = ixf.feed.createReadStream({ reverse: true });
-        
+
         var html = template();
         var member = html.template('member');
         var comrade = html.template('comrade');
         var event = html.template('event');
-        
+
         members.pipe(through.obj(write)).pipe(member);
         comrades.pipe(through.obj(write)).pipe(comrade);
         feed.pipe(through.obj(ewrite)).pipe(event);
-        
+
 
         var input = through(), output = through();
         counts.get(function (err, c) {
@@ -34,30 +34,44 @@ module.exports = function (users, ixf, counts, settings) {
                 '[key=user-count]': c['user.'+collective] || 0,
                 '[key=collective]': settings.collectives[collective].name,
                 '[key=members-email-link]': { href: collective+'/email/members' },
-                '[key=users-email-link]':{ href: collective+'/email/users' },
+                '[key=users-email-link]':{ href: collective+'/email/users' }
             };
-            
+
             var userID;
             if(m.session && m.session.data && m.session.data.id) {
                 users.get(m.session.data.id, function (err, user) {
                     if(!err && user && user.collectives && user.collectives[collective]) {
-                        opts['[key=admin-link]'] = { 
+                        opts['[key=admin-link]'] = {
                             href: '../admin/c/'+collective,
                             _text: "Administrate this collective"
                         };
                     }
-                
+
+                    if (user){
+                      if (settings.collectives[collective].stripe_api_key && settings.collectives[collective].stripe_publishable_key){
+                        opts['[key=collective-membership-link]'] = {
+                          _text: 'Setup or edit your membership',
+                          href: settings.base_url + '/~'+user.name+'/edit/'+collective
+                        }
+                      } else {
+                        opts['[key=collective-membership-link]'] = {
+                          _text: 'Setup your membership',
+                          href: settings.base_url + '/~'+user.name+'/edit'
+                        }
+                      }
+                    }
+
                     input.pipe(hyperstream(opts)).pipe(output);
-                });    
+                });
             } else {
                 input.pipe(hyperstream(opts)).pipe(output);
             }
 
         });
-        
+
         var modify = duplexer(input, output);
         return combine(modify, html);
-        
+
         function write (row, enc, next) {
             var name = row.value.name;
             this.push({
@@ -67,11 +81,11 @@ module.exports = function (users, ixf, counts, settings) {
             });
             next();
         }
-        
+
         function ewrite (update, enc, next) {
             var self = this;
             var limit = 5;
-            
+
             update.value.map(function (row) {
                 if (self.count >= limit) return;
                 if (row.type === 'put' && row.value
@@ -86,7 +100,7 @@ module.exports = function (users, ixf, counts, settings) {
             if (self.count < limit) next()
             else self.push(null)
         }
-        
+
         function userUpdate (user) {
             var name = user.name;
             var msg = user.created === user.updated
