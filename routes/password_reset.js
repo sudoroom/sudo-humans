@@ -53,9 +53,9 @@ module.exports = function (users, index, settings) {
                     if(err) return m.error(500, err);
 
                     if(settings.debug) {
-                        console.log('[debug] password for user', user.name, 'with email address', user.email, 'reset to:', password);
+                        console.log('[debug] Password for user', user.name, 'with email address', user.email, 'reset to:', password);
                     }
-                    console.log('[info] password for user', user.name, 'with email address', user.email, 'reset');
+                    console.log('[info] Password for user', user.name, 'with email address', user.email, 'reset');
 
                     var mailer; 
 
