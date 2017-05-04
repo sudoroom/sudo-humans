@@ -64,7 +64,7 @@ module.exports = function (index, users, auth, blob, settings) {
         var collective = m.params.collective;
 
         if(!settings.collectives || !settings.collectives[collective]) {
-            return m.error(401, "No collective by that name exists.");
+            return m.error(404, "No collective by that name exists.");
         }
 
         users.get(m.session.data.id, function (err, user) {
@@ -72,7 +72,7 @@ module.exports = function (index, users, auth, blob, settings) {
             if(!user) return m.error(401, "You are not logged in");
 
             if(!membership.hasPriv(user, collective, 'admin')) {
-                return m.error(401, "Only admins can access this page.");
+                return m.error(403, "Only admins can access this page.");
             }
 
             if (req.method === 'POST') {
