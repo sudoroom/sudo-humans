@@ -79,11 +79,11 @@ module.exports = function (index, users, auth, blob, settings) {
                 return post(save)(req, res, m);
             }
 
-            getStripeCharges(collective, function(err, charges) {
-                if(err) return m.error("Failed to get stripe charges: " + err)
+            getStripeCharges(collective, function handleStripeCharges(err, charges) {
+                if (err) return m.error(500, "Failed to get stripe charges: " + err);
 
                 getCounts(users, collective, charges, function(err, counts) {
-                    if(err) return m.error(500, err);
+                    if (err) return m.error(500, err);
 
                     userTable(index, collective, charges, function(err, table) {
 
