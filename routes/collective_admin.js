@@ -80,7 +80,11 @@ module.exports = function (index, users, auth, blob, settings) {
             }
 
             getStripeCharges(collective, function handleStripeCharges(err, charges) {
-                if (err) return m.error(500, "Failed to get stripe charges: " + err);
+                if (err) {
+                    // Even if we can't get the list of charges from Stripe, we
+                    // might as well show the *rest* of the admin page.
+                    console.log('[warn] Failed to get stripe charges: ' + err);
+                }
 
                 getCounts(users, collective, charges, function(err, counts) {
                     if (err) return m.error(500, err);
@@ -232,6 +236,10 @@ module.exports = function (index, users, auth, blob, settings) {
             }
         }, function(err) {
             if(err) return cb("Failed to get counts: " + err);
+
+            if (typeof charges === 'undefined') {
+                var charges = new Array();
+            }
                 
             var level, levelAmount, i, chargeAmount, highestLevel;
             for(i=0; i < charges.length; i++) {
