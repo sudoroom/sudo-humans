@@ -85,7 +85,7 @@ module.exports = function (index, users, auth, blob, settings) {
                 getCounts(users, collective, charges, function(err, counts) {
                     if (err) return m.error(500, err);
 
-                    userTable(index, collective, charges, function(err, table) {
+                    renderUserTableHTML(index, collective, charges, function(err, table) {
 
                         layout(auth, settings)('collective_admin.html', show)(req, res, m, users, user, collective, counts, table);
 
@@ -97,7 +97,7 @@ module.exports = function (index, users, auth, blob, settings) {
         });
     };
 
-    function userTable(index, collective, charges, cb) {
+    function renderUserTableHTML(index, collective, charges, cb) {
         var html = "\n<table>\n";
         html += "<tr>\n";
         html += "  <th>user</th>\n";
@@ -198,8 +198,6 @@ module.exports = function (index, users, auth, blob, settings) {
                 cb(null, html);
             }));
         });
-
-
     }
     
     function getCounts(users, collective, charges, cb) {
