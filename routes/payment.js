@@ -3,6 +3,7 @@ var hyperquest = require('hyperquest');
 var duplexer = require('duplexer2');
 var through = require('through2');
 var layout = require('../lib/layout.js');
+var Mailer = require('../lib/mailer.js')
 var post = require('../lib/post.js');
 var xtend = require('xtend');
 var once = require('once');
@@ -24,7 +25,8 @@ module.exports = function (users, auth, blob, settings) {
 
         var stripe = Stripe(settings.collectives[collective].stripe_api_key);
         if (req.method === 'POST') {
-            post(save)(req, res, m, collective, stripe);
+            var mailer = Mailer()
+            post(save)(req, res, m, collective, stripe, mailer);
         } else {
             layout(auth, settings)('payment.html', show)(req, res, m);
         }
@@ -151,10 +153,10 @@ module.exports = function (users, auth, blob, settings) {
         };
 
         return hyperstream(props);
-        
+
     }
-    
-    function save (req, res, m, collective, stripe) {
+
+    function save (req, res, m, collective, stripe, mailer) {
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(500, err);
             if (!user) return m.error(404, "No user data");
@@ -170,11 +172,11 @@ module.exports = function (users, auth, blob, settings) {
 
                 // are we cancelling a subscription?
                 if(m.params.cancel) {
-                    
+
                     if(!userStripe || !userStripe.customer_id || !userStripe.subscription_id) {
                         return m.error(500, "Trying to cancel non-existant subscription");
                     }
-                    
+
                     stripe.customers.cancelSubscription(
                         userStripe.customer_id,
                         userStripe.subscription_id,
@@ -182,45 +184,48 @@ module.exports = function (users, auth, blob, settings) {
                             if(err) {
                                 return m.error(500, err)
                             }
+                            mailer.cancelSubscription(user, collective)
                             // TODO show confirmation number
                         });
                     userStripe.last_two_digits = undefined;
                     userStripe.customer_id = undefined;
                     userStripe.subscription_id = undefined;
                     postSave(user, collective, m, res);
-                    
+
                     return;
                 }
-                
+
                 // TODO input validation!
-                
+
                 if(!sub) {
-                    
+
                     stripe.customers.create({
                         description: user.name + ' | ' + user.email,
                     }, function(err, customer) {
                         if(err) {
                             return m.error(500, err);
                         }
-                        
+
                         userStripe.customer_id = customer.id;
-                        
+
                         createOrUpdateSubscription(stripe, user, userStripe, null, m, function(err, subscription) {
                             if(err) {return m.error(500, err)}
                             console.log("created: ", subscription);
+                            mailer.createSubscription(user, collective)
                             userStripe.last_two_digits = m.params.lastTwoDigits;
                             userStripe.subscription_id = subscription.id;
                             postSave(user, collective, m, res);
                         });
-                        
+
                     });
-                    
+
                 } else { // this is an existing subscription being changed
                     createOrUpdateSubscription(stripe, user, userStripe, sub, m, function(err, subscription) {
                         if(err) {return m.error(500, err)}
                         if(m.params.lastTwoDigits) {
                             userStripe.last_two_digits = m.params.lastTwoDigits;
                         }
+                        mailer.updateSubscription(user, collective)
                         userStripe.subscription_id = subscription.id;
                         postSave(user, collective, m, res);
                     });

@@ -2,6 +2,14 @@
 module.exports = {
 
     base_url: "https://example.com",
+    mailFrom: 'sudoroompayments@gmail.com',
+    mailer: {
+      service: 'Gmail',
+      auth: {
+          user: 'gmail.user@gmail.com',
+          pass: 'yourpass'
+      }
+    },
 
     collectives: {
         sudoroom: {
