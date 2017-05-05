@@ -18,11 +18,24 @@ var accountdown_basic = require('accountdown-basic');
 var store = require('content-addressable-blob-store');
 var cookie_auth = require('cookie-auth');
 var layout_js = require('../lib/layout.js');
+var render_js = require('../lib/render.js');
 var routes = require('routes');
 var package = require('../package.json');
 
+// These variables are used by the pages that show the software version info
+// using layout.js and hyperstream templates.
 var humans_version;
 var humans_version_plain;
+
+// This object is used by the pages that show the software version info using
+// pug templates.
+var software = {
+  'author_name': 'sudo room',
+  'author_url': 'https://sudoroom.org/',
+  'name': 'sudo-humans',
+  'new_issue_url': 'https://github.com/sudoroom/sudo-humans/issues/new',
+  'url': 'https://github.com/sudoroom/sudo-humans'
+};
 
 // See if there is a version file available, so we can report what version of
 // code is being run. The version file is written by the deploy script, and
@@ -34,6 +47,8 @@ try {
     humans_version = 'sudo-humans <a href="https://github.com/sudoroom/sudo-humans/commits/' + v;
     humans_version += '">' + v + '</a>';
     humans_version_plain = v;
+    software.version = v;
+    software.version_url = software.url + '/commits/' + v;
 } catch (e) {
     if (e.name == 'Error' && e.message.match(/^ENOENT/)) {
         // no version file... ¯\_(ツ)_/¯
@@ -208,7 +223,11 @@ if(argv.migrate) {
 
 var fd = alloc(argv.port);
 
+// layout is used to render pages using hyperstream
 var layout = layout_js(auth, settings);
+
+// render is used to render pages using pug
+var render = render_js(auth, settings);
 
 var router = routes();
 router.addRoute('/', layout('main.html',
@@ -225,7 +244,7 @@ router.addRoute('/debug',
     require('../routes/debug.js')(ixf.index, users, auth, blob, settings)
 );
 
-router.addRoute('/account/sign-in', layout('sign_in.html'));
+router.addRoute('/account/sign-in', render('sign-in.pug', null, { software: software, settings: settings }));
 router.addRoute('/account/sign-in/post', 
     require('../routes/sign_in.js')(users, auth, settings)
 );

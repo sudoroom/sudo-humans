@@ -1,0 +1,17 @@
+extends layout.pug
+
+block content
+  #content
+    form#sign-in(
+      action=settings.base_url + '/account/sign-in/post'
+      method='post'
+      class='chunk'
+    )
+      h2 sign in
+      p
+        input(type='text', name='name', placeholder='pseudonym')
+      p
+        input(type='password', name='password', placeholder='password')
+      button(type='submit', class='bigred') sign in
+      p
+        a(href=settings.base_url + '/account/password-reset') password reset

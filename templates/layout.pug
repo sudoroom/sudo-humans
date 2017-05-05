@@ -1,0 +1,58 @@
+doctype html
+html
+  block head
+    head
+      block title
+        title sudo humans
+      meta(http-equiv='X-UA-Compatible', content='IE=Edge')
+      meta(charset='UTF-8')
+      link(rel='stylesheet', href=settings.base_url + '/style.css')
+  body
+    block header
+      #header
+        h1
+          span(class='humans') /
+            a(href=settings.base_url) collectives
+            | /
+            if collective
+              a(href=collective.url)= collective.name
+              | /
+            if user
+              a(href=user.profile_url)= user.username
+        div(class='buttons')
+          if user
+            a(class='profile-link', href=user.profile_url) 
+              button(class='bigred') profile
+            a(class='sign-out-link', href=user.sign_out_url)
+              button(class='bigred') sign out
+          else
+            a(href=settings.base_url + '/account/create')
+              button(class='bigred') create account
+            a(href=settings.base_url + '/account/sign-in')
+              button(class='bigred') sign in
+    block content
+    block footer
+      #footer
+        p#copyright
+          span(style={
+            "-moz-transform": "scaleX(-1)",
+            "-o-transform": "scaleX(-1)",
+            "-webkit-transform": "scaleX(-1)",
+            "transform": "scaleX(-1)",
+            "display": "inline-block"
+          })
+            | ©
+          |  CopyLeft 
+          a(href=software.author_url)= software.author_name
+          | , All Wrongs Reversed, #{new Date().getFullYear()}.
+        p#software-info This is 
+          if software.version
+            | #{software.name} 
+            a(href=software.version_url) #{software.version}
+          else
+            a(href=software.url) #{software.name}
+          | . 
+          a(href=software.new_issue_url target='_blank') Report
+          |  issues. 
+          a(href=software.url target='_blank') Fork
+          |  code.
