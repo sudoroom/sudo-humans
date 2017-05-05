@@ -21,15 +21,15 @@ html
               a(href=user.profile_url)= user.username
         div(class='buttons')
           if user
-            a(class='profile-link', href=user.profile_url) 
-              button(class='bigred') profile
-            a(class='sign-out-link', href=user.sign_out_url)
-              button(class='bigred') sign out
+            a(class='bigred profile-link', href=user.profile_url) 
+              | profile
+            a(class='bigred sign-out-link', href=user.sign_out_url)
+              | sign out
           else
-            a(href=settings.base_url + '/account/create')
-              button(class='bigred') create account
-            a(href=settings.base_url + '/account/sign-in')
-              button(class='bigred') sign in
+            a(class='bigred', href=settings.base_url + '/account/create')
+              | create account
+            a(class='bigred', href=settings.base_url + '/account/sign-in')
+              | sign in
     block content
     block footer
       #footer
