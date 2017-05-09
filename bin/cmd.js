@@ -228,6 +228,11 @@ var layout = layout_js(auth, settings);
 
 // render is used to render pages using pug
 var render = render_js(auth, settings);
+// data to send to the render function
+var template_data = {
+    software: software,
+    settings: settings
+};
 
 var router = routes();
 router.addRoute('/', layout('main.html',
@@ -244,7 +249,7 @@ router.addRoute('/debug',
     require('../routes/debug.js')(ixf.index, users, auth, blob, settings)
 );
 
-router.addRoute('/account/sign-in', render('sign-in.pug', null, { software: software, settings: settings }));
+router.addRoute('/account/sign-in', render('sign-in.pug', template_data));
 router.addRoute('/account/sign-in/post', 
     require('../routes/sign_in.js')(users, auth, settings)
 );
