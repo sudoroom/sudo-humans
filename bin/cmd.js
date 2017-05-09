@@ -235,12 +235,12 @@ var template_data = {
 };
 
 var router = routes();
-router.addRoute('/', layout('main.html',
-    require('../routes/main.js')(ixf, counts, settings)
-));
-router.addRoute('/c/:collective', layout('collective.html',
-    require('../routes/collective.js')(users, ixf, counts, settings)
-));
+router.addRoute('/',
+    layout('main.html', require('../routes/main.js')(ixf, counts, settings))
+);
+router.addRoute('/c/:collective',
+    layout('collective.html', require('../routes/collective.js')(users, ixf, counts, settings))
+);
 router.addRoute('/account/create', 
     require('../routes/create_account.js')(users, auth, blob, settings)
 );
