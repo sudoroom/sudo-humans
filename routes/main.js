@@ -7,7 +7,7 @@ var timeago = require('timeago');
 var membership = require('../lib/membership.js');
 
 module.exports = function (ixf, counts, settings) {
-    return function (req, req, m) {
+    return function (req, res, m) {
         var feed = ixf.feed.createReadStream({ reverse: true });
         
         var html = template();
