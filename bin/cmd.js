@@ -304,15 +304,15 @@ router.addRoute('/admin/dump',
 */
 
 var server = http.createServer(function (req, res) {
-    var m = router.match(req.url);
-    if (!m) return ecstatic(req, res);
+    var match = router.match(req.url);
+    if (!match) return ecstatic(req, res);
     var rparams = {
-        params: m.params,
+        params: match.params,
         error: error
     };
     auth.handle(req, res, function (err, session) {
         rparams.session = session && xtend(session, { update: update });
-        m.fn(req, res, rparams);
+        match.fn(req, res, rparams);
         
         function update (v, cb) {
             var data = xtend(session, { data: xtend(session.data, v) });
@@ -333,6 +333,7 @@ var server = http.createServer(function (req, res) {
         })(req, res, rparams);
     }
 });
+
 server.listen({ fd: fd }, function () {
     if(settings.debug) {
         // debug mode will print plaintext passwords to stdout 
