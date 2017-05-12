@@ -39,7 +39,6 @@ module.exports = function (users, auth, blob, settings) {
         var input = through(), output = through();
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(err);
-
             var collective = m.params.collective;
 
             if (!user.collectives[collective]) {
@@ -208,9 +207,11 @@ module.exports = function (users, auth, blob, settings) {
                             return m.error(500, err);
                         }
 
+
                         userStripe.customer_id = customer.id;
 
                         createOrUpdateSubscription(stripe, user, userStripe, null, m, function(err, subscription) {
+                          console.log(err);
                             if(err) {return m.error(500, err)}
                             console.log("created: ", subscription);
                             userStripe.last_two_digits = m.params.lastTwoDigits;
@@ -277,7 +278,14 @@ module.exports = function (users, auth, blob, settings) {
             stripe.customers.createSubscription(
                 userStripe.customer_id, {
                 plan: m.params.subscription_plan,
-                source: m.params.stripeToken
+                source: {
+                  object: 'card',
+                  exp_month: m.params.exp_month,
+                  exp_year: m.params.exp_year,
+                  number: m.params.card_number,
+                  cvc: m.params.cvc,
+                  name: m.params.name
+                }
             }, callback);
         }
     }
