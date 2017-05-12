@@ -22,6 +22,11 @@ module.exports = function (users, auth, blob, settings) {
             return m.error(404, "No collective by that name exists.");
         }
 
+        var apiKey = settings.collectives[collective].stripe_api_key
+        if (!apiKey){
+          return m.error(500, "Collective does not have Stripe API key");
+        }
+
         var stripe = Stripe(settings.collectives[collective].stripe_api_key);
         if (req.method === 'POST') {
             post(save)(req, res, m, collective, stripe);
@@ -151,9 +156,9 @@ module.exports = function (users, auth, blob, settings) {
         };
 
         return hyperstream(props);
-        
+
     }
-    
+
     function save (req, res, m, collective, stripe) {
         users.get(m.session.data.id, function (err, user) {
             if (err) return m.error(500, err);
@@ -170,11 +175,11 @@ module.exports = function (users, auth, blob, settings) {
 
                 // are we cancelling a subscription?
                 if(m.params.cancel) {
-                    
+
                     if(!userStripe || !userStripe.customer_id || !userStripe.subscription_id) {
                         return m.error(500, "Trying to cancel non-existant subscription");
                     }
-                    
+
                     stripe.customers.cancelSubscription(
                         userStripe.customer_id,
                         userStripe.subscription_id,
@@ -188,23 +193,23 @@ module.exports = function (users, auth, blob, settings) {
                     userStripe.customer_id = undefined;
                     userStripe.subscription_id = undefined;
                     postSave(user, collective, m, res);
-                    
+
                     return;
                 }
-                
+
                 // TODO input validation!
-                
+
                 if(!sub) {
-                    
+
                     stripe.customers.create({
                         description: user.name + ' | ' + user.email,
                     }, function(err, customer) {
                         if(err) {
                             return m.error(500, err);
                         }
-                        
+
                         userStripe.customer_id = customer.id;
-                        
+
                         createOrUpdateSubscription(stripe, user, userStripe, null, m, function(err, subscription) {
                             if(err) {return m.error(500, err)}
                             console.log("created: ", subscription);
@@ -212,9 +217,9 @@ module.exports = function (users, auth, blob, settings) {
                             userStripe.subscription_id = subscription.id;
                             postSave(user, collective, m, res);
                         });
-                        
+
                     });
-                    
+
                 } else { // this is an existing subscription being changed
                     createOrUpdateSubscription(stripe, user, userStripe, sub, m, function(err, subscription) {
                         if(err) {return m.error(500, err)}
@@ -275,6 +280,6 @@ module.exports = function (users, auth, blob, settings) {
                 source: m.params.stripeToken
             }, callback);
         }
-    }    
+    }
 
 };
