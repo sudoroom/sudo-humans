@@ -227,7 +227,7 @@ var fd = alloc(argv.port);
 var layout = layout_js(auth, settings);
 
 // render is used to render pages using pug
-var render = render_js(auth, settings);
+var render = render_js();
 // data to send to the render function
 var template_data = {
     software: software,
