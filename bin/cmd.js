@@ -94,7 +94,7 @@ if (argv.debug) {
 }
 
 if (argv.gid) process.setgid(argv.gid);
-if (argv.uid) process.setgid(argv.uid);
+if (argv.uid) process.setuid(argv.uid);
 
 var ecstatic = require('ecstatic')({
     root: __dirname + '/../static',
@@ -177,15 +177,15 @@ ixf.index.add(function (row, cb) {
         if (!row.prev) {
             c['user'] = 1;
             c['member'] = isMember ? 1 : 0;
-            
+
         }
         else if (isMember !== row.prev['user.member']) {
             c['member'] = isMember ? 1 : -1;
         }
-        
+
         if(Object.keys(c).length > 0) {
             counts.add(c, done);
-        } else { 
+        } else {
             done()
         }
 
@@ -210,7 +210,7 @@ var blob = store({ path: dir.blob });
 // run database migration script
 if(argv.migrate) {
     var script = require(path.resolve(argv.migrate));
-    
+
     script(users, ixf, counts, blob, argv, settings, function(err) {
         if(err) {
             console.error("Migration script error:", err);
@@ -241,26 +241,26 @@ router.addRoute('/',
 router.addRoute('/c/:collective',
     layout('collective.html', require('../routes/collective.js')(users, ixf, counts, settings))
 );
-router.addRoute('/account/create', 
+router.addRoute('/account/create',
     require('../routes/create_account.js')(users, auth, blob, settings)
 );
 
-router.addRoute('/debug', 
+router.addRoute('/debug',
     require('../routes/debug.js')(ixf.index, users, auth, blob, settings)
 );
 
 router.addRoute('/account/sign-in', render('sign-in.pug', template_data));
-router.addRoute('/account/sign-in/post', 
+router.addRoute('/account/sign-in/post',
     require('../routes/sign_in.js')(users, auth, settings)
 );
 
 router.addRoute('/account/password-reset', layout('password_reset.html'));
 router.addRoute('/account/password-reset-success', layout('password_reset_success.html'));
-router.addRoute('/account/password-reset/post', 
+router.addRoute('/account/password-reset/post',
     require('../routes/password_reset.js')(users, ixf.index, settings)
 );
 
-router.addRoute('/account/sign-out/:token', 
+router.addRoute('/account/sign-out/:token',
     require('../routes/sign_out.js')(auth, settings)
 );
 
@@ -313,10 +313,10 @@ var server = http.createServer(function (req, res) {
     auth.handle(req, res, function (err, session) {
         rparams.session = session && xtend(session, { update: update });
         match.fn(req, res, rparams);
-        
+
         function update (v, cb) {
             var data = xtend(session, { data: xtend(session.data, v) });
-            
+
             auth.sessions.put(session.session, data, { valueEncoding: 'json' },
             function (err) {
                 if (err) cb && cb(err)
@@ -324,7 +324,7 @@ var server = http.createServer(function (req, res) {
             });
         }
     });
-    
+
     function error (code, err) {
         res.statusCode = code;
         if (settings.debug) console.log('error: ' + err);
@@ -336,9 +336,9 @@ var server = http.createServer(function (req, res) {
 
 server.listen({ fd: fd }, function () {
     if(settings.debug) {
-        // debug mode will print plaintext passwords to stdout 
+        // debug mode will print plaintext passwords to stdout
         // during account creation and password reset
-        // it will however not leak credit card information 
+        // it will however not leak credit card information
         // since that is never sent to the server (it is only sent to stripe)
         console.log('WARNING: Debug mode enabled. Will leak private user data to stdout (though not credit card info).');
     }
