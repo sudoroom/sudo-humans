@@ -115,7 +115,7 @@ module.exports = function (auth, ixf, blob, template_data) {
                     resolve(marked(s, { sanitize: true }));
                 });
             } else {
-                reject('nothing to render');
+                resolve(s);
             }
         });
 
