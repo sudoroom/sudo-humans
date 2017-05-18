@@ -1,5 +1,4 @@
 var hyperstream = require('hyperstream');
-var duplexer = require('duplexer2');
 var through = require('through2');
 var layout = require('../lib/layout.js');
 var fromName = require('../lib/user_from_name.js');
@@ -9,7 +8,6 @@ var concat = require('concat-stream');
 
 module.exports = function (auth, ixf, blob, settings) {
     return function (req, res, m) {
-        var input = through(), output = through();
         fromName(ixf.index, m.params.name, function (err, user) {
 
             if (err) return m.error(500, err)
@@ -18,7 +16,6 @@ module.exports = function (auth, ixf, blob, settings) {
                 return show(user, m);
             })(req, res, m);
         });
-        return duplexer(input, output);
     };
     
     function show (user, m) {
