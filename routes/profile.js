@@ -1,63 +1,124 @@
-var hyperstream = require('hyperstream');
-var through = require('through2');
-var layout = require('../lib/layout.js');
 var fromName = require('../lib/user_from_name.js');
-var membership = require('../lib/membership.js');
 var marked = require('marked');
-var concat = require('concat-stream');
+var render = require('../lib/render.js')();
+var Promise = require('promise');
 
-module.exports = function (auth, ixf, blob, settings) {
+module.exports = function (auth, ixf, blob, template_data) {
     return function (req, res, m) {
         fromName(ixf.index, m.params.name, function (err, user) {
+            template_data.name = m.params.name;
 
-            if (err) return m.error(500, err)
-            else if (!user) return m.error(404, 'user not found')
-            else layout(auth, settings)('profile.html', function () {
-                return show(user, m);
-            })(req, res, m);
+            if (err) {
+                return m.error(500, err);
+            } else if (!user) {
+                render('profile_404.pug', template_data)(req, res, m);
+                return;
+            } else if (typeof m.session === 'object' &&
+                  typeof m.session.data === 'object' &&
+                  typeof m.session.data.name === 'string') {
+                // a user is logged in. figure out if they have access.
+                if (user.name === m.session.data.name) {
+                    // show the user their own profile
+                    // additional private data will be sent in this case
+                    template_data.user = user;
+                    markdown(user.about).then(
+                        function (rendered_md_string) {
+                            template_data.about = rendered_md_string;
+                            render('profile.pug', template_data)(req, res, m);
+                        }
+                    );
+                    return;
+                } else if (user.visibility === 'members') {
+                    // check whether session user is a member or admin of
+                    // an overlapping set of collectives with requested user
+                    var permission_check = new Promise(function doUserPermissionCheck(resolve, reject) {
+                        fromName(ixf.index, m.session.data.name, function(err, current_user) {
+                            if (err) {
+                                reject(err);
+                            }
+                            for (var c in current_user.collectives) {
+                                if (c in user.collectives) {
+                                    if (current_user.collectives[c].privs.indexOf('admin') !== -1 ||
+                                          current_user.collectives[c].privs.indexOf('member') !== -1) {
+                                        resolve(true);
+                                        return;
+                                    }
+                                }
+                            }
+                            resolve(false);
+                        });
+                    });
+
+                    permission_check.then(
+                        function handlePermissionCheckResult(check_result) {
+                            if (check_result === true) {
+                                // fall through (show the profile)
+                            } else {
+                                render('profile_403.pug', template_data)(req, res, m);
+                                return;
+                            }
+                        },
+                        function handlePermissionCheckFailure() {
+                            return m.error(500, 'Unable to check permissions');
+                        }
+                    );
+
+                    template_data.user = user;
+                    markdown(user.about).then(
+                        function (rendered_md_string) {
+                            template_data.about = rendered_md_string;
+                            render('profile.pug', template_data)(req, res, m);
+                        }
+                    );
+                    return;
+                } else if (user.visibility === 'accounts' ||
+                      user.visibility === 'everyone') {
+                    template_data.user = user;
+                    markdown(user.about).then(
+                        function (rendered_md_string) {
+                            template_data.about = rendered_md_string;
+                            render('profile.pug', template_data)(req, res, m);
+                        }
+                    );
+                    return;
+                } else {
+                    return m.error(
+                        500, 'unable to determine profile visibility: ' +
+                        user.visibility);
+                }
+            } else if (user.visibility === 'everyone') {
+                // no user logged in, so only show the profile if public
+                template_data.user = user;
+                markdown(user.about).then(
+                    function (rendered_md_string) {
+                        template_data.about = rendered_md_string;
+                        render('profile.pug', template_data)(req, res, m);
+                    }
+                );
+                return;
+            } else {
+                render('profile_403.pug', template_data)(req, res, m);
+                return;
+            }
         });
     };
     
-    function show (user, m) {
+    function markdown (key) {
+        var rendered_markdown = new Promise(function (resolve, reject) {
+            var s = '';
+            if (key) {
+                var r = blob.createReadStream(key);
+                r.on('error', function(err) { reject(err); });
+                r.on('data', function(buf) { s += buf.toString('utf8'); });
+                r.on('end', function(buf) {
+                    if (buf) { s += buf.toString('utf8'); }
+                    resolve(marked(s, { sanitize: true }));
+                });
+            } else {
+                reject('nothing to render');
+            }
+        });
 
-        var props = {
-            '[key=name]': { _text: user.name },
-            '[key=email]': { _text: user.email },
-            '[key=collectives]': membership.table(user, settings),
-            '[key=avatar]': user.avatar
-                ? { src: '~' + user.name + '.png' }
-                : { src: 'default.png' }
-            ,
-            '[key=ssh]': user.ssh
-                ? { href: '~' + user.name + '.pub' }
-                : { style: 'display: none' }
-            ,
-            '[key=pgp]': user.pgp
-                ? { href: '~' + user.name + '.asc' }
-                : { style: 'display: none' }
-            ,
-            '[key=about]': markdown(user.about)
-        };
-
-        if (!m.session || m.session.data.id !== user.id) {
-            props['.edit-profile'] = { style: 'display: none;' };
-        }
-        else {
-            props['.edit-link'] = { href: '~' + user.name + '/edit' };
-        }
-        return hyperstream(props);
-        
-        function markdown (key) {
-            if (!key) return '';
-            var r = blob.createReadStream(key);
-            var stream = through();
-            r.on('error', function (err) { m.error(500, err) });
-            r.pipe(concat(function (body) {
-                stream.end(marked(body.toString('utf8'), {
-                    sanitize: true
-                }));
-            }));
-            return stream;
-        }
+        return rendered_markdown;
     }
 };

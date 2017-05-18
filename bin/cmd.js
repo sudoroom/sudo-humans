@@ -273,10 +273,10 @@ router.addRoute('/admin/u/:username',
 );
 
 router.addRoute('/~:name/welcome', 
-                require('../routes/welcome.js')(auth, ixf, blob, settings)
+    require('../routes/welcome.js')(auth, ixf, blob, settings)
 );
 router.addRoute('/~:name.:ext', require('../routes/ext.js')(ixf, blob));
-router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob, settings));
+router.addRoute('/~:name', require('../routes/profile.js')(auth, ixf, blob, template_data));
 router.addRoute('/~:name/edit',
     require('../routes/edit_profile.js')(users, auth, blob, settings)
 );

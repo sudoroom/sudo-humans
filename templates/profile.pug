@@ -1,0 +1,47 @@
+extends layout.pug
+
+block content
+  #content
+    #profile(class='chunk', style={background: '#fff'})
+      h2.header #{name}
+        if name === user.name
+          a.button.edit-link(href=settings.base_url + '/~' + name + '/edit')
+            button.edit-profile edit
+      .top-info
+        .left
+          div
+            img(class='avatar', src='~' + name + '.png')
+          if user.ssh
+            div
+              a(href='~' + name + '.pub') ssh key
+          if user.pgp
+            div
+              a(href='~' + name + '.asc') open pgp key
+        .right
+          table
+            tr
+              th email address
+              td= user.email
+
+      h3 membership
+      div
+        table
+          tr
+            th collective
+            th status
+          each c in Object.keys(user.collectives)
+            tr
+              if settings.collectives[c]
+                td= settings.collectives[c].name
+              else
+                td= c
+              if user.collectives[c].privs.indexOf('admin') !== -1
+                td admin
+              else if user.collectives[c].privs.indexOf('member') !== -1
+                td member
+              else
+                td comrade
+
+      if about
+        h3 about
+        #about !{about}
