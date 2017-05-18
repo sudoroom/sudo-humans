@@ -3,7 +3,7 @@ var marked = require('marked');
 var render = require('../lib/render.js')();
 var Promise = require('promise');
 
-module.exports = function (auth, ixf, blob, template_data) {
+module.exports = function (ixf, blob, template_data) {
     return function (req, res, m) {
         fromName(ixf.index, m.params.name, function (err, user) {
             template_data.name = m.params.name;
@@ -16,6 +16,7 @@ module.exports = function (auth, ixf, blob, template_data) {
             } else if (typeof m.session === 'object' &&
                   typeof m.session.data === 'object' &&
                   typeof m.session.data.name === 'string') {
+                template_data.current_user = { username: m.session.data.name };
                 // a user is logged in. figure out if they have access.
                 if (user.name === m.session.data.name) {
                     // show the user their own profile
@@ -52,7 +53,13 @@ module.exports = function (auth, ixf, blob, template_data) {
                     permission_check.then(
                         function handlePermissionCheckResult(check_result) {
                             if (check_result === true) {
-                                // fall through (show the profile)
+                                markdown(user.about).then(
+                                    function (rendered_md_string) {
+                                        template_data.about = rendered_md_string;
+                                        render('profile.pug', template_data)(req, res, m);
+                                    }
+                                );
+                                return;
                             } else {
                                 render('profile_403.pug', template_data)(req, res, m);
                                 return;
@@ -63,14 +70,6 @@ module.exports = function (auth, ixf, blob, template_data) {
                         }
                     );
 
-                    template_data.user = user;
-                    markdown(user.about).then(
-                        function (rendered_md_string) {
-                            template_data.about = rendered_md_string;
-                            render('profile.pug', template_data)(req, res, m);
-                        }
-                    );
-                    return;
                 } else if (user.visibility === 'accounts' ||
                       user.visibility === 'everyone') {
                     template_data.user = user;

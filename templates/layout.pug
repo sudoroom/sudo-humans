@@ -13,17 +13,17 @@ html
         h1
           span(class='humans') / 
             a(href=settings.base_url) collectives
-            |  /
+            |  / 
             if collective
               a(href=collective.url)= collective.name
-              | /
-            if user
-              a(href=user.profile_url)= user.username
+              |  / 
+            if current_user
+              a(href=settings.base_url + '/~' + current_user.username) ~#{current_user.username}
         div(class='buttons')
-          if user
-            a(class='bigred profile-link', href=user.profile_url) 
+          if current_user
+            a(class='bigred profile-link', href=settings.base_url + '/~' + current_user.username) 
               | profile
-            a(class='bigred sign-out-link', href=user.sign_out_url)
+            a(class='bigred sign-out-link', href=current_user.sign_out_url)
               | sign out
           else
             a(class='bigred', href=settings.base_url + '/account/create')
