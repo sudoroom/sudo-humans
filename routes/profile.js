@@ -39,8 +39,8 @@ module.exports = function (ixf, blob, template_data) {
                             if (err) {
                                 reject(err);
                             }
-                            console.log('Current user collectives: ' + util.inspect(current_user.collectives));
-                            console.log('Target user collectives: ' + util.inspect(user.collectives));
+                            console.log('Current user collectives: ' + util.inspect(Object.keys(current_user.collectives)));
+                            console.log('Target user collectives: ' + util.inspect(Object.keys(user.collectives)));
                             for (var c in current_user.collectives) {
                                 if (c in user.collectives) {
                                     if (current_user.collectives[c].privs.indexOf('admin') !== -1 ||
