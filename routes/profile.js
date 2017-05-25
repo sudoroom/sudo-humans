@@ -120,7 +120,6 @@ module.exports = function (ixf, blob, template_data) {
                 r.on('data', function(buf) { s += buf.toString('utf8'); });
                 r.on('end', function(buf) {
                     if (buf) { s += buf.toString('utf8'); }
-                    console.log('about to resolve markdown("' + key + '")');
                     resolve(marked(s, { sanitize: true }));
                 });
             } else {
