@@ -4,9 +4,10 @@ block content
   #content
     #profile(class='chunk', style={background: '#fff'})
       h2.header #{name}
-        if current_user.username === user.name
-          a.button.edit-link(href=settings.base_url + '/~' + name + '/edit')
-            button.edit-profile edit
+        if current_user
+          if current_user.username === user.name
+            a.button.edit-link(href=settings.base_url + '/~' + name + '/edit')
+              button.edit-profile edit
       .top-info
         .left
           div
