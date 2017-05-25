@@ -2,6 +2,7 @@ var fromName = require('../lib/user_from_name.js');
 var marked = require('marked');
 var render = require('../lib/render.js')();
 var Promise = require('promise');
+var util = require('util');
 
 module.exports = function (ixf, blob, template_data) {
     return function (req, res, m) {
