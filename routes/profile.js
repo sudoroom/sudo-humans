@@ -6,6 +6,7 @@ var Promise = require('promise');
 module.exports = function (ixf, blob, template_data) {
     return function (req, res, m) {
         fromName(ixf.index, m.params.name, function (err, user) {
+            console.log("profile requested: " + m.params.name + "; visibility: " + (user ? user.visibility : "<undefined>"));
             template_data.name = m.params.name;
 
             if (err) {
@@ -37,6 +38,8 @@ module.exports = function (ixf, blob, template_data) {
                             if (err) {
                                 reject(err);
                             }
+                            console.log('Current user collectives: ' + util.inspect(current_user.collectives));
+                            console.log('Target user collectives: ' + util.inspect(user.collectives));
                             for (var c in current_user.collectives) {
                                 if (c in user.collectives) {
                                     if (current_user.collectives[c].privs.indexOf('admin') !== -1 ||
@@ -87,11 +90,16 @@ module.exports = function (ixf, blob, template_data) {
                 }
             } else if (user.visibility === 'everyone') {
                 // no user logged in, so only show the profile if public
+                console.log('no session user; showing public profile');
                 template_data.user = user;
                 markdown(user.about).then(
                     function (rendered_md_string) {
                         template_data.about = rendered_md_string;
+                        console.log('going to render profile.pug');
                         render('profile.pug', template_data)(req, res, m);
+                    },
+                    function (err) {
+                        console.log("something wrong! " + err);
                     }
                 );
                 return;
@@ -111,6 +119,7 @@ module.exports = function (ixf, blob, template_data) {
                 r.on('data', function(buf) { s += buf.toString('utf8'); });
                 r.on('end', function(buf) {
                     if (buf) { s += buf.toString('utf8'); }
+                    console.log('about to resolve markdown("' + key + '")');
                     resolve(marked(s, { sanitize: true }));
                 });
             } else {
