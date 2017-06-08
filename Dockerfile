@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
   nodejs \
   nodejs-legacy \
   npm
+# Put the (symlinked) db in here
+RUN mkdir -p /usr/src/sudoroom-data
 # Put the app in here
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
