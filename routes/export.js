@@ -11,10 +11,8 @@ module.exports = function (db, settings) {
             dump(db, function write(data) {
                 kbuf = new Buffer(data.key)
                 vbuf = new Buffer(data.value)
-                console.log("KEY:")
-                console.log(kbuf.toString('base64'))
-                console.log("VAL:")
-                console.log(vbuf.toString('base64'))
+                res.write(kbuf.toString('base64'))
+                res.write(vbuf.toString('base64'))
             }, function end(err) {
                 if (err) {
                     console.log(err)
