@@ -7,9 +7,15 @@ module.exports = function (db, settings) {
         if (settings.export_secret && req.headers.cookie == "secret=" + settings.export_secret) {
             console.log("Dumping database...")
             dump(db, function write(data) {
+                console.log("Dump proceeding...")
+                console.log(data)
                 res.write(JSON.stringify(data))
             }, function end(err) {
-                console.log(err)
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log("No error!")
+                }
                 res.end()
             })
         } else {
