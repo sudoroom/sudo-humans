@@ -24,6 +24,7 @@
     "index-feed": "^1.0.0",
     "is-root": "^1.0.0",
     "leveldown": "0.10.5",
+    "level-dump": "^1.1.0",
     "level-packager": "~0.18.0",
     "level-change-processor": "^1.0.0",
     "marked": "^0.3.3",
