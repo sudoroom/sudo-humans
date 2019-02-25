@@ -8,8 +8,7 @@ module.exports = function (db, settings) {
             console.log("Dumping database...")
             dump(db, function write(data) {
                 console.log("Dump proceeding...")
-                console.log(data)
-                res.write(JSON.stringify(data))
+                res.write(util.format("%o", data))
             }, function end(err) {
                 if (err) {
                     console.log(err)
