@@ -9,8 +9,8 @@ module.exports = function (db, settings) {
             console.log("Dumping database...")
             res.write("BEGIN\n")
             dump(db, function write(data) {
-                console.log("data property names: " + Object.getOwnPropertyNames(data))
-                res.write(util.format("%o", data))
+                res.write("K:" + Buffer.from(data.key).toString('base64') + "\n")
+                res.write("V:" + Buffer.from(data.value).toString('base64') + "\n")
             }, function end(err) {
                 if (err) {
                     console.log(err)
