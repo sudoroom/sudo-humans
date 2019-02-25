@@ -9,8 +9,12 @@ module.exports = function (db, settings) {
             console.log("Dumping database...")
             res.write("BEGIN\n")
             dump(db, function write(data) {
-                res.write("K:" + new Buffer(data.key).toString('base64') + "\n")
-                res.write("V:" + new Buffer(data.value).toString('base64') + "\n")
+                kbuf = new Buffer(data.key)
+                vbuf = new Buffer(data.value)
+                console.log("KEY:")
+                console.log(kbuf.toString('base64'))
+                console.log("VAL:")
+                console.log(vbuf.toString('base64'))
             }, function end(err) {
                 if (err) {
                     console.log(err)
