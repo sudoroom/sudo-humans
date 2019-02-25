@@ -23,9 +23,7 @@ module.exports = function (db, settings) {
                 }
             })
         } else {
-            res.write("Nothing to see here.")
+            res.end("Nothing to see here.")
         }
-
-        res.end()
     }
 }
