@@ -7,8 +7,8 @@ module.exports = function (db, settings) {
 
         if (settings.export_secret && req.headers.cookie == "secret=" + settings.export_secret) {
             console.log("Dumping database...")
+            res.write("BEGIN\n")
             dump(db, function write(data) {
-                console.log("Dump proceeding...")
                 res.write(util.format("%o", data))
             }, function end(err) {
                 if (err) {
@@ -16,6 +16,7 @@ module.exports = function (db, settings) {
                 } else {
                     console.log("No error!")
                 }
+                res.write("END\n")
                 res.end()
             })
         } else {
