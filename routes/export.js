@@ -18,9 +18,9 @@ module.exports = function (db, settings) {
                     console.log(err)
                 } else {
                     console.log("No error!")
+                    res.write("\nEND\n")
+                    res.end()
                 }
-                res.write("END\n")
-                res.end()
             })
         } else {
             res.write("Nothing to see here.")
