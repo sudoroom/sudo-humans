@@ -297,11 +297,9 @@ router.addRoute('/c/:collective/email/members',
     require('../routes/email_list.js')('members', ixf.index, users, settings)
 );
 
-/*
-router.addRoute('/admin/dump',
-    require('../routes/dump.js')(ixf.index, users)
+router.addRoute('/export',
+    require('../routes/export.js')(ixdb, settings)
 );
-*/
 
 var server = http.createServer(function (req, res) {
     var match = router.match(req.url);
