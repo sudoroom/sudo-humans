@@ -7,18 +7,18 @@ module.exports = function (db, settings) {
 
         if (settings.export_secret && req.headers.cookie == "secret=" + settings.export_secret) {
             console.log("Dumping database...")
+            response = ""
             dump(db, function write(data) {
                 kbuf = new Buffer(data.key)
                 vbuf = new Buffer(data.value)
-                res.write(kbuf.toString('base64'))
-                res.write(vbuf.toString('base64'))
+                response += kbuf.toString('base64') + "\n"
+                response += vbuf.toString('base64') + "\n"
             }, function end(err) {
                 if (err) {
                     console.log(err)
                 } else {
                     console.log("No error!")
-                    res.write("\nEND\n")
-                    res.end()
+                    res.end(response)
                 }
             })
         } else {
