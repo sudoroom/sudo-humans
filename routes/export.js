@@ -17,6 +17,7 @@ module.exports = function (db, settings) {
                 if (err) {
                     console.log(err)
                 } else {
+                    console.log(response)
                     console.log("No error!")
                     res.end(response)
                 }
