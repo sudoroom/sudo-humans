@@ -1,4 +1,5 @@
 var dump = require('level-dump')
+var util = require('util')
 
 module.exports = function (db, settings) {
     return function (req, res, match) {
