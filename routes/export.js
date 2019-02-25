@@ -7,8 +7,7 @@ module.exports = function (db, settings) {
         if (settings.export_secret && req.headers.cookie == "secret=" + settings.export_secret) {
             console.log("Dumping database...")
             dump(db, function write(data) {
-                console.log("typeof data is " + typeof data)
-                res.write(data)
+                res.write(JSON.stringify(data))
             }, function end(err) {
                 console.log(err)
                 res.end()
