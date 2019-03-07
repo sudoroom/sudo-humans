@@ -298,7 +298,8 @@ router.addRoute('/c/:collective/email/members',
 );
 
 router.addRoute('/export',
-    require('../routes/export.js')(ixdb, settings)
+    //require('../routes/export.js')(ixdb, settings)
+    require('../routes/export.js')(level(dir.data), settings)
 );
 
 var server = http.createServer(function (req, res) {
