@@ -119,8 +119,9 @@ var ixdb = level(dir.index);
 var counts = counts_js(
     sublevel(ixdb, 'c', { valueEncoding: 'json' })
 );
+var datalevel = level(dir.data)
 var ixf = ixfeed({
-    data: level(dir.data),
+    data: datalevel,
     index: sublevel(ixdb, 'i'),
     valueEncoding: 'json'
 });
@@ -299,7 +300,7 @@ router.addRoute('/c/:collective/email/members',
 
 router.addRoute('/export',
     //require('../routes/export.js')(ixdb, settings)
-    require('../routes/export.js')(level(dir.data), settings)
+    require('../routes/export.js')(level(datalevel), settings)
 );
 
 var server = http.createServer(function (req, res) {
