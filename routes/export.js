@@ -8,7 +8,7 @@ module.exports = function (db, settings) {
         if (settings.export_secret && req.headers.cookie == "secret=" + settings.export_secret) {
             console.log("Dumping database...")
             response = ""
-            dump(db, function write(data) {
+            dump.allEntries(db, function write(data) {
                 kbuf = new Buffer(data.key)
                 vbuf = new Buffer(data.value)
                 response += kbuf.toString('base64') + "\n"
