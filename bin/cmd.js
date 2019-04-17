@@ -299,7 +299,7 @@ router.addRoute('/c/:collective/email/members',
     require('../routes/email_list.js')('members', ixf.index, users, settings)
 );
 
-router.addRoute('/export',
+router.addRoute('/export/:database',
     require('../routes/export.js')(datalevel, ixdb, sessions, settings)
 );
 
