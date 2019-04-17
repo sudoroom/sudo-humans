@@ -1,9 +1,10 @@
 var dump = require('level-dump')
 var util = require('util')
 
-module.exports = function (db, settings) {
+module.exports = function (datalevel, ixdb, sessions, settings) {
     return function (req, res, match) {
         res.setHeader('Content-Type', 'text/plain')
+        console.log("export request received for " + req.path)
 
         if (settings.export_secret && req.headers.cookie == "secret=" + settings.export_secret) {
             console.log("Dumping database...")

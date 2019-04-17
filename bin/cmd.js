@@ -102,6 +102,7 @@ var ecstatic = require('ecstatic')({
 });
 
 var dir = {
+    // location of main database (datalevel)
     data: path.join(argv.home, argv.datadir, 'data'),
 
     // location of ixdb
@@ -199,10 +200,10 @@ var users = accountdown(sublevel(ixf.db, 'users'), {
     login: { basic: accountdown_basic }
 });
 
-
+var sessions = level(dir.session)
 var auth = cookie_auth({
     name: package.name,
-    sessions: level(dir.session)
+    sessions: sessions
 });
 
 var blob = store({ path: dir.blob });
@@ -299,8 +300,7 @@ router.addRoute('/c/:collective/email/members',
 );
 
 router.addRoute('/export',
-    //require('../routes/export.js')(ixdb, settings)
-    require('../routes/export.js')(datalevel, settings)
+    require('../routes/export.js')(datalevel, ixdb, sessions, settings)
 );
 
 var server = http.createServer(function (req, res) {
