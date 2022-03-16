@@ -1,4 +1,4 @@
-var dump = require('level-dump')
+// var dump = require('level-dump')
 var util = require('util')
 
 module.exports = function (datalevel, ixdb, sessions, settings) {
@@ -25,20 +25,20 @@ module.exports = function (datalevel, ixdb, sessions, settings) {
 
             console.log("Dumping database...")
             response = ""
-            dump.allEntries(db, function write(data) {
-                kbuf = new Buffer(data.key)
-                vbuf = new Buffer(data.value)
-                response += kbuf.toString('base64') + "\n"
-                response += vbuf.toString('base64') + "\n"
-            }, function end(err) {
-                if (err) {
-                    console.log(err)
-                } else {
-                    console.log(response)
-                    console.log("No error!")
-                    res.end(response)
-                }
-            })
+            // dump.allEntries(db, function write(data) {
+            //     kbuf = new Buffer(data.key)
+            //     vbuf = new Buffer(data.value)
+            //     response += kbuf.toString('base64') + "\n"
+            //     response += vbuf.toString('base64') + "\n"
+            // }, function end(err) {
+            //     if (err) {
+            //         console.log(err)
+            //     } else {
+            //         console.log(response)
+            //         console.log("No error!")
+            //         res.end(response)
+            //     }
+            // })
         } else {
             res.end("Nothing to see here.")
         }
