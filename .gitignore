@@ -6,3 +6,4 @@ settings.js
 .bash_history
 .node-gyp/
 .npm/
+.idea

@@ -80,7 +80,6 @@ var argv = minimist(process.argv.slice(2), {
 });
 if (argv.help || argv._[0] === 'help') {
     fs.createReadStream(__dirname + '/usage.txt').pipe(process.stdout);
-    return;
 }
 
 if (!argv.settings) argv.settings = argv.home + '/settings.js';
