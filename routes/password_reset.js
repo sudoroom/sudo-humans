@@ -1,6 +1,8 @@
 var post = require('../lib/post.js');
 var userFromX = require('../lib/user_from_x.js');
 var xkcdPassword = require('xkcd-password');
+var fs = require('fs');
+var path = require('path');
 
 module.exports = function (users, index, settings) {
 
@@ -81,7 +83,20 @@ module.exports = function (users, index, settings) {
                         }
                     }
 
-                    mailer.sendMail({
+                  if(settings.log_password_reset) {
+                    
+                    var log = fs.createWriteStream(path.join(__dirname, settings.log_password_reset), {
+                      flags: 'a',
+                      encoding: 'utf8'
+                    });
+
+                    log.write('Password reset triggered for user "'+user.name+'" with new password: "'+password+'"\n');
+
+                    log.close();
+                  }
+
+                      
+                  mailer.sendMail({
                         from: settings.mailer.from_address,
                         to: user.email,
                         subject: "[sudo-humans] Password reset!",
