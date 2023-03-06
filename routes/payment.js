@@ -6,6 +6,7 @@ var layout = require('../lib/layout.js');
 var post = require('../lib/post.js');
 var xtend = require('xtend');
 var once = require('once');
+const { promisify } = require('util');
 
 var Stripe = require('stripe');
 
@@ -48,17 +49,16 @@ module.exports = function (users, auth, blob, settings) {
             var stripe = Stripe(settings.collectives[collective].stripe_api_key);
             var userStripe = user.collectives[collective].stripe;
 
-            computeStream(user, m.error, collective, stripe, userStripe, function(hypstr) {
-                input.pipe(hypstr).pipe(output);
-            });
+            computeStream(user, m.error, collective, stripe, userStripe)
+                .then((hypstr) => input.pipe(hypstr).pipe(output));
         });
         return duplexer(input, output);
     }
 
-    function computeStream(user, onerror, collective, stripe, userStripe, cb) {
+    function computeStream(user, onerror, collective, stripe, userStripe) {
 
         stripe.plans.list({limit: 50}, function(err, plans) {
-            if(err) return onerror(err);
+            if (err) return onerror(err);
             plans = plans.data.sort(function(a, b) {
                 if(a.amount > b.amount) {
                     return 1;
@@ -69,25 +69,23 @@ module.exports = function (users, auth, blob, settings) {
                 }
             });
 
-            if(userStripe && userStripe.customer_id && userStripe.subscription_id) {
+            const retrieveSubscription = promisify(stripe.customers.retrieveSubscription); 
 
+            const planPromise = userStripe && userStripe.customer_id && userStripe.subscription_id
+                ? retrieveSubscription(userStripe.customer_id, userStripe.subscription_id)
+                    .then((subscription) =>
+                        subscription && subscription.plan && subscription.plan.id
+                            ? subscription.plan
+                            : null
+                    )
+                    .catch(err => {
+                        if (err && err.statusCode !== 404) {
+                            onerror(err);
+                        }
+                    })
+                : Promse.resolve(null);
 
-                stripe.customers.retrieveSubscription(userStripe.customer_id, userStripe.subscription_id, function(err, subscription) {
-                    if(err) {
-                        if(err.statusCode !== 404) return onerror(err);
-                        return cb(showPayment(user, collective, userStripe, null, plans, onerror));
-                    }
-
-                    if(!subscription || !subscription.plan || !subscription.plan.id) {
-                        return cb(showPayment(user, collective, userStripe, null, plans, onerror));
-                    }
-
-                    return cb(showPayment(user, collective, userStripe, subscription.plan, plans, onerror));
-                });
-
-            } else {
-                return cb(showPayment(user, collective, userStripe, null, plans, onerror));
-            }
+            return planPromise.then(plan => showPayment(user, collective, userStripe, plan, plans, onerror));
         });
     }
 
