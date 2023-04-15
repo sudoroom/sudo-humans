@@ -29,7 +29,7 @@
     "marked": "^4.0.12",
     "minimist": "^1.2.5",
     "mkdirp": "^1.0.4",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "nodemailer": "^6.7.2",
     "nodemailer-smtp-transport": "^2.4.2",
     "once": "^1.4.0",
