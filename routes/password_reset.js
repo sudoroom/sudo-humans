@@ -68,6 +68,11 @@ module.exports = function (users, index, settings) {
                         mailer = require('nodemailer').createTransport(smtpTransport({
                             host: settings.mailer.host || "localhost",
                             port: settings.mailer.port || 25,
+                            auth: {
+                              user: settings.mailer.username,
+                              pass: settings.mailer.password
+                            },
+                            secure: settings.mailer.secure || false,
                             ignoreTLS: !settings.mailer.tls
                         }));
                     } else { // console output only
@@ -102,8 +107,11 @@ module.exports = function (users, index, settings) {
                         subject: "[sudo-humans] Password reset!",
                         text: "Your password has been reset.\n\nYour new password is: " + password + "\n\nYour pseudonym is still: " + user.name + "\n\nYou can log in at: " + settings.base_url + "/account/sign-in\n\nhack hack hack"
                     }, function(err, info) {
-                        if(err) return m.error(500, err);
-                        
+                        if(err) {
+                          console.log(err);
+
+                          return m.error(500, err);
+                        }
                         res.writeHead(303, { location: settings.base_url + '/account/password-reset-success' });
                         res.end();
                         return;

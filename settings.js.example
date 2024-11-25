@@ -33,11 +33,24 @@ module.exports = {
 
     mailer: {
         type: "smtp", // can also be "direct" or "console"
+        host: "smtp.migadu.com", // only needed for type: "smtp"
+        port: 465, // only needed for type: "smtp"
+        secure: true, // enable TLS
+        tls: true,
+        username: "no-reply@your-domain.tld",
+        password: "<your password>",
+        from_address: "no-reply@your-domain.tld"
+    },
+
+/* To use a local SMTP server, uncomment this section instead
+    mailer: {
+        type: "smtp", // can also be "direct" or "console"
         host: "localhost", // only needed for type: "smtp"
         port: 25, // only needed for type: "smtp"
         tls: false,
         from_address: "noreply@example.com"
     },
+*/
 
     // If you want to log password reset attempts (and the new reset passwords)
     // set this to the path of a log file relative to `bin/`
