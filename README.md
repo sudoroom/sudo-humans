@@ -25,6 +25,27 @@ And it would be really nice to have:
 ## usage
 See [the usage file](./bin/usage.txt)
 
+## dumping the database
+
+Make sure sudo-humans won't be accessible from anywhere other than the local machine.
+
+Set `export_secret` in `settings.js` to a string containing a secure passphrase.
+
+Set `allow_exports` in `settings.js` to `true`.
+
+Start sudo-humans, e.g:
+
+```
+./bin/cmd.js --port 5000
+```
+
+Run: 
+
+```
+wget --no-cookies --header  "Cookie: secret=<export_secret>" http://127.0.0.1:5000/
+```
+
+
 ## license
 
 MIT
